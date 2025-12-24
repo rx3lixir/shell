@@ -6,8 +6,7 @@ import Quickshell.Widgets
 LazyLoader {
 	id: loader
 	
-	Theme { id: theme }
-	
+	// Bind to the manager's state
 	required property var manager
 	
 	active: manager.currentType !== manager.typeNone
@@ -16,8 +15,8 @@ LazyLoader {
 		anchors.bottom: true
 		margins.bottom: screen.height / 8
 		exclusiveZone: 0
-		implicitWidth: theme.osdWidth
-		implicitHeight: theme.osdHeight
+		implicitWidth: 200
+		implicitHeight: 50
 		color: "transparent"
 		mask: Region {}
 		
@@ -25,25 +24,25 @@ LazyLoader {
 			id: background
 			anchors.fill: parent
 			radius: height / 3
-			color: theme.backgroundTransparent
+			color: "#80000000"
 			
 			RowLayout {
 				anchors {
 					fill: parent
-					leftMargin: theme.marginMedium
-					rightMargin: theme.marginLarge
-					topMargin: theme.marginSmall
-					bottomMargin: theme.marginSmall
+          leftMargin: 10    // Space before the icon (adjust as needed)
+          rightMargin: 20   // Extra space after the progress bar for balance
+          topMargin: 6
+          bottomMargin: 6
 				}
 
 				// Icon
 				Text {
 					Layout.alignment: Qt.AlignVCenter
-					Layout.preferredWidth: theme.iconSize
-					Layout.preferredHeight: theme.iconSize
-					font.family: theme.fontFamily
-					font.pixelSize: theme.fontSizeIcon
-					color: theme.white
+					Layout.preferredWidth: 28
+					Layout.preferredHeight: 28
+					font.family: "Ubuntu Nerd Font"
+					font.pixelSize: 24
+					color: "white"
 					text: loader.manager.currentIcon
 					horizontalAlignment: Text.AlignHCenter
 					verticalAlignment: Text.AlignVCenter
@@ -58,9 +57,9 @@ LazyLoader {
 					Rectangle {
 						anchors.centerIn: parent
 						width: parent.width
-						height: theme.progressBarHeight
-						radius: theme.radiusSmall
-						color: theme.whiteTransparent
+						height: 6
+						radius: 3
+						color: "#50ffffff"
 						
 						Rectangle {
 							anchors {
@@ -70,11 +69,11 @@ LazyLoader {
 							}
 							width: parent.width * loader.manager.currentValue
 							radius: parent.radius
-							color: theme.white
+							color: "white"
 							
 							Behavior on width {
 								NumberAnimation {
-									duration: theme.animationDuration
+									duration: 100
 									easing.type: Easing.OutCubic
 								}
 							}

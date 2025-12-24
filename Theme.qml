@@ -27,7 +27,7 @@ QtObject {
   readonly property color scrim: "#000000"
   
   // Convenient aliases for common uses
-  readonly property color backgroundTransparent: "transparent"
+  readonly property color backgroundTransparent: "#10000000"
     
   // Spacing (for gaps between elements)
   readonly property int spacingXSmall: 4
