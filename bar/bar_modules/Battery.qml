@@ -12,7 +12,7 @@ Item {
   height: childrenRect.height
 
   Text {
-    text: icon + " " + percentage
+    text: icon //+ "" + percentage
     color: "#a9b1d6"
     font.pixelSize: theme.fontSizeS
     font.family: "Ubuntu Nerd Font"

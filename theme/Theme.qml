@@ -1,84 +1,88 @@
 pragma Singleton
-
 import QtQuick
 
 QtObject {
-  // Colors
-  readonly property color accent: "#7E9CD8"
-  readonly property color accentFixed: "#658594"
-  readonly property color secondary: "#98BB6C"
-  readonly property color secondaryFixed: "#76946A"
-  readonly property color tertiary: "#7FB4CA"
-  readonly property color tertiaryFixed: "#7AA89F"
-  readonly property color bg0: "#16161D"
-  readonly property color bg0transparent: "#16161D"
-  readonly property color bg1: "#1F1F28"
-  readonly property color bg2: "#2A2A37"
-  readonly property color bgBright: "#54546D"
-  readonly property color bgDim: "#16161D"
-  readonly property color error: "#E82424"
-  readonly property color onerror: "#1F1F28"
-  readonly property color fg: "#DCD7BA"
-  readonly property color fgStrong: "#DCD7BA"
-  readonly property color fgMuted: "#727169"
-  readonly property color border: "#54546D"
-  readonly property color borderStrong: "#957FB8"
-  readonly property color borderDim: "#363646"
-  readonly property color overlay: "#000000"
-  readonly property color scrim: "#000000"
-  
-  // Convenient aliases for common uses
-  readonly property color backgroundTransparent: "#10000000"
+    // Colors - now in ARGB format (#AARRGGBB) for easy opacity tweaking
+    // Most colors are fully opaque (FF alpha). You can lower the alpha value (e.g., CC for ~80%, 99 for ~60%, 66 for ~40%) to make them semi-transparent.
+    // Example: bg0 with 80% opacity -> "#CC16161D"
+
+    readonly property color accent: "#FF7E9CD8"
+    readonly property color accentFixed: "#FF658594"
+    readonly property color secondary: "#FF98BB6C"
+    readonly property color secondaryFixed: "#FF76946A"
+    readonly property color tertiary: "#FF7FB4CA"
+    readonly property color tertiaryFixed: "#FF7AA89F"
+    readonly property color bg0: "#FF16161D"
+    readonly property color bg0transparent: "#CC16161D" 
+    readonly property color bg1: "#FF1F1F28"
+    readonly property color bg1transparent: "#991F1F28"
+    readonly property color bg2: "#FF2A2A37"
+    readonly property color bg2transparent: "#AA2A2A37"
+    readonly property color bgBright: "#FF54546D"
+    readonly property color bgDim: "#FF16161D"
+    readonly property color error: "#FFE82424"
+    readonly property color onerror: "#FF1F1F28"
+    readonly property color fg: "#FFDCD7BA"
+    readonly property color fgStrong: "#FFDCD7BA"
+    readonly property color fgMuted: "#FF727169"
+    readonly property color border: "#FF54546D"
+    readonly property color borderStrong: "#FF957FB8"
+    readonly property color borderDim: "#FF363646"
+    readonly property color overlay: "#99000000"  // Suggested: 60% black overlay (common for modals/dimmers)
+    readonly property color scrim: "#66000000"   // Suggested: 40% black scrim (common for backgrounds)
     
-  // Spacing (for gaps between elements)
-  readonly property int spacingXSmall: 4
-  readonly property int spacingSmall: 8
-  readonly property int spacingMedium: 16
-  readonly property int spacingLarge: 20
-  readonly property int spacingXLarge: 24
-  
-  // Shorter aliases
-  readonly property int spacingXS: spacingXSmall
-  readonly property int spacingS: spacingSmall
-  readonly property int spacingM: spacingMedium
-  readonly property int spacingL: spacingLarge
-  readonly property int spacingXL: spacingXLarge
+    // Convenient aliases for common uses
+    readonly property color backgroundTransparent: "#6616161D"  // Suggested: 40% opacity version of bg0 (replaces the old weird #10000000)
+
+    // Spacing (for gaps between elements)
+    readonly property int spacingXSmall: 4
+    readonly property int spacingSmall: 8
+    readonly property int spacingMedium: 16
+    readonly property int spacingLarge: 20
+    readonly property int spacingXLarge: 24
+
+    // Shorter aliases
+    readonly property int spacingXS: spacingXSmall
+    readonly property int spacingS: spacingSmall
+    readonly property int spacingM: spacingMedium
+    readonly property int spacingL: spacingLarge
+    readonly property int spacingXL: spacingXLarge
     
-  // Margins (for outer padding)
-  readonly property int marginXSmall: 4
-  readonly property int marginSmall: 8
-  readonly property int marginMedium: 12
-  readonly property int marginLarge: 16
-  readonly property int marginXLarge: 18
-  
-  // Shorter aliases
-  readonly property int marginXS: marginXSmall
-  readonly property int marginS: marginSmall
-  readonly property int marginM: marginMedium
-  readonly property int marginL: marginLarge
-  readonly property int marginXL: marginXLarge
+    // Margins (for outer padding)
+    readonly property int marginXSmall: 4
+    readonly property int marginSmall: 8
+    readonly property int marginMedium: 12
+    readonly property int marginLarge: 16
+    readonly property int marginXLarge: 18
+
+    // Shorter aliases
+    readonly property int marginXS: marginXSmall
+    readonly property int marginS: marginSmall
+    readonly property int marginM: marginMedium
+    readonly property int marginL: marginLarge
+    readonly property int marginXL: marginXLarge
     
-  // Font
-  readonly property string fontFamily: "Ubuntu Nerd Font"
-  readonly property int fontSizeXSmall: 8
-  readonly property int fontSizeSmall: 12
-  readonly property int fontSizeMedium: 14
-  readonly property int fontSizeLarge: 16
-  readonly property int fontSizeXLarge: 18
-  
-  // Shorter aliases
-  readonly property int fontSizeXS: fontSizeXSmall
-  readonly property int fontSizeS: fontSizeSmall
-  readonly property int fontSizeM: fontSizeMedium
-  readonly property int fontSizeL: fontSizeLarge
-  readonly property int fontSizeXL: fontSizeXLarge
+    // Font
+    readonly property string fontFamily: "Ubuntu Nerd Font"
+    readonly property int fontSizeXSmall: 8
+    readonly property int fontSizeSmall: 12
+    readonly property int fontSizeMedium: 14
+    readonly property int fontSizeLarge: 16
+    readonly property int fontSizeXLarge: 18
+
+    // Shorter aliases
+    readonly property int fontSizeXS: fontSizeXSmall
+    readonly property int fontSizeS: fontSizeSmall
+    readonly property int fontSizeM: fontSizeMedium
+    readonly property int fontSizeL: fontSizeLarge
+    readonly property int fontSizeXL: fontSizeXLarge
     
-  // Sizing
-  readonly property int barHeight: 24
-  readonly property int workspaceIndicatorSize: 12
+    // Sizing
+    readonly property int barHeight: 24
+    readonly property int workspaceIndicatorSize: 12
     
-  // Border Radius
-  readonly property int radiusSmall: 3
-  readonly property int radiusMedium: 6
-  readonly property int radiusLarge: 8
+    // Border Radius
+    readonly property int radiusSmall: 3
+    readonly property int radiusMedium: 6
+    readonly property int radiusLarge: 8
 }

@@ -14,7 +14,7 @@ PanelWindow {
 
   Rectangle {
     anchors.fill: parent
-    color: Theme.bg1
+    color: Theme.bg1transparent
     radius: 0
     
     RowLayout {
@@ -46,11 +46,11 @@ PanelWindow {
         Layout.alignment: Qt.AlignRight
         spacing: Theme.spacingL
 
+        Modules.Battery {}
+
         Modules.Bluetooth{}
 
         Modules.Audio {}
-        
-        Modules.Battery {}
 
         Modules.Network {}
         

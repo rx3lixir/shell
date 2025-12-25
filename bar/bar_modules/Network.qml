@@ -15,7 +15,7 @@ Item {
   Text {
     id: label
     anchors.centerIn: parent
-    text: icon // + " " + ifname
+    text: icon// + " " + ifname
     color: Theme.fg
     font.pixelSize: Theme.fontSizeS
     font.family: Theme.fontFamily

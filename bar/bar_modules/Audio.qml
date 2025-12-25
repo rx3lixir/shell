@@ -16,7 +16,7 @@ Item {
   Text {
     id: label
     anchors.centerIn: parent
-    text: icon // add to appear volume:  + " " + volume
+    text: icon// add to appear volume:  + " " + volume
     color: Theme.fg
     font.pixelSize: Theme.fontSizeS
     font.family: Theme.fontFamily
