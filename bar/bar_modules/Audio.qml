@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../../theme"
 
 Item {
   id: root
@@ -9,14 +10,17 @@ Item {
   property string volume: "N/A"
   property string device: "Unknown"
 
-  width: childrenRect.width
-  height: childrenRect.height
+  implicitWidth: label.implicitWidth
+  implicitHeight: Theme.barHeight
 
   Text {
-    text: icon + " " + volume + (device !== "Unknown" ? " (" + device + ")" : "")
-    color: "#a9b1d6"
-    font.pixelSize: 14
-    font.family: "Ubuntu Nerd Font"
+    id: label
+    anchors.centerIn: parent
+    text: icon // add to appear volume:  + " " + volume
+    color: Theme.fg
+    font.pixelSize: Theme.fontSizeS
+    font.family: Theme.fontFamily
+    verticalAlignment: Text.AlignVCenter
   }
 
   Process {

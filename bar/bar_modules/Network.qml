@@ -1,26 +1,29 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../../theme"
 
 Item {
   id: root
 
   property string ifname: "—"
-  property string icon: "󰖪"  // disconnected
+  property string icon: "󰖪"
 
-  width: childrenRect.width
-  height: childrenRect.height
+  implicitWidth: label.implicitWidth
+  implicitHeight: Theme.barHeight
 
   Text {
-    text: icon + " " + ifname
-    color: "#a9b1d6"
-    font.pixelSize: 14
-    font.family: "Ubuntu Nerd Font"  // or your preferred Nerd Font
+    id: label
+    anchors.centerIn: parent
+    text: icon // + " " + ifname
+    color: Theme.fg
+    font.pixelSize: Theme.fontSizeS
+    font.family: Theme.fontFamily
+    verticalAlignment: Text.AlignVCenter
   }
 
   Process {
     id: netProc
-
     command: ["sh", "-c", "network-state"]
 
     stdout: SplitParser {

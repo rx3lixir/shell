@@ -14,7 +14,7 @@ Item {
   Text {
     text:" " + layout
     color: "#a9b1d6"
-    font.pixelSize: 14
+    font.pixelSize: theme.fontSizeS
     font.family: "Ubuntu Nerd Font"
   }
 

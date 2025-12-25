@@ -2,59 +2,59 @@ import Quickshell
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
-import "bar-modules" as Modules
+import "../theme"
+import "bar_modules" as Modules
 
 PanelWindow {
-  Theme { id: theme }
-  
   anchors.top: true
   anchors.left: true
   anchors.right: true
-  implicitHeight: theme.barHeight
-  color: theme.bg0
+  implicitHeight: Theme.barHeight
+  color: "transparent"
 
   Rectangle {
     anchors.fill: parent
-    color: theme.bg1
-    border.color: theme.borderDim
-    border.width: 1
+    color: Theme.bg1
     radius: 0
     
     RowLayout {
       anchors.fill: parent
-      anchors.margins: theme.marginXS
-      spacing: theme.spacingL
+      
+      // Margins from right and left of the first modules
+      anchors.leftMargin: Theme.spacingM
+      anchors.rightMargin: Theme.spacingM
 
-      // Left Side
-      Modules.Workspaces {
-        theme: theme
-        Layout.leftMargin: theme.marginS
+      // Left Section - Workspaces
+      RowLayout {
+        Layout.alignment: Qt.AlignLeft
+        spacing: Theme.spacingL
+        
+        Modules.Workspaces {
+          theme: Theme
+        }
+
+        Modules.Keyboard {}
       }
 
-      Modules.Keyboard {
-        Layout.leftMargin: theme.spacingM
-      }
-
-      // Center - Spacer
+      // Center Spacer
       Item {
         Layout.fillWidth: true
       }
 
-      // Right Side
-      Modules.Audio {
-        Layout.rightMargin: theme.spacingM
-      }
+      // Right Section - System Info
+      RowLayout {
+        Layout.alignment: Qt.AlignRight
+        spacing: Theme.spacingL
 
-      Modules.Battery {
-        Layout.rightMargin: theme.spacingM
-      }
+        Modules.Bluetooth{}
 
-      Modules.Network {
-        Layout.rightMargin: theme.spacingM
-      }
+        Modules.Audio {}
+        
+        Modules.Battery {}
 
-      Modules.Clock {
-        Layout.rightMargin: theme.marginS
+        Modules.Network {}
+        
+        Modules.Clock {}
       }
     }
   }

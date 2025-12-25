@@ -41,11 +41,10 @@ Scope {
 
 	// Volume icon logic
 	function getVolumeIcon(volume, muted) {
-		if (muted) return "󰝟";
+		if (muted) return "";
 		if (volume == 0) return "󰕿";
-		if (volume < 0.33) return "󰕾";
-		if (volume < 0.66) return "󰖀";
-		return "󰕾";
+    if (volume < 0.62) return "";
+		return "";
 	}
 
 	// Brightness icon logic
@@ -56,16 +55,17 @@ Scope {
 	}
 
 	// PipeWire: Speaker/Volume
-	property var audioSink: Pipewire.defaultAudioSink?.audio
+	property var audioSinkNode: Pipewire.defaultAudioSink
+	property var audioSink: audioSinkNode?.audio ?? null
 	
 	Connections {
 		target: manager.audioSink
-		enabled: manager.audioSink !== null && manager.audioSink !== undefined
+		enabled: manager.audioSink !== null
 		
 		function onVolumeChanged() {
 			if (!manager.audioSink) return;
-			const vol = manager.audioSink.volume ?? 0;
-			const muted = manager.audioSink.muted ?? false;
+			const vol = manager.audioSink.volume;
+			const muted = manager.audioSink.muted;
 			manager.showOsd(
 				manager.typeVolume,
 				vol,
@@ -76,8 +76,8 @@ Scope {
 		
 		function onMutedChanged() {
 			if (!manager.audioSink) return;
-			const vol = manager.audioSink.volume ?? 0;
-			const muted = manager.audioSink.muted ?? false;
+			const vol = manager.audioSink.volume;
+			const muted = manager.audioSink.muted;
 			manager.showOsd(
 				manager.typeVolume,
 				vol,
@@ -88,16 +88,17 @@ Scope {
 	}
 
 	// PipeWire: Microphone
-	property var audioSource: Pipewire.defaultAudioSource?.audio
+	property var audioSourceNode: Pipewire.defaultAudioSource
+	property var audioSource: audioSourceNode?.audio ?? null
 	
 	Connections {
 		target: manager.audioSource
-		enabled: manager.audioSource !== null && manager.audioSource !== undefined
+		enabled: manager.audioSource !== null
 		
 		function onVolumeChanged() {
 			if (!manager.audioSource) return;
-			const vol = manager.audioSource.volume ?? 0;
-			const muted = manager.audioSource.muted ?? false;
+			const vol = manager.audioSource.volume;
+			const muted = manager.audioSource.muted;
 			manager.showOsd(
 				manager.typeMic,
 				vol,
@@ -108,8 +109,8 @@ Scope {
 		
 		function onMutedChanged() {
 			if (!manager.audioSource) return;
-			const vol = manager.audioSource.volume ?? 0;
-			const muted = manager.audioSource.muted ?? false;
+			const vol = manager.audioSource.volume;
+			const muted = manager.audioSource.muted;
 			manager.showOsd(
 				manager.typeMic,
 				vol,
@@ -143,7 +144,6 @@ Scope {
 	Process {
 		id: brightnessWatcher
 		running: true
-		// Watch the brightness file, and when it changes, output the actual_brightness value
 		command: ["sh", "-c", 
 			"inotifywait -m -q -e modify /sys/class/backlight/amdgpu_bl1/brightness 2>/dev/null | " +
 			"while read path event file; do cat /sys/class/backlight/amdgpu_bl1/actual_brightness; done"
