@@ -32,7 +32,7 @@ PanelWindow {
         Layout.alignment: Qt.AlignLeft
         spacing: Theme.spacingL
         
-        Modules.MenuButton {}
+        Modules.PowerButton {}
         
         Modules.Workspaces {}
 
