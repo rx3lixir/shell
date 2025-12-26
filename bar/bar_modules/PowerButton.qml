@@ -5,12 +5,15 @@ import "../../theme"
 Item {
   id: root
   
-  // Accept the wlogout window reference from Bar.qml
-  required property var wlogoutWindow
+  // Make it optional with a default, so we can debug better
+  property var wlogoutWindow: null
   
   Component.onCompleted: {
     console.log("PowerButton.qml - wlogoutWindow is:", wlogoutWindow)
     console.log("PowerButton.qml - wlogoutWindow type:", typeof wlogoutWindow)
+    if (wlogoutWindow === null) {
+      console.error("ERROR: wlogoutWindow is null!")
+    }
   }
 
   implicitWidth: childrenRect.width
@@ -25,7 +28,6 @@ Item {
     font.family: Theme.fontFamily
     verticalAlignment: Text.AlignVCenter
     
-    // Smooth color transition on hover
     Behavior on color {
       ColorAnimation {
         duration: 200
@@ -41,8 +43,13 @@ Item {
     cursorShape: Qt.PointingHandCursor
     
     onClicked: {
-      // Toggle the wlogout visibility
       console.log("PowerButton clicked!")
+      
+      if (wlogoutWindow === null) {
+        console.error("Cannot toggle wlogout - window reference is null!")
+        return
+      }
+      
       console.log("Current wlogout visible state:", wlogoutWindow.visible)
       wlogoutWindow.visible = !wlogoutWindow.visible
       console.log("New wlogout visible state:", wlogoutWindow.visible)

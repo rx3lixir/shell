@@ -3,10 +3,11 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
+import "../theme"
 
 QtObject {
 	id: root
-	property color backgroundColor: "#e60c0c0c"
+	property color backgroundColor: Theme.bg0transparent
 	property color buttonColor: "#1e1e1e"
 	property color buttonHoverColor: "#3700b3"
 	default property list<LogoutButton> buttons
@@ -33,10 +34,6 @@ QtObject {
 			required property var screen
 			
 			active: root.visible
-			
-			onActiveChanged: {
-				console.log("LazyLoader active changed to:", active, "for screen:", screen?.name)
-			}
 			
 			PanelWindow {
 				id: w

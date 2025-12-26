@@ -6,8 +6,10 @@ import "../theme"
 import "bar_modules" as Modules
 
 PanelWindow {
+  id: barWindow
   // Accept the wlogout window from shell.qml
   required property var wlogoutWindow
+
   
   anchors.top: true
   anchors.left: true
@@ -33,11 +35,7 @@ PanelWindow {
         spacing: Theme.spacingL
         
         Modules.PowerButton {
-          wlogoutWindow: wlogoutWindow
-          
-          Component.onCompleted: {
-            console.log("PowerButton wlogoutWindow is:", wlogoutWindow)
-          }
+          wlogoutWindow: barWindow.wlogoutWindow
         }
         
         Modules.Workspaces {}
