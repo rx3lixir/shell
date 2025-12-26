@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import "osd"
 import "bar"
+import "bar/ba_modules"
 
 ShellRoot {
 	// Load the OSD manager (the brain)

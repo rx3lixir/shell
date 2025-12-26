@@ -1,21 +1,67 @@
 import QtQuick
+import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import "../../theme"
 
 Item {
   id: root
 
   property string icon: "󰂲"
   property string status: "Off"
+  property bool hovered: false
 
-  width: childrenRect.width
-  height: childrenRect.height
+  // Width expands when hovered to show the percentage
+  implicitWidth: hovered ? rowLayout.implicitWidth : iconText.implicitWidth
+  implicitHeight: Theme.barHeight
 
-  Text {
-    text: icon
-    color: "#a9b1d6"
-    font.pixelSize: theme.fontSizeS
-    font.family: "Ubuntu Nerd Font"
+  // Smooth width transition
+  Behavior on implicitWidth {
+    NumberAnimation {
+      duration: 250
+      easing.type: Easing.OutCubic
+    }
+  }
+
+  RowLayout {
+    id: rowLayout
+    anchors.centerIn: parent
+    spacing: Theme.spacingS
+
+    Text {
+      id: iconText
+      text: icon
+      color: Theme.fg
+      font.pixelSize: theme.fontSizeS
+      font.family: theme.fontFamily
+      verticalAlignment: Text.AlignVCenter
+    }
+
+    Text {
+      id: statusText
+      text: status 
+      color: Theme.fgMuted
+      font.pixelSize: Theme.fontSizeS
+      font.family: Theme.fontFamily
+      verticalAlignment: Text.AlignVCenter
+      visible: hovered && status !== "N/A"
+      opacity: hovered ? 1.0 : 0.0
+      
+      Behavior on opacity {
+        NumberAnimation {
+          duration: 250
+          easing.type: Easing.OutCubic
+        }
+      }
+    }
+  }
+
+  MouseArea {
+    anchors.fill: parent
+    hoverEnabled: true
+
+    onEntered: root.hovered = true
+    onExited: root.hovered = false 
   }
 
   Process {
@@ -36,7 +82,7 @@ Item {
   }
 
   Timer {
-    interval: 5000  // Bluetooth state doesn't change often
+    interval: 5000
     running: true
     repeat: true
     onTriggered: if (!btProc.running) btProc.running = true

@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import QtQuick.Layouts
 import Quickshell.Io
 import "../../theme"
 
@@ -9,18 +10,58 @@ Item {
   property string icon: "󰖁"
   property string volume: "N/A"
   property string device: "Unknown"
+  property bool hovered: false 
 
-  implicitWidth: label.implicitWidth
+  implicitWidth: hovered ? rowLayout.implicitWidth : iconText.implicitWidth
   implicitHeight: Theme.barHeight
 
-  Text {
-    id: label
+  // Smooth width transition
+  Behavior on implicitWidth {
+    NumberAnimation {
+      duration: 250
+      easing.type: Easing.OutCubic
+    }
+  }
+
+  RowLayout {
+    id: rowLayout
     anchors.centerIn: parent
-    text: icon// add to appear volume:  + " " + volume
-    color: Theme.fg
-    font.pixelSize: Theme.fontSizeS
-    font.family: Theme.fontFamily
-    verticalAlignment: Text.AlignVCenter
+    spacing: Theme.spacingS
+
+    Text {
+      id: iconText 
+      text: icon
+      color: Theme.fg
+      font.pixelSize: Theme.fontSizeS
+      font.family: Theme.fontFamily
+      verticalAlignment: Text.AlignVCenter
+    }
+
+    Text {
+      id: volumeText 
+      text: volume 
+      color: Theme.fgMuted
+      font.pixelSize: Theme.fontSizeS
+      font.family: Theme.fontFamily
+      verticalAlignment: Text.AlignVCenter
+      visible: hovered && volume !== "N/A"
+      opacity: hovered ? 1.0 : 0.0
+      
+      Behavior on opacity {
+        NumberAnimation {
+          duration: 250
+          easing.type: Easing.OutCubic
+        }
+      }
+    }
+  }
+
+  MouseArea {
+    anchors.fill: parent
+    hoverEnabled: true
+
+    onEntered: root.hovered = true
+    onExited: root.hovered = false 
   }
 
   Process {

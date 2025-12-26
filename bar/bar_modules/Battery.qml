@@ -1,21 +1,70 @@
 import QtQuick
+import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import "../../theme"
 
 Item {
   id: root
 
   property string icon: "󰂑"
   property string percentage: "N/A"
+  property bool hovered: false
 
-  width: childrenRect.width
-  height: childrenRect.height
+  // Width expands when hovered to show the percentage
+  implicitWidth: hovered ? rowLayout.implicitWidth : iconText.implicitWidth
+  implicitHeight: Theme.barHeight
+  
+  // Smooth width transition
+  Behavior on implicitWidth {
+    NumberAnimation {
+      duration: 250
+      easing.type: Easing.OutCubic
+    }
+  }
 
-  Text {
-    text: icon //+ "" + percentage
-    color: "#a9b1d6"
-    font.pixelSize: theme.fontSizeS
-    font.family: "Ubuntu Nerd Font"
+  RowLayout {
+    id: rowLayout
+    anchors.centerIn: parent
+    spacing: Theme.spacingS
+    
+    // Icon (always visible)
+    Text {
+      id: iconText
+      text: icon
+      color: Theme.fg
+      font.pixelSize: Theme.fontSizeS
+      font.family: Theme.fontFamily
+      verticalAlignment: Text.AlignVCenter
+    }
+    
+    // Percentage (only visible on hover)
+    Text {
+      id: percentageText
+      text: percentage
+      color: Theme.fgMuted
+      font.pixelSize: Theme.fontSizeS
+      font.family: Theme.fontFamily
+      verticalAlignment: Text.AlignVCenter
+      visible: hovered && percentage !== "N/A"
+      opacity: hovered ? 1.0 : 0.0
+      
+      Behavior on opacity {
+        NumberAnimation {
+          duration: 250
+          easing.type: Easing.OutCubic
+        }
+      }
+    }
+  }
+
+  // MouseArea to detect hover
+  MouseArea {
+    anchors.fill: parent
+    hoverEnabled: true
+    
+    onEntered: root.hovered = true
+    onExited: root.hovered = false
   }
 
   Process {
