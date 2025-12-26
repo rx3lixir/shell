@@ -59,7 +59,7 @@ QtObject {
   readonly property int marginXL: marginXLarge
     
   // Font
-  readonly property string fontFamily: "Ubuntu Nerd Font"
+  readonly property string fontFamily: "Ubuntu Nerd Font Propo"
   readonly property int fontSizeXSmall: 8
   readonly property int fontSizeSmall: 12
   readonly property int fontSizeMedium: 14
@@ -75,7 +75,7 @@ QtObject {
     
   // Sizing
   readonly property int barHeight: 24
-  readonly property int workspaceIndicatorSize: 12
+  readonly property int workspaceIndicatorSize: 11
     
   // Border Radius
   readonly property int radiusSmall: 3

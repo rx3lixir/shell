@@ -12,33 +12,43 @@ RowLayout {
 
     Rectangle {
       required property int index
-      width: theme.workspaceIndicatorSize
-      height: theme.workspaceIndicatorSize
-      radius: theme.radiusSmall
+      
+      // Use Layout properties so the layout system handles spacing properly
+      Layout.preferredWidth: {
+        const focused = Hyprland.focusedWorkspace?.id === (index + 1)
+        return focused ? theme.workspaceIndicatorSize * 2 : theme.workspaceIndicatorSize
+      }
+      Layout.preferredHeight: theme.workspaceIndicatorSize
+      
+      radius: height / 2
       
       color: {
         const ws = Hyprland.workspaces.values.find(w => w.id === index + 1)
         const focused = Hyprland.focusedWorkspace?.id === (index + 1)
+
+        // Focused
         if (focused) return theme.accent
-        if (ws && ws.windows > 0) return theme.secondary
-        if (ws) return theme.bg2
-        return theme.bgDim
+
+        // Occupied
+        if (ws) return theme.border
+
+        // Empty
+        return ws ? theme.border : Qt.darker(theme.border, 1.55)
+      }
+
+      // Smooth width transition
+      Behavior on Layout.preferredWidth {
+        NumberAnimation {
+          duration: 250
+          easing.type: Easing.OutCubic
+        }
       }
       
-      border.color: {
-        const focused = Hyprland.focusedWorkspace?.id === (index + 1)
-        return focused ? theme.borderStrong : theme.borderDim
-      }
-      border.width: 1
-
-      Text {
-        anchors.centerIn: parent
-        text: ""
-        color: theme.fg
-        font {
-          pixelSize: theme.fontSizeS
-          bold: true
-          family: theme.fontFamily
+      // Smooth color transition
+      Behavior on color {
+        ColorAnimation {
+          duration: 250
+          easing.type: Easing.OutCubic
         }
       }
 

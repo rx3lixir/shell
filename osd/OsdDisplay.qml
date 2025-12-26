@@ -40,8 +40,8 @@ LazyLoader {
 					Layout.alignment: Qt.AlignVCenter
 					Layout.preferredWidth: 28
 					Layout.preferredHeight: 28
-					font.family: "Ubuntu Nerd Font"
-					font.pixelSize: 24
+					font.family: "Ubuntu Nerd Font Propo"
+					font.pixelSize: 22
 					color: "white"
 					text: loader.manager.currentIcon
 					horizontalAlignment: Text.AlignHCenter
