@@ -6,6 +6,9 @@ import "../theme"
 import "bar_modules" as Modules
 
 PanelWindow {
+  // Accept the menuLauncher from shell.qml
+  required property var menuLauncher
+  
   anchors.top: true
   anchors.left: true
   anchors.right: true
@@ -29,9 +32,9 @@ PanelWindow {
         Layout.alignment: Qt.AlignLeft
         spacing: Theme.spacingL
         
-        Modules.Workspaces {
-          theme: Theme
-        }
+        Modules.MenuButton {}
+        
+        Modules.Workspaces {}
 
         Modules.Keyboard {}
       }

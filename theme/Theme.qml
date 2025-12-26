@@ -13,7 +13,7 @@ QtObject {
   readonly property color bg1: "#FF1F1F28"
   readonly property color bg1transparent: "#991F1F28"
   readonly property color bg2: "#FF2A2A37"
-  readonly property color bg2transparent: "#AA2A2A37"
+  readonly property color bg2transparent: "#772A2A37"
   readonly property color bgBright: "#FF54546D"
   readonly property color bgDim: "#FF16161D"
   readonly property color error: "#FFE82424"

@@ -2,6 +2,8 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
+import QtQuick.Effects
+import "../theme"
 
 LazyLoader {
 	id: loader
@@ -17,15 +19,28 @@ LazyLoader {
 		exclusiveZone: 0
 		implicitWidth: 200
 		implicitHeight: 50
+
 		color: "transparent"
 		mask: Region {}
-		
+
+    // Shadow layer (draws behind everything else)
+    RectangularShadow {
+      anchors.centerIn: parent
+      width: parent.width
+      height: parent.height
+      radius: background.radius  // Key: matches the background corners exactly
+      color: "#80000000"
+      blur: 20                    // Higher for softer (adjust: 10-30)
+      spread: 0                   // Keep 0 for natural drop shadow
+      offset: Qt.vector2d(0, 4)   // Slight downward offset (adjust as needed)
+    }
+
 		Rectangle {
 			id: background
 			anchors.fill: parent
 			radius: height / 3
-			color: "#80000000"
-			
+			color: Theme.bg2transparent
+
 			RowLayout {
 				anchors {
 					fill: parent

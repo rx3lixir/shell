@@ -1,11 +1,12 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell.Hyprland
+import "../../theme"
 
 RowLayout {
-  required property QtObject theme
-  
-  spacing: theme.spacingS
+  spacing: Theme.spacingS
+
+  implicitHeight: Theme.barHeight
 
   Repeater {
     model: 5
@@ -16,9 +17,9 @@ RowLayout {
       // Use Layout properties so the layout system handles spacing properly
       Layout.preferredWidth: {
         const focused = Hyprland.focusedWorkspace?.id === (index + 1)
-        return focused ? theme.workspaceIndicatorSize * 2 : theme.workspaceIndicatorSize
+        return focused ? Theme.workspaceIndicatorSize * 2 : Theme.workspaceIndicatorSize
       }
-      Layout.preferredHeight: theme.workspaceIndicatorSize
+      Layout.preferredHeight: Theme.workspaceIndicatorSize
       
       radius: height / 2
       
@@ -27,13 +28,13 @@ RowLayout {
         const focused = Hyprland.focusedWorkspace?.id === (index + 1)
 
         // Focused
-        if (focused) return theme.accent
+        if (focused) return Theme.accent
 
         // Occupied
-        if (ws) return theme.border
+        if (ws) return Theme.border
 
         // Empty
-        return ws ? theme.border : Qt.darker(theme.border, 1.55)
+        return ws ? Theme.border : Qt.darker(Theme.border, 1.55)
       }
 
       // Smooth width transition
