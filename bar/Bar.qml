@@ -6,8 +6,8 @@ import "../theme"
 import "bar_modules" as Modules
 
 PanelWindow {
-  // Accept the menuLauncher from shell.qml
-  required property var menuLauncher
+  // Accept the wlogout window from shell.qml
+  required property var wlogoutWindow
   
   anchors.top: true
   anchors.left: true
@@ -32,7 +32,13 @@ PanelWindow {
         Layout.alignment: Qt.AlignLeft
         spacing: Theme.spacingL
         
-        Modules.PowerButton {}
+        Modules.PowerButton {
+          wlogoutWindow: wlogoutWindow
+          
+          Component.onCompleted: {
+            console.log("PowerButton wlogoutWindow is:", wlogoutWindow)
+          }
+        }
         
         Modules.Workspaces {}
 
