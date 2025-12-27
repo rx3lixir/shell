@@ -3,6 +3,7 @@ import Quickshell
 import "osd"
 import "bar"
 import "wlogout"
+import "notifications"
 
 ShellRoot {
   // Load the OSD manager (the brain)
@@ -13,6 +14,15 @@ ShellRoot {
   // Load the OSD display (the visuals)
   OsdDisplay {
     manager: osdManager
+  }
+  
+  // Load the notification system
+  NotificationManager {
+    id: notificationManager
+  }
+  
+  NotificationDisplay {
+    manager: notificationManager
   }
 
   // Load the wlogout window
