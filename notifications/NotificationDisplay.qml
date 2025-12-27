@@ -51,21 +51,8 @@ LazyLoader {
       property: "slideOffset"
       from: 350
       to: 0
-      duration: 300
+      duration: 500
       easing.type: Easing.OutCubic
-    }
-    
-    // Shadow - needs to move with the slide
-    RectangularShadow {
-      anchors.centerIn: parent
-      anchors.horizontalCenterOffset: notifWindow.slideOffset
-      width: 320
-      height: notifContent.implicitHeight + (Theme.spacingM * 2)
-      radius: background.radius
-      color: "#80000000"
-      blur: 20
-      spread: 0
-      offset: Qt.vector2d(0, 4)
     }
     
     Rectangle {
@@ -74,8 +61,6 @@ LazyLoader {
       anchors.rightMargin: -notifWindow.slideOffset
       radius: Theme.radiusLarge
       color: Theme.bg1transparent
-      border.color: Theme.border
-      border.width: 1
       
       // Hover state for better feedback
       property bool hovered: false

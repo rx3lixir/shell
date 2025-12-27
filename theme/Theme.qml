@@ -3,6 +3,7 @@ import QtQuick
 
 QtObject {
   readonly property color accent: "#FF7E9CD8"
+  readonly property color accentTransparent: "#777E9CD8"
   readonly property color accentFixed: "#FF658594"
   readonly property color secondary: "#FF98BB6C"
   readonly property color secondaryFixed: "#FF76946A"
@@ -12,6 +13,7 @@ QtObject {
   readonly property color bg0transparent: "#CC16161D" 
   readonly property color bg1: "#FF1F1F28"
   readonly property color bg1transparent: "#991F1F28"
+  readonly property color bg1transparentLauncher: "#CC1F1F28"
   readonly property color bg2: "#FF2A2A37"
   readonly property color bg2transparent: "#772A2A37"
   readonly property color bgBright: "#FF54546D"
@@ -81,4 +83,5 @@ QtObject {
   readonly property int radiusSmall: 3
   readonly property int radiusMedium: 6
   readonly property int radiusLarge: 8
+  readonly property int radiusXLarge: 14
 }

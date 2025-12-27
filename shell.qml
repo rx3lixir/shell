@@ -4,6 +4,7 @@ import "osd"
 import "bar"
 import "wlogout"
 import "notifications"
+import "launcher"
 
 ShellRoot {
   // Load the OSD manager (the brain)
@@ -23,6 +24,15 @@ ShellRoot {
   
   NotificationDisplay {
     manager: notificationManager
+  }
+  
+  // Load the launcher system
+  LauncherManager {
+    id: launcherManager
+  }
+  
+  LauncherDisplay {
+    manager: launcherManager
   }
 
   // Load the wlogout window
