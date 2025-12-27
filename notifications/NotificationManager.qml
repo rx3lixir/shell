@@ -10,6 +10,12 @@ Scope {
   property string notifBody: ""
   property string notifApp: ""
   property bool hasNotification: false
+
+  onHasNotificationChanged: {
+  if (!hasNotification) {
+    showTimer.stop()
+  }
+}
   
   // Timer to hide notification after a few seconds
   Timer {
