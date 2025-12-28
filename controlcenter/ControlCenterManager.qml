@@ -27,6 +27,9 @@ Scope {
   property real brightness: 0.5
   property real brightnessMax: 1.0
   
+  // Flag to track if brightness change came from user interaction (slider)
+  property bool brightnessUserChange: false
+  
   onVisibleChanged: {
     console.log("=== CONTROL CENTER VISIBILITY CHANGED ===")
     console.log("Visible:", visible)
@@ -61,8 +64,8 @@ Scope {
       console.log("Initial volume from PipeWire:", volume)
     }
     
-    // Read initial brightness
-    checkBrightness()
+    // Read initial brightness - first get max, then current
+    brightnessMaxGetter.running = true
     
     console.log("Initial states:")
     console.log("  WiFi:", wifiEnabled)
@@ -169,58 +172,123 @@ Scope {
     }
   }
   
-  // ========== BRIGHTNESS CONTROL ==========
+  // ========== BRIGHTNESS CONTROL WITH BRIGHTNESSCTL ==========
   
-  // Read max brightness once at startup
+  // Watch the brightness file for changes
+  FileView {
+    id: brightnessFileWatcher
+    path: "/sys/class/backlight/amdgpu_bl1/actual_brightness"
+    watchChanges: true
+    
+    onFileChanged: {
+      console.log("Brightness file changed externally")
+      // Don't trigger readback if we just set it via slider
+      if (!manager.brightnessUserChange) {
+        console.log("External change detected - reading brightness")
+        getCurrentBrightness()
+      } else {
+        console.log("User change - skipping readback to avoid conflict")
+      }
+    }
+  }
+  
+  // Get max brightness
   Process {
-    id: maxBrightnessReader
-    running: true
-    command: ["cat", "/sys/class/backlight/amdgpu_bl1/max_brightness"]
+    id: brightnessMaxGetter
+    command: ["brightnessctl", "max"]
     
     stdout: SplitParser {
       onRead: data => {
+        console.log("brightnessctl max output:", data)
         var maxVal = parseInt(data.trim())
+        
         if (!isNaN(maxVal) && maxVal > 0) {
           manager.brightnessMax = maxVal
-          console.log("Max brightness:", manager.brightnessMax)
+          console.log("Max brightness value:", maxVal)
+          // Trigger getting current value
+          brightnessCurrentGetter.running = true
         }
-        maxBrightnessReader.running = false
+        
+        brightnessMaxGetter.running = false
+      }
+    }
+    
+    stderr: SplitParser {
+      onRead: data => {
+        console.error("brightnessctl max error:", data)
+        brightnessMaxGetter.running = false
       }
     }
   }
   
-  // Read current brightness
+  // Separate process to get current brightness value
   Process {
-    id: currentBrightnessReader
-    command: ["cat", "/sys/class/backlight/amdgpu_bl1/actual_brightness"]
+    id: brightnessCurrentGetter
+    command: ["brightnessctl", "get"]
     
     stdout: SplitParser {
       onRead: data => {
-        var rawValue = parseInt(data.trim())
-        if (!isNaN(rawValue) && manager.brightnessMax > 0) {
-          var newBrightness = rawValue / manager.brightnessMax
-          console.log("Current brightness read:", newBrightness)
-          manager.brightness = newBrightness
+        var currentVal = parseInt(data.trim())
+        console.log("Current brightness value:", currentVal)
+        
+        if (!isNaN(currentVal) && manager.brightnessMax > 0) {
+          manager.brightness = currentVal / manager.brightnessMax
+          console.log("Calculated brightness percentage:", manager.brightness)
         }
-        currentBrightnessReader.running = false
+        
+        brightnessCurrentGetter.running = false
+      }
+    }
+    
+    stderr: SplitParser {
+      onRead: data => {
+        console.error("brightnessctl get error:", data)
+        brightnessCurrentGetter.running = false
       }
     }
   }
   
-  function checkBrightness() {
-    console.log("Checking current brightness...")
-    currentBrightnessReader.running = true
+  function getCurrentBrightness() {
+    console.log("Getting current brightness...")
+    // Get max first, which will chain to getting current
+    brightnessMaxGetter.running = true
   }
   
-  // Set brightness
+  // Set brightness using brightnessctl
   Process {
-    id: brightnessWriter
-    command: ["sh", "-c", ""]
+    id: brightnessSetterProcess
+    command: ["brightnessctl", "set", "50%"]
     
     onExited: code => {
-      console.log("Brightness write exited with code:", code)
-      // Read back the actual brightness after setting
-      checkBrightness()
+      console.log("Brightness set exited with code:", code)
+      // Clear the user change flag after a short delay
+      userChangeResetTimer.start()
+    }
+    
+    stderr: SplitParser {
+      onRead: data => {
+        console.error("brightnessctl set error:", data)
+      }
+    }
+  }
+  
+  // Timer to reset the user change flag
+  Timer {
+    id: userChangeResetTimer
+    interval: 200
+    onTriggered: {
+      console.log("Resetting brightnessUserChange flag")
+      manager.brightnessUserChange = false
+    }
+  }
+  
+  // Timer for debouncing brightness readback
+  Timer {
+    id: brightnessDebounceTimer
+    interval: 500
+    onTriggered: {
+      console.log("Debounce timer triggered - reading back brightness")
+      getCurrentBrightness()
     }
   }
   
@@ -229,21 +297,24 @@ Scope {
     console.log("Old brightness:", brightness)
     console.log("New brightness:", newBrightness)
     
-    // Clamp between 0 and 1
-    newBrightness = Math.max(0, Math.min(1, newBrightness))
+    // Mark that this is a user-initiated change
+    brightnessUserChange = true
     
-    // Calculate raw value
-    var rawValue = Math.round(newBrightness * brightnessMax)
-    console.log("Setting raw brightness value:", rawValue)
+    // Clamp between 0.01 and 1 (prevent completely dark screen)
+    newBrightness = Math.max(0.01, Math.min(1, newBrightness))
     
-    // Write to brightness file (requires sudo or appropriate permissions)
-    var cmd = "echo " + rawValue + " | tee /sys/class/backlight/amdgpu_bl1/brightness"
-    console.log("Running command:", cmd)
+    // Convert to percentage
+    var percentage = Math.round(newBrightness * 100)
+    console.log("Setting brightness to:", percentage + "%")
     
-    brightnessWriter.command = ["sh", "-c", cmd]
-    brightnessWriter.running = true
-    
-    // Update our property optimistically
+    // Update our property immediately for responsive UI
     brightness = newBrightness
+    
+    // Set using brightnessctl
+    brightnessSetterProcess.command = ["brightnessctl", "set", percentage + "%"]
+    brightnessSetterProcess.running = true
+    
+    // Restart debounce timer - only read back after user stops dragging
+    brightnessDebounceTimer.restart()
   }
 }

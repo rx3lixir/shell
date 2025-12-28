@@ -21,7 +21,7 @@ Rectangle {
       fill: parent
       margins: Theme.spacingM
     }
-    spacing: Theme.spacingM
+    spacing: Theme.spacingS  // Changed from spacingM to spacingS for consistency
     
     Text {
       text: manager.wifiEnabled ? "󰤨" : "󰤭"
@@ -35,7 +35,7 @@ Rectangle {
       spacing: 2
       
       Text {
-        text: "WIFI"
+        text: "WiFi"  // Changed from "WIFI" to "WiFi" for consistency
         color: Theme.fg
         font.pixelSize: Theme.fontSizeM
         font.family: Theme.fontFamily

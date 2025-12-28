@@ -9,23 +9,24 @@ import "notificationcenter"
 import "controlcenter"
 
 ShellRoot {
-  // Load the OSD manager (the brain)
-  OsdManager {
-    id: osdManager
-  }
-  
-  // Load the OSD display (the visuals)
-  OsdDisplay {
-    manager: osdManager
-  }
-  
-  // Load the control center system
+  // Load the control center system first (brightness monitoring happens here)
   ControlCenterManager {
     id: controlCenterManager
   }
   
   ControlCenterDisplay {
     manager: controlCenterManager
+  }
+  
+  // Load the OSD manager (depends on control center for brightness)
+  OsdManager {
+    id: osdManager
+    controlCenterManager: controlCenterManager
+  }
+  
+  // Load the OSD display (the visuals)
+  OsdDisplay {
+    manager: osdManager
   }
   
   // Load the notification center system
@@ -56,7 +57,7 @@ ShellRoot {
     manager: launcherManager
   }
 
-  // Load the wlogout window (keeping it for reference, but not using in bar anymore)
+  // Load the wlogout window
   WLogout {
     id: wlogout
     visible: false
@@ -110,10 +111,5 @@ ShellRoot {
     id: bar
     controlCenterManager: controlCenterManager
     notificationCenterManager: notificationCenterManager
-    
-    Component.onCompleted: {
-      console.log("Bar controlCenterManager is:", controlCenterManager)
-      console.log("Bar notificationCenterManager is:", notificationCenterManager)
-    }
   }
 }

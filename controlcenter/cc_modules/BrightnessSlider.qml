@@ -12,6 +12,7 @@ Rectangle {
   
   Component.onCompleted: {
     console.log("BrightnessSlider module loaded")
+    console.log("Initial brightness:", manager.brightness)
   }
   
   ColumnLayout {
@@ -73,7 +74,7 @@ Rectangle {
             top: parent.top
             bottom: parent.bottom
           }
-          width: parent.width * manager.brightness
+          width: Math.max(0, Math.min(parent.width, parent.width * manager.brightness))
           radius: parent.radius
           color: Theme.accent
           
@@ -89,7 +90,7 @@ Rectangle {
       // Draggable handle
       Rectangle {
         id: handle
-        x: (parent.width - width) * manager.brightness
+        x: Math.max(0, Math.min(parent.width - width, (parent.width - width) * manager.brightness))
         anchors.verticalCenter: parent.verticalCenter
         width: 16
         height: 16
@@ -128,7 +129,7 @@ Rectangle {
           onPositionChanged: {
             if (drag.active) {
               var newBrightness = (handle.x + handle.width / 2) / track.width
-              newBrightness = Math.max(0, Math.min(1, newBrightness))
+              newBrightness = Math.max(0.01, Math.min(1, newBrightness))  // Min 1% to prevent black screen
               console.log("Brightness dragged to:", newBrightness)
               manager.setBrightness(newBrightness)
             }
@@ -143,7 +144,7 @@ Rectangle {
         
         onClicked: mouse => {
           var newBrightness = mouse.x / track.width
-          newBrightness = Math.max(0, Math.min(1, newBrightness))
+          newBrightness = Math.max(0.01, Math.min(1, newBrightness))  // Min 1% to prevent black screen
           console.log("Brightness track clicked at:", newBrightness)
           manager.setBrightness(newBrightness)
         }

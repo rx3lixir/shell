@@ -21,7 +21,7 @@ Rectangle {
       fill: parent
       margins: Theme.spacingM
     }
-    spacing: Theme.spacingM
+    spacing: Theme.spacingS  // Consistent with other toggles
     
     Text {
       text: manager.isRecording ? "󰑊" : "󰻃"
