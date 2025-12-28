@@ -1,0 +1,93 @@
+import QtQuick
+import QtQuick.Layouts
+import "../../theme"
+
+Item {
+  id: root
+  
+  // Reference to the notification center manager
+  required property var notificationCenterManager
+  
+  // Badge count for unread notifications
+  property int notificationCount: notificationCenterManager.notifications.length
+  
+  property bool hovered: false
+  
+  implicitWidth: rowLayout.implicitWidth
+  implicitHeight: Theme.barHeight
+  
+  Component.onCompleted: {
+    console.log("NotificationCenterButton loaded")
+    console.log("notificationCenterManager is:", notificationCenterManager)
+  }
+  
+  // Smooth width transition
+  Behavior on implicitWidth {
+    NumberAnimation {
+      duration: 250
+      easing.type: Easing.OutCubic
+    }
+  }
+  
+  RowLayout {
+    id: rowLayout
+    anchors.centerIn: parent
+    spacing: Theme.spacingS
+    
+    // Bell icon
+    Text {
+      id: iconText
+      text: notificationCount > 0 ? "󱥁" : "󰍩"  // Bell with/without badge
+      color: mouseArea.containsMouse ? Theme.accent : Theme.fg
+      font.pixelSize: Theme.fontSizeS
+      font.family: Theme.fontFamily
+      verticalAlignment: Text.AlignVCenter
+      
+      Behavior on color {
+        ColorAnimation {
+          duration: 200
+          easing.type: Easing.OutCubic
+        }
+      }
+    }
+    
+    // Notification count badge
+    Rectangle {
+      Layout.preferredWidth: countText.implicitWidth + Theme.spacingS
+      Layout.preferredHeight: 16
+      radius: 8
+      color: Theme.accent
+      visible: notificationCount > 0
+      
+      Text {
+        id: countText
+        anchors.centerIn: parent
+        text: notificationCount > 99 ? "99+" : notificationCount
+        color: Theme.bg1
+        font.pixelSize: Theme.fontSizeXS
+        font.family: Theme.fontFamily
+        font.bold: true
+      }
+    }
+  }
+  
+  MouseArea {
+    id: mouseArea
+    anchors.fill: parent
+    hoverEnabled: true
+    cursorShape: Qt.PointingHandCursor
+    
+    onEntered: root.hovered = true
+    onExited: root.hovered = false
+    
+    onClicked: {
+      console.log("=== NOTIFICATION CENTER BUTTON CLICKED ===")
+      console.log("Current visible state:", notificationCenterManager.visible)
+      console.log("Current notification count:", notificationCount)
+      
+      notificationCenterManager.visible = !notificationCenterManager.visible
+      
+      console.log("New visible state:", notificationCenterManager.visible)
+    }
+  }
+}

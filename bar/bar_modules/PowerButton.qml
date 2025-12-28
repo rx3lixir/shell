@@ -24,7 +24,7 @@ Item {
     anchors.centerIn: parent
     text: "󰛸"
     color: mouseArea.containsMouse ? Theme.accent : Qt.darker(Theme.accent, 1.3)
-    font.pixelSize: Theme.fontSizeM
+    font.pixelSize: Theme.fontSizeS
     font.family: Theme.fontFamily
     verticalAlignment: Text.AlignVCenter
     

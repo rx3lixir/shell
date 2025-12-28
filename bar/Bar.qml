@@ -7,8 +7,12 @@ import "bar_modules" as Modules
 
 PanelWindow {
   id: barWindow
+  
   // Accept the wlogout window from shell.qml
   required property var wlogoutWindow
+  
+  // Accept the notification manager from shell.qml
+  required property var notificationCenterManager
 
   
   anchors.top: true
@@ -16,6 +20,12 @@ PanelWindow {
   anchors.right: true
   implicitHeight: Theme.barHeight
   color: "transparent"
+
+  Component.onCompleted: {
+    console.log("Bar loaded with:")
+    console.log("  wlogoutWindow:", wlogoutWindow)
+    console.log("  controlCenterManager:", controlCenterManager)
+  }
 
   Rectangle {
     anchors.fill: parent
@@ -60,6 +70,11 @@ PanelWindow {
         Modules.Audio {}
 
         Modules.Network {}
+        
+        // Add the control center button here
+        Modules.NotificationCenterButton {  // Changed name
+          notificationCenterManager: barWindow.notificationCenterManager
+        }
         
         Modules.Clock {}
       }

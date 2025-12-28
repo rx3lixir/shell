@@ -5,6 +5,7 @@ import "bar"
 import "wlogout"
 import "notifications"
 import "launcher"
+import "notificationcenter"
 
 ShellRoot {
   // Load the OSD manager (the brain)
@@ -17,9 +18,19 @@ ShellRoot {
     manager: osdManager
   }
   
-  // Load the notification system
+  // Load the notification center system
+  NotificationCenterManager {
+    id: notificationCenterManager
+  }
+  
+  NotificationCenterDisplay {
+    manager: notificationCenterManager
+  }
+  
+  // Update NotificationManager
   NotificationManager {
     id: notificationManager
+    notificationCenterManager: notificationCenterManager  // Changed from controlCenterManager
   }
   
   NotificationDisplay {
@@ -84,14 +95,15 @@ ShellRoot {
     }
   }
 
-  // Load the Bar component and pass the wlogout reference
+  // Load the Bar component and pass references
   Bar {
     id: bar
     wlogoutWindow: wlogout
+    notificationCenterManager: notificationCenterManager
     
     Component.onCompleted: {
       console.log("Bar wlogoutWindow is:", wlogoutWindow)
-      console.log("wlogout object is:", wlogout)
+      console.log("Bar controlCenterManager is:", controlCenterManager)
     }
   }
 }
