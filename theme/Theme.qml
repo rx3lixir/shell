@@ -77,7 +77,7 @@ QtObject {
     
   // Sizing
   readonly property int barHeight: 24
-  readonly property int workspaceIndicatorSize: 11
+  readonly property int workspaceIndicatorSize: 10
     
   // Border Radius
   readonly property int radiusSmall: 3

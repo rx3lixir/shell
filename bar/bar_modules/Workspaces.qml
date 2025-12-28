@@ -20,6 +20,10 @@ RowLayout {
         return focused ? Theme.workspaceIndicatorSize * 2 : Theme.workspaceIndicatorSize
       }
       Layout.preferredHeight: Theme.workspaceIndicatorSize
+
+      anchors{
+        verticalCenter: parent.verticalCenter
+      }
       
       radius: height / 2
       

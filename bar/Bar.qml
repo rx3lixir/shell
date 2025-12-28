@@ -9,7 +9,7 @@ PanelWindow {
   id: barWindow
   
   // Accept the wlogout window from shell.qml
-  required property var wlogoutWindow
+  required property var controlCenterManager 
   
   // Accept the notification manager from shell.qml
   required property var notificationCenterManager
@@ -44,8 +44,8 @@ PanelWindow {
         Layout.alignment: Qt.AlignLeft
         spacing: Theme.spacingL
         
-        Modules.PowerButton {
-          wlogoutWindow: barWindow.wlogoutWindow
+        Modules.ControlCenterButton{
+          controlCenterManager: barWindow.controlCenterManager
         }
         
         Modules.Workspaces {}

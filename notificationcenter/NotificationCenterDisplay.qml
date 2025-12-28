@@ -58,7 +58,7 @@ LazyLoader {
     Rectangle {
       id: background
       anchors.fill: parent
-      radius: Theme.radiusLarge
+      radius: Theme.radiusXLarge
       color: Theme.bg1transparent
       
       ColumnLayout {
@@ -89,14 +89,14 @@ LazyLoader {
             radius: Theme.radiusMedium
             color: clearMouseArea.containsMouse ? Theme.bg2 : "transparent"
             border.color: Theme.border
-            border.width: 1
+            border.width: 0
             visible: loader.manager.notifications.length > 0
             
             Text {
               anchors.centerIn: parent
               text: "Clear"
               color: Theme.fg
-              font.pixelSize: Theme.fontSizeXS
+              font.pixelSize: Theme.fontSizeM
               font.family: Theme.fontFamily
             }
             
@@ -115,8 +115,8 @@ LazyLoader {
           
           // Close button
           Rectangle {
-            Layout.preferredWidth: 24
-            Layout.preferredHeight: 24
+            Layout.preferredWidth: 30
+            Layout.preferredHeight: 30
             radius: Theme.radiusMedium
             color: closeMouseArea.containsMouse ? Theme.bg2 : "transparent"
             
@@ -124,7 +124,7 @@ LazyLoader {
               anchors.centerIn: parent
               text: "✕"
               color: Theme.fg
-              font.pixelSize: Theme.fontSizeS
+              font.pixelSize: Theme.fontSizeM
               font.family: Theme.fontFamily
             }
             
@@ -171,7 +171,7 @@ LazyLoader {
             
             width: notifList.width
             height: 120  // Slightly taller for better text readability
-            radius: Theme.radiusMedium
+            radius: Theme.radiusXLarge
             color: notifMouseArea.containsMouse ? Theme.bg2 : Theme.bg2transparent
             
             ColumnLayout {
@@ -207,7 +207,7 @@ LazyLoader {
                 Text {
                   text: "✕"
                   color: closeNotifMouseArea.containsMouse ? Theme.fg : Theme.fgMuted
-                  font.pixelSize: Theme.fontSizeS
+                  font.pixelSize: Theme.fontSizeXS
                   font.family: Theme.fontFamily
                   
                   MouseArea {

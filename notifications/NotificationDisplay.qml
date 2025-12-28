@@ -25,7 +25,7 @@ LazyLoader {
     }
     
     margins {
-      top: Theme.barHeight + Theme.spacingL
+      top: Theme.barHeight + Theme.spacingM
       right: Theme.spacingL
     }
     
@@ -160,6 +160,21 @@ LazyLoader {
           loader.manager.hasNotification = false
         }
       }
+    }
+
+    MultiEffect {
+      source: background
+      anchors.fill: background
+      shadowEnabled: true
+      shadowColor: "#80000000"     // Black with ~50% opacity – adjust for subtlety
+      shadowBlur: 0.5             // Maximum softness (Gaussian-like)
+      shadowVerticalOffset: 6     // Downward lift for floating feel
+      shadowHorizontalOffset: 0
+      // For even larger/spread-out Tahoe vibe:
+      shadowScale: 1.05        // Slightly enlarges the shadow area
+      maskEnabled: true
+      maskThresholdMin: 0.5
+      maskSpreadAtMin: 1.0
     }
   }
 }

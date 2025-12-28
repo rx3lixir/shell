@@ -1,0 +1,51 @@
+import QtQuick
+import QtQuick.Layouts
+import "../../theme"
+
+Item {
+  id: root
+  
+  // Reference to the control center manager
+  required property var controlCenterManager
+  
+  Component.onCompleted: {
+    console.log("ControlCenterButton loaded")
+    console.log("controlCenterManager is:", controlCenterManager)
+  }
+  
+  implicitWidth: childrenRect.width
+  implicitHeight: Theme.barHeight
+  
+  Text {
+    id: buttonText
+    anchors.centerIn: parent
+    text: ""  // Settings/control icon
+    color: mouseArea.containsMouse ? Theme.accent : Qt.darker(Theme.accent, 1.3)
+    font.pixelSize: Theme.fontSizeL
+    font.family: Theme.fontFamily
+    verticalAlignment: Text.AlignVCenter
+    
+    Behavior on color {
+      ColorAnimation {
+        duration: 200
+        easing.type: Easing.OutCubic
+      }
+    }
+  }
+  
+  MouseArea {
+    id: mouseArea
+    anchors.fill: parent
+    hoverEnabled: true
+    cursorShape: Qt.PointingHandCursor
+    
+    onClicked: {
+      console.log("=== CONTROL CENTER BUTTON CLICKED ===")
+      console.log("Current visible state:", controlCenterManager.visible)
+      
+      controlCenterManager.visible = !controlCenterManager.visible
+      
+      console.log("New visible state:", controlCenterManager.visible)
+    }
+  }
+}
