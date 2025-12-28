@@ -7,6 +7,7 @@ import "notifications"
 import "launcher"
 import "notificationcenter"
 import "controlcenter"
+import "menu"
 
 ShellRoot {
   // Load the control center system first (brightness monitoring happens here)
@@ -55,6 +56,16 @@ ShellRoot {
   
   LauncherDisplay {
     manager: launcherManager
+  }
+  
+  // Load the menu system (needs launcher reference)
+  MenuManager {
+    id: menuManager
+    launcherManager: launcherManager
+  }
+  
+  MenuDisplay {
+    manager: menuManager
   }
 
   // Load the wlogout window

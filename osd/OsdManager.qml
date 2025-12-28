@@ -58,10 +58,10 @@ Scope {
 
   // Volume icon logic
   function getVolumeIcon(volume, muted) {
-    if (muted) return ""
+    if (muted) return "󰖁"
     if (volume == 0) return "󰕿"
-    if (volume < 0.62) return ""
-    return ""
+    if (volume < 0.62) return "󰖀"
+    return "󰕾"
   }
 
   // Brightness icon logic

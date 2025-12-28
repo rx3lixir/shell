@@ -27,7 +27,7 @@ Rectangle {
       spacing: Theme.spacingS
       
       Text {
-        text: ""
+        text: "󰕾"
         color: Theme.fg
         font.pixelSize: Theme.fontSizeM
         font.family: Theme.fontFamily
