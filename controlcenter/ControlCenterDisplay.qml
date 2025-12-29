@@ -33,21 +33,28 @@ LazyLoader {
     mask: null
     
     Component.onCompleted: {
-      console.log("=== CONTROL CENTER WINDOW LOADED ===")
       exclusiveZone = 0
       implicitWidth = 340
-      implicitHeight = 810
+      implicitHeight = 800
+      //implicitHeight = loader.manager.mediaManager.playerActive ? 800 : 600
     }
+
     
     contentItem {
       focus: true
       
       Keys.onPressed: event => {
         if (event.key === Qt.Key_Escape) {
-          console.log("Escape pressed - closing control center")
           loader.manager.visible = false
           event.accepted = true
         }
+      }
+    }
+
+    MouseArea {
+      anchors.fill: parent
+      onClicked: {
+        loader.manager.visible = false
       }
     }
     
@@ -160,7 +167,7 @@ LazyLoader {
         // ========== UTILITIES ==========
         Modules.UtilitiesGrid {
           Layout.fillWidth: true
-          Layout.preferredHeight: 210
+          Layout.preferredHeight: 200
           utilitiesManager: loader.manager.utilities
         }
         

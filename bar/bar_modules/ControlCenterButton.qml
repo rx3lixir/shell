@@ -8,11 +8,6 @@ Item {
   // Reference to the control center manager
   required property var controlCenterManager
   
-  Component.onCompleted: {
-    console.log("ControlCenterButton loaded")
-    console.log("controlCenterManager is:", controlCenterManager)
-  }
-  
   implicitWidth: childrenRect.width
   implicitHeight: Theme.barHeight
   
@@ -20,7 +15,7 @@ Item {
     id: buttonText
     anchors.centerIn: parent
     text: ""  // Settings/control icon
-    color: mouseArea.containsMouse ? Theme.accent : Qt.darker(Theme.accent, 1.3)
+    color: mouseArea.containsMouse ? Qt.darker(Theme.accent, 1.3) : Theme.accent
     font.pixelSize: Theme.fontSizeL
     font.family: Theme.fontFamily
     verticalAlignment: Text.AlignVCenter

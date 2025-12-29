@@ -34,12 +34,10 @@ Rectangle {
     }
     
     onTextChanged: {
-      console.log("Menu search input changed:", text)
       root.searchChanged(text)
     }
     
     Component.onCompleted: {
-      console.log("Menu search input loaded, setting focus")
       forceActiveFocus()
     }
   }

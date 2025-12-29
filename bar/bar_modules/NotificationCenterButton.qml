@@ -16,11 +16,6 @@ Item {
   implicitWidth: rowLayout.implicitWidth
   implicitHeight: Theme.barHeight
   
-  Component.onCompleted: {
-    console.log("NotificationCenterButton loaded")
-    console.log("notificationCenterManager is:", notificationCenterManager)
-  }
-  
   // Smooth width transition
   Behavior on implicitWidth {
     NumberAnimation {
@@ -38,7 +33,7 @@ Item {
     Text {
       id: iconText
       text: notificationCount > 0 ? "󱥁" : "󰍩"  // Bell with/without badge
-      color: mouseArea.containsMouse ? Theme.accent : Theme.fg
+      color: mouseArea.containsMouse ? Qt.darker(Theme.fg, 1.3) : Theme.fg
       font.pixelSize: Theme.fontSizeS
       font.family: Theme.fontFamily
       verticalAlignment: Text.AlignVCenter
@@ -81,13 +76,7 @@ Item {
     onExited: root.hovered = false
     
     onClicked: {
-      console.log("=== NOTIFICATION CENTER BUTTON CLICKED ===")
-      console.log("Current visible state:", notificationCenterManager.visible)
-      console.log("Current notification count:", notificationCount)
-      
       notificationCenterManager.visible = !notificationCenterManager.visible
-      
-      console.log("New visible state:", notificationCenterManager.visible)
     }
   }
 }

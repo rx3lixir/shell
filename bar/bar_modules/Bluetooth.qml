@@ -82,7 +82,7 @@ Item {
   }
 
   Timer {
-    interval: 5000
+    interval: 2000
     running: true
     repeat: true
     onTriggered: if (!btProc.running) btProc.running = true

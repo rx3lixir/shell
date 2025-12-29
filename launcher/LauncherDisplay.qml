@@ -31,7 +31,6 @@ LazyLoader {
     mask: null
     
     Component.onCompleted: {
-      console.log("=== LAUNCHER WINDOW LOADED ===")
       exclusiveZone = 0
     }
     
@@ -40,56 +39,38 @@ LazyLoader {
       focus: true
       
       Keys.onPressed: event => {
-        console.log("Key pressed:", event.key)
-        
         if (event.key === Qt.Key_Escape) {
-          console.log("Escape pressed - closing launcher")
           loader.manager.visible = false
           event.accepted = true
         } 
         else if (event.key === Qt.Key_Up) {
-          console.log("Up arrow pressed")
           appListComponent.moveUp()
           event.accepted = true
         }
         else if (event.key === Qt.Key_Down) {
-          console.log("Down arrow pressed")
           appListComponent.moveDown()
           event.accepted = true
         }
         else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-          console.log("Enter pressed - launching selected app")
           event.accepted = true
           
           const selectedApp = appListComponent.getCurrentApp()
           
           if (selectedApp) {
-            console.log("Launching app:", selectedApp.name)
-            console.log("Command:", selectedApp.command)
-            
             try {
-              console.log("Calling execute()...")
               selectedApp.execute()
-              console.log("App launched successfully via Enter!")
               loader.manager.visible = false
             } catch (error) {
-              console.error("Failed to launch app via Enter:", error)
-              
-              // Fallback
               try {
-                console.log("Trying fallback with execDetached...")
                 Quickshell.execDetached({
                   command: selectedApp.command,
                   workingDirectory: selectedApp.workingDirectory || ""
                 })
-                console.log("Fallback successful!")
                 loader.manager.visible = false
               } catch (fallbackError) {
                 console.error("Fallback failed:", fallbackError)
               }
             }
-          } else {
-            console.log("No app selected to launch")
           }
         }
       }
@@ -107,9 +88,6 @@ LazyLoader {
       // Catch clicks on the launcher itself to prevent closing
       MouseArea {
         anchors.fill: parent
-        onClicked: {
-          console.log("Launcher box clicked (preventing background close)")
-        }
       }
       
       ColumnLayout {
@@ -158,7 +136,6 @@ LazyLoader {
         anchors.fill: parent
         z: -1
         onClicked: {
-          console.log("Background clicked - closing launcher")
           loader.manager.visible = false
         }
       }

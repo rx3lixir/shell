@@ -40,29 +40,23 @@ LazyLoader {
       focus: true
       
       Keys.onPressed: event => {
-        console.log("Key pressed in menu:", event.key)
-        
         if (event.key === Qt.Key_Escape) {
-          console.log("Escape pressed - closing menu")
           loader.manager.visible = false
           event.accepted = true
         }
         else if (event.key === Qt.Key_Up || (event.key === Qt.Key_P && (event.modifiers & Qt.ControlModifier))) {
-          console.log("Up navigation (↑ or Ctrl+P)")
           if (menuList.currentIndex > 0) {
             menuList.currentIndex--
           }
           event.accepted = true
         }
         else if (event.key === Qt.Key_Down || (event.key === Qt.Key_N && (event.modifiers & Qt.ControlModifier))) {
-          console.log("Down navigation (↓ or Ctrl+N)")
           if (menuList.currentIndex < menuList.count - 1) {
             menuList.currentIndex++
           }
           event.accepted = true
         }
         else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-          console.log("Enter pressed - executing item")
           const filteredItems = menuList.getFilteredItems()
           if (menuList.currentIndex >= 0 && menuList.currentIndex < filteredItems.length) {
             const selectedItem = filteredItems[menuList.currentIndex]
@@ -73,11 +67,9 @@ LazyLoader {
       }
     }
     
-      
     MouseArea {
       anchors.fill: parent
       onClicked: {
-        console.log("Background clicked - closing menu")
         loader.manager.visible = false
       }
     }
@@ -95,9 +87,6 @@ LazyLoader {
       // Prevent clicks on menu from closing it
       MouseArea {
         anchors.fill: parent
-        onClicked: {
-          console.log("Menu box clicked (preventing close)")
-        }
       }
       
       ColumnLayout {
@@ -130,15 +119,11 @@ LazyLoader {
           // Filtered model based on search
           model: ScriptModel {
             values: {
-              console.log("=== FILTERING MENU ITEMS ===")
               const search = loader.manager.searchText.toLowerCase()
-              console.log("Search term:", search)
               
               const allItems = loader.manager.menuItems
-              console.log("Total items:", allItems.length)
               
               if (!search) {
-                console.log("No search term, showing all items")
                 return allItems
               }
               
@@ -148,7 +133,6 @@ LazyLoader {
                 return name.includes(search) || description.includes(search)
               })
               
-              console.log("Filtered items:", filtered.length)
               return filtered
             }
           }
@@ -168,7 +152,7 @@ LazyLoader {
             required property int index
             
             width: menuList.width
-            height: 70
+            height: 80
             item: modelData
             isSelected: index === menuList.currentIndex
             
@@ -177,7 +161,6 @@ LazyLoader {
             }
             
             onActivated: {
-              console.log("Item activated:", modelData.name)
               loader.manager.executeItem(modelData)
             }
           }
@@ -196,7 +179,7 @@ LazyLoader {
         // Footer with hint
         Text {
           Layout.fillWidth: true
-          text: " Navigate • Enter Select • Esc Close"
+          text: " Navigate • Enter Select • Esc Close"
           color: Theme.fgMuted
           font.pixelSize: Theme.fontSizeS
           font.family: Theme.fontFamily

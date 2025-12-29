@@ -11,10 +11,6 @@ Rectangle {
   radius: Theme.radiusXLarge
   color: mouseArea.containsMouse ? Theme.bg2 : Theme.bg2transparent
   
-  Component.onCompleted: {
-    console.log("BluetoothToggle module loaded")
-  }
-  
   RowLayout {
     anchors {
       fill: parent
@@ -56,7 +52,6 @@ Rectangle {
     cursorShape: Qt.PointingHandCursor
     
     onClicked: {
-      console.log("Bluetooth tile clicked")
       networkManager.toggleBluetooth()
     }
   }
