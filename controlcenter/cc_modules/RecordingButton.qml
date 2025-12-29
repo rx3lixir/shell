@@ -5,11 +5,12 @@ import "../../theme"
 Rectangle {
   id: root
   
-  required property var manager
+  // Changed: now receives specific sub-manager
+  required property var recordingManager
   
   radius: Theme.radiusXLarge
   color: mouseArea.containsMouse ? Theme.bg2 : Theme.bg2transparent
-  border.color: manager.isRecording ? Theme.error : "transparent"
+  border.color: recordingManager.isRecording ? Theme.error : "transparent"
   border.width: 2
   
   Component.onCompleted: {
@@ -21,11 +22,11 @@ Rectangle {
       fill: parent
       margins: Theme.spacingM
     }
-    spacing: Theme.spacingS  // Consistent with other toggles
+    spacing: Theme.spacingS
     
     Text {
-      text: manager.isRecording ? "󰑊" : "󰻃"
-      color: manager.isRecording ? Theme.error : Theme.fg
+      text: recordingManager.isRecording ? "󰑊" : "󰻃"
+      color: recordingManager.isRecording ? Theme.error : Theme.fg
       font.pixelSize: Theme.fontSizeXL
       font.family: Theme.fontFamily
     }
@@ -42,7 +43,7 @@ Rectangle {
       }
       
       Text {
-        text: manager.isRecording ? "Recording..." : "Start Recording"
+        text: recordingManager.isRecording ? "Recording..." : "Start Recording"
         color: Theme.fgMuted
         font.pixelSize: Theme.fontSizeS
         font.family: Theme.fontFamily
@@ -58,7 +59,7 @@ Rectangle {
     
     onClicked: {
       console.log("Recording tile clicked")
-      manager.toggleRecording()
+      recordingManager.toggleRecording()
     }
   }
 }

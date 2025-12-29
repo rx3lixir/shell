@@ -5,7 +5,8 @@ import "../../theme"
 Rectangle {
   id: root
   
-  required property var manager
+  // Changed: now receives specific sub-manager
+  required property var networkManager
   
   radius: Theme.radiusXLarge
   color: mouseArea.containsMouse ? Theme.bg2 : Theme.bg2transparent
@@ -22,8 +23,8 @@ Rectangle {
     spacing: Theme.spacingM
     
     Text {
-      text: manager.bluetoothEnabled ? "󰂯" : "󰂲"
-      color: manager.bluetoothEnabled ? Theme.accent : Theme.fg
+      text: networkManager.bluetoothEnabled ? "󰂯" : "󰂲"
+      color: networkManager.bluetoothEnabled ? Theme.accent : Theme.fg
       font.pixelSize: Theme.fontSizeXL
       font.family: Theme.fontFamily
     }
@@ -40,7 +41,7 @@ Rectangle {
       }
       
       Text {
-        text: manager.bluetoothEnabled ? "On" : "Off"
+        text: networkManager.bluetoothEnabled ? "On" : "Off"
         color: Theme.fgMuted
         font.pixelSize: Theme.fontSizeS
         font.family: Theme.fontFamily
@@ -56,7 +57,7 @@ Rectangle {
     
     onClicked: {
       console.log("Bluetooth tile clicked")
-      manager.toggleBluetooth()
+      networkManager.toggleBluetooth()
     }
   }
 }

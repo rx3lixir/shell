@@ -5,7 +5,7 @@ import "../../theme"
 Rectangle {
   id: root
   
-  required property var manager
+  required property var utilitiesManager 
   
   radius: Theme.radiusXLarge
   color: Theme.bg2transparent
@@ -43,7 +43,7 @@ Rectangle {
         Layout.preferredHeight: 44
         radius: Theme.radiusLarge
         color: xrayMouseArea.containsMouse ? Theme.bg1 : "transparent"
-        border.color: manager.xrayActive ? Theme.accent : Theme.border
+        border.color: utilitiesManager.xrayActive ? Theme.accent : Theme.border
         border.width: 1
         
         RowLayout {
@@ -55,7 +55,7 @@ Rectangle {
           
           Text {
             text: "󰖟"
-            color: manager.xrayActive ? Theme.accent : Theme.fg
+            color: utilitiesManager.xrayActive ? Theme.accent : Theme.fg
             font.pixelSize: Theme.fontSizeL
             font.family: Theme.fontFamily
           }
@@ -73,7 +73,7 @@ Rectangle {
             width: 8
             height: 8
             radius: 4
-            color: manager.xrayActive ? Theme.accent : Theme.fgMuted
+            color: utilitiesManager.xrayActive ? Theme.accent : Theme.fgMuted
             
             Behavior on color {
               ColorAnimation {
@@ -92,7 +92,7 @@ Rectangle {
           
           onClicked: {
             console.log("Xray toggle clicked")
-            manager.toggleXray()
+            utilitiesManager.toggleXray()
           }
         }
       }
@@ -103,7 +103,7 @@ Rectangle {
         Layout.preferredHeight: 44
         radius: Theme.radiusLarge
         color: kanataMouseArea.containsMouse ? Theme.bg1 : "transparent"
-        border.color: manager.kanataActive ? Theme.accent : Theme.border
+        border.color: utilitiesManager.kanataActive ? Theme.accent : Theme.border
         border.width: 1
         
         RowLayout {
@@ -115,7 +115,7 @@ Rectangle {
           
           Text {
             text: "󰌌"
-            color: manager.kanataActive ? Theme.accent : Theme.fg
+            color: utilitiesManager.kanataActive ? Theme.accent : Theme.fg
             font.pixelSize: Theme.fontSizeL
             font.family: Theme.fontFamily
           }
@@ -133,7 +133,7 @@ Rectangle {
             width: 8
             height: 8
             radius: 4
-            color: manager.kanataActive ? Theme.accent : Theme.fgMuted
+            color: utilitiesManager.kanataActive ? Theme.accent : Theme.fgMuted
             
             Behavior on color {
               ColorAnimation {
@@ -152,7 +152,7 @@ Rectangle {
           
           onClicked: {
             console.log("Kanata toggle clicked")
-            manager.toggleKanata()
+            utilitiesManager.toggleKanata()
           }
         }
       }
@@ -203,7 +203,7 @@ Rectangle {
           
           onClicked: {
             console.log("Color picker clicked")
-            manager.launchColorPicker()
+            utilitiesManager.launchColorPicker()
           }
         }
       }
@@ -254,7 +254,7 @@ Rectangle {
           
           onClicked: {
             console.log("Screenshot clicked")
-            manager.takeScreenshot()
+            utilitiesManager.takeScreenshot()
           }
         }
       }
@@ -265,7 +265,7 @@ Rectangle {
         Layout.preferredHeight: 44
         radius: Theme.radiusLarge
         color: nightLightMouseArea.containsMouse ? Theme.bg1 : "transparent"
-        border.color: manager.nightLightActive ? Theme.accent : Theme.border
+        border.color: utilitiesManager.nightLightActive ? Theme.accent : Theme.border
         border.width: 1
         
         RowLayout {
@@ -276,8 +276,8 @@ Rectangle {
           spacing: Theme.spacingS
           
           Text {
-            text: manager.nightLightActive ? "󰛨" : "󱠂"
-            color: manager.nightLightActive ? Theme.accent : Theme.fg
+            text: utilitiesManager.nightLightActive ? "󰛨" : "󱠂"
+            color: utilitiesManager.nightLightActive ? Theme.accent : Theme.fg
             font.pixelSize: Theme.fontSizeL
             font.family: Theme.fontFamily
           }
@@ -295,7 +295,7 @@ Rectangle {
             width: 8
             height: 8
             radius: 4
-            color: manager.nightLightActive ? Theme.accent : Theme.fgMuted
+            color: utilitiesManager.nightLightActive ? Theme.accent : Theme.fgMuted
             
             Behavior on color {
               ColorAnimation {
@@ -314,7 +314,7 @@ Rectangle {
           
           onClicked: {
             console.log("Night Light toggle clicked")
-            manager.toggleNightLight()
+            utilitiesManager.toggleNightLight()
           }
         }
       }

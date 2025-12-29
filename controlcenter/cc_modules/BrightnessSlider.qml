@@ -5,14 +5,15 @@ import "../../theme"
 Rectangle {
   id: root
   
-  required property var manager
+  // Changed: now receives specific sub-manager
+  required property var brightnessManager
   
   radius: Theme.radiusXLarge
   color: Theme.bg2transparent
   
   Component.onCompleted: {
     console.log("BrightnessSlider module loaded")
-    console.log("Initial brightness:", manager.brightness)
+    console.log("Initial brightness:", brightnessManager.brightness)
   }
   
   ColumnLayout {
@@ -43,7 +44,7 @@ Rectangle {
       }
       
       Text {
-        text: Math.round(manager.brightness * 100) + "%"
+        text: Math.round(brightnessManager.brightness * 100) + "%"
         color: Theme.fgMuted
         font.pixelSize: Theme.fontSizeS
         font.family: Theme.fontFamily
@@ -74,7 +75,7 @@ Rectangle {
             top: parent.top
             bottom: parent.bottom
           }
-          width: Math.max(0, Math.min(parent.width, parent.width * manager.brightness))
+          width: Math.max(0, Math.min(parent.width, parent.width * brightnessManager.brightness))
           radius: parent.radius
           color: Theme.accent
           
@@ -90,7 +91,7 @@ Rectangle {
       // Draggable handle
       Rectangle {
         id: handle
-        x: Math.max(0, Math.min(parent.width - width, (parent.width - width) * manager.brightness))
+        x: Math.max(0, Math.min(parent.width - width, (parent.width - width) * brightnessManager.brightness))
         anchors.verticalCenter: parent.verticalCenter
         width: 16
         height: 16
@@ -131,7 +132,7 @@ Rectangle {
               var newBrightness = (handle.x + handle.width / 2) / track.width
               newBrightness = Math.max(0.01, Math.min(1, newBrightness))  // Min 1% to prevent black screen
               console.log("Brightness dragged to:", newBrightness)
-              manager.setBrightness(newBrightness)
+              brightnessManager.setBrightness(newBrightness)
             }
           }
         }
@@ -146,7 +147,7 @@ Rectangle {
           var newBrightness = mouse.x / track.width
           newBrightness = Math.max(0.01, Math.min(1, newBrightness))  // Min 1% to prevent black screen
           console.log("Brightness track clicked at:", newBrightness)
-          manager.setBrightness(newBrightness)
+          brightnessManager.setBrightness(newBrightness)
         }
       }
     }

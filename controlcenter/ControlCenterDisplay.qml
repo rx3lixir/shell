@@ -11,7 +11,6 @@ LazyLoader {
   
   required property var manager
   
-  // Load when visible
   active: manager.visible
   
   PanelWindow {
@@ -40,13 +39,10 @@ LazyLoader {
       implicitHeight = 810
     }
     
-    // Handle Escape key to close
     contentItem {
       focus: true
       
       Keys.onPressed: event => {
-        console.log("Key pressed in control center:", event.key)
-        
         if (event.key === Qt.Key_Escape) {
           console.log("Escape pressed - closing control center")
           loader.manager.visible = false
@@ -68,7 +64,7 @@ LazyLoader {
         }
         spacing: Theme.spacingM
         
-        // Header
+        // ========== HEADER ==========
         RowLayout {
           Layout.fillWidth: true
           spacing: Theme.spacingS
@@ -102,16 +98,12 @@ LazyLoader {
               anchors.fill: parent
               hoverEnabled: true
               cursorShape: Qt.PointingHandCursor
-              
-              onClicked: {
-                console.log("Close button clicked")
-                loader.manager.visible = false
-              }
+              onClicked: loader.manager.visible = false
             }
           }
         }
         
-        // Toggles Grid (WiFi, Bluetooth)
+        // ========== NETWORK TOGGLES ==========
         GridLayout {
           Layout.fillWidth: true
           columns: 2
@@ -121,42 +113,41 @@ LazyLoader {
           Modules.WiFiToggle {
             Layout.fillWidth: true
             Layout.preferredHeight: 60
-            manager: loader.manager
+            networkManager: loader.manager.network
           }
           
           Modules.BluetoothToggle {
             Layout.fillWidth: true
             Layout.preferredHeight: 60
-            manager: loader.manager
+            networkManager: loader.manager.network
           }
         }
         
-        // Recording Button (full width)
+        // ========== RECORDING ==========
         Modules.RecordingButton {
           Layout.fillWidth: true
           Layout.preferredHeight: 60
-          manager: loader.manager
+          recordingManager: loader.manager.recording
         }
         
-        // Volume Slider
+        // ========== SLIDERS ==========
         Modules.VolumeSlider {
           Layout.fillWidth: true
           Layout.preferredHeight: 70
-          manager: loader.manager
+          audioManager: loader.manager.audio
         }
         
-        // Brightness Slider
         Modules.BrightnessSlider {
           Layout.fillWidth: true
           Layout.preferredHeight: 70
-          manager: loader.manager
+          brightnessManager: loader.manager.brightness
         }
         
-        // Media Player Control
+        // ========== MEDIA PLAYER ==========
         Modules.PlayerControl {
           Layout.fillWidth: true
-          Layout.preferredHeight: loader.manager.playerActive ? 180 : 60
-          manager: loader.manager
+          Layout.preferredHeight: loader.manager.media.playerActive ? 180 : 60
+          mediaManager: loader.manager.media
           
           Behavior on Layout.preferredHeight {
             NumberAnimation {
@@ -166,17 +157,15 @@ LazyLoader {
           }
         }
         
-        // Utilities Grid
+        // ========== UTILITIES ==========
         Modules.UtilitiesGrid {
           Layout.fillWidth: true
           Layout.preferredHeight: 210
-          manager: loader.manager
+          utilitiesManager: loader.manager.utilities
         }
         
-        // Spacer to push everything up
-        Item {
-          Layout.fillHeight: true
-        }
+        // Spacer
+        Item { Layout.fillHeight: true }
       }
     }
   }

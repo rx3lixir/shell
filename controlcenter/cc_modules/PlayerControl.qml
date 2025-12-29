@@ -5,7 +5,8 @@ import "../../theme"
 Rectangle {
   id: root
   
-  required property var manager
+  // Changed: now receives specific sub-manager
+  required property var mediaManager
   
   radius: Theme.radiusXLarge
   color: Theme.bg2transparent
@@ -27,15 +28,15 @@ Rectangle {
       spacing: Theme.spacingS
       
       Text {
-        text: manager.playerActive ? "󰝚" : "󰝛"
-        color: manager.playerActive ? Theme.accent : Theme.fgMuted
+        text: mediaManager.playerActive ? "󰝚" : "󰝛"
+        color: mediaManager.playerActive ? Theme.accent : Theme.fgMuted
         font.pixelSize: Theme.fontSizeL
         font.family: Theme.fontFamily
       }
       
       Text {
         Layout.fillWidth: true
-        text: manager.playerActive ? (manager.playerName || "Media Player") : "No Media Playing"
+        text: mediaManager.playerActive ? (mediaManager.playerName || "Media Player") : "No Media Playing"
         color: Theme.fg
         font.pixelSize: Theme.fontSizeM
         font.family: Theme.fontFamily
@@ -47,11 +48,11 @@ Rectangle {
     ColumnLayout {
       Layout.fillWidth: true
       spacing: 2
-      visible: manager.playerActive && (manager.playerTitle || manager.playerArtist)
+      visible: mediaManager.playerActive && (mediaManager.playerTitle || mediaManager.playerArtist)
       
       Text {
         Layout.fillWidth: true
-        text: manager.playerTitle || "Unknown Track"
+        text: mediaManager.playerTitle || "Unknown Track"
         color: Theme.fg
         font.pixelSize: Theme.fontSizeS
         font.family: Theme.fontFamily
@@ -62,7 +63,7 @@ Rectangle {
       
       Text {
         Layout.fillWidth: true
-        text: manager.playerArtist || ""
+        text: mediaManager.playerArtist || ""
         color: Theme.fgMuted
         font.pixelSize: Theme.fontSizeS
         font.family: Theme.fontFamily
@@ -76,7 +77,7 @@ Rectangle {
     ColumnLayout {
       Layout.fillWidth: true
       spacing: 4
-      visible: manager.playerActive && manager.playerLength > 0
+      visible: mediaManager.playerActive && mediaManager.playerLength > 0
       
       // Timeline slider
       Item {
@@ -103,8 +104,8 @@ Rectangle {
               bottom: parent.bottom
             }
             width: {
-              if (manager.playerLength <= 0) return 0
-              var progress = manager.playerPosition / manager.playerLength
+              if (mediaManager.playerLength <= 0) return 0
+              var progress = mediaManager.playerPosition / mediaManager.playerLength
               return Math.max(0, Math.min(parent.width, parent.width * progress))
             }
             radius: parent.radius
@@ -123,8 +124,8 @@ Rectangle {
         Rectangle {
           id: timelineHandle
           x: {
-            if (manager.playerLength <= 0) return 0
-            var progress = manager.playerPosition / manager.playerLength
+            if (mediaManager.playerLength <= 0) return 0
+            var progress = mediaManager.playerPosition / mediaManager.playerLength
             return Math.max(0, Math.min(parent.width - width, (parent.width - width) * progress))
           }
           anchors.verticalCenter: parent.verticalCenter
@@ -163,10 +164,10 @@ Rectangle {
             drag.maximumX: timelineTrack.width - timelineHandle.width
             
             onPositionChanged: {
-              if (drag.active && manager.playerLength > 0) {
-                var newPosition = ((timelineHandle.x + timelineHandle.width / 2) / timelineTrack.width) * manager.playerLength
+              if (drag.active && mediaManager.playerLength > 0) {
+                var newPosition = ((timelineHandle.x + timelineHandle.width / 2) / timelineTrack.width) * mediaManager.playerLength
                 console.log("Timeline dragged to:", newPosition)
-                manager.playerSeek(newPosition)
+                mediaManager.playerSeek(newPosition)
               }
             }
           }
@@ -178,10 +179,10 @@ Rectangle {
           z: -1
           
           onClicked: mouse => {
-            if (manager.playerLength > 0) {
-              var newPosition = (mouse.x / timelineTrack.width) * manager.playerLength
+            if (mediaManager.playerLength > 0) {
+              var newPosition = (mouse.x / timelineTrack.width) * mediaManager.playerLength
               console.log("Timeline clicked at:", newPosition)
-              manager.playerSeek(newPosition)
+              mediaManager.playerSeek(newPosition)
             }
           }
         }
@@ -192,7 +193,7 @@ Rectangle {
         Layout.fillWidth: true
         
         Text {
-          text: manager.formatTime(manager.playerPosition)
+          text: mediaManager.formatTime(mediaManager.playerPosition)
           color: Theme.fgMuted
           font.pixelSize: Theme.fontSizeXS
           font.family: Theme.fontFamily
@@ -201,7 +202,7 @@ Rectangle {
         Item { Layout.fillWidth: true }
         
         Text {
-          text: manager.formatTime(manager.playerLength)
+          text: mediaManager.formatTime(mediaManager.playerLength)
           color: Theme.fgMuted
           font.pixelSize: Theme.fontSizeXS
           font.family: Theme.fontFamily
@@ -209,12 +210,12 @@ Rectangle {
       }
     }
     
-    // Control buttons - redesigned with smaller circular play button
+    // Control buttons
     RowLayout {
       Layout.fillWidth: true
       Layout.preferredHeight: 40
       spacing: Theme.spacingM
-      visible: manager.playerActive
+      visible: mediaManager.playerActive
       
       Item { Layout.fillWidth: true }
       
@@ -242,12 +243,12 @@ Rectangle {
           
           onClicked: {
             console.log("Previous track clicked")
-            manager.playerPrevious()
+            mediaManager.playerPrevious()
           }
         }
       }
       
-      // Play/Pause button - smaller and perfectly round
+      // Play/Pause button
       Rectangle {
         Layout.preferredWidth: 40
         Layout.preferredHeight: 40
@@ -264,7 +265,7 @@ Rectangle {
         
         Text {
           anchors.centerIn: parent
-          text: manager.playerPlaying ? "󰏤" : "󰐊"
+          text: mediaManager.playerPlaying ? "󰏤" : "󰐊"
           color: Theme.fg
           font.pixelSize: Theme.fontSizeL
           font.family: Theme.fontFamily
@@ -278,7 +279,7 @@ Rectangle {
           
           onClicked: {
             console.log("Play/Pause clicked")
-            manager.playerPlayPause()
+            mediaManager.playerPlayPause()
           }
         }
       }
@@ -307,7 +308,7 @@ Rectangle {
           
           onClicked: {
             console.log("Next track clicked")
-            manager.playerNext()
+            mediaManager.playerNext()
           }
         }
       }

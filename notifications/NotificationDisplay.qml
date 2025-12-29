@@ -39,7 +39,7 @@ LazyLoader {
     
     Component.onCompleted: {
       exclusiveZone = 0
-      implicitWidth = 320
+      implicitWidth = 300
       implicitHeight = notifContent.implicitHeight + (Theme.spacingM * 2)
       slideOffset = 350
       slideAnim.start()
@@ -59,8 +59,8 @@ LazyLoader {
       id: background
       anchors.fill: parent
       anchors.rightMargin: -notifWindow.slideOffset
-      radius: Theme.radiusLarge
-      color: Theme.bg1transparent
+      radius: Theme.radiusXLarge
+      color: Theme.bg0transparent
       
       // Hover state for better feedback
       property bool hovered: false
@@ -160,21 +160,6 @@ LazyLoader {
           loader.manager.hasNotification = false
         }
       }
-    }
-
-    MultiEffect {
-      source: background
-      anchors.fill: background
-      shadowEnabled: true
-      shadowColor: "#80000000"     // Black with ~50% opacity – adjust for subtlety
-      shadowBlur: 0.5             // Maximum softness (Gaussian-like)
-      shadowVerticalOffset: 6     // Downward lift for floating feel
-      shadowHorizontalOffset: 0
-      // For even larger/spread-out Tahoe vibe:
-      shadowScale: 1.05        // Slightly enlarges the shadow area
-      maskEnabled: true
-      maskThresholdMin: 0.5
-      maskSpreadAtMin: 1.0
     }
   }
 }

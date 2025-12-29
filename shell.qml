@@ -22,7 +22,7 @@ ShellRoot {
   // Load the OSD manager (depends on control center for brightness)
   OsdManager {
     id: osdManager
-    controlCenterManager: controlCenterManager
+    brightnessManager: controlCenterManager.brightness
   }
   
   // Load the OSD display (the visuals)

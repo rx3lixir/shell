@@ -5,8 +5,8 @@ import Quickshell.Services.Pipewire
 Scope {
   id: manager
   
-  // Reference to control center manager for brightness
-  required property var controlCenterManager
+  // Receives the specific BrightnessManager instead of whole ControlCenterManager
+  required property var brightnessManager
 
   // Track PipeWire objects
   PwObjectTracker {
@@ -40,9 +40,9 @@ Scope {
       console.log("Showing brightness OSD")
       manager.showOsd(
         manager.typeBrightness,
-        manager.controlCenterManager.brightness,
+        manager.brightnessManager.brightness,  // CHANGED: access via brightnessManager
         false,
-        manager.getBrightnessIcon(manager.controlCenterManager.brightness)
+        manager.getBrightnessIcon(manager.brightnessManager.brightness)  // CHANGED
       )
     }
   }
@@ -137,29 +137,20 @@ Scope {
     }
   }
 
-  // Watch brightness changes from Control Center Manager
+  // Watch brightness changes from BrightnessManager
   Connections {
-    target: manager.controlCenterManager
+    target: manager.brightnessManager
     
     function onBrightnessChanged() {
-      console.log("Brightness changed:", manager.controlCenterManager.brightness)
-      
       // Skip OSD if this is a user-initiated change from the slider
       // (user can see the slider moving, doesn't need OSD spam)
-      if (manager.controlCenterManager.brightnessUserChange) {
-        console.log("Skipping OSD for user slider change")
+      if (manager.brightnessManager.brightnessUserChange) {
         return
       }
       
       // For external changes (keyboard shortcuts, other apps), show OSD
       // but debounce it to avoid rapid fire
-      console.log("External brightness change - debouncing OSD")
       brightnessDebounceTimer.restart()
     }
-  }
-  
-  Component.onCompleted: {
-    console.log("=== OSD MANAGER LOADED ===")
-    console.log("Control Center Manager reference:", controlCenterManager)
   }
 }

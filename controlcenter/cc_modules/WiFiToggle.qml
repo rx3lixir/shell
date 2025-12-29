@@ -5,11 +5,12 @@ import "../../theme"
 Rectangle {
   id: root
   
-  required property var manager
+  // Changed: now receives specific sub-manager
+  required property var networkManager
   
   radius: Theme.radiusXLarge
   color: mouseArea.containsMouse ? Theme.bg2 : Theme.bg2transparent
-  border.color: manager.wifiEnabled ? Theme.accent : "transparent"
+  border.color: networkManager.wifiEnabled ? Theme.accent : "transparent"
   border.width: 0
   
   Component.onCompleted: {
@@ -21,11 +22,11 @@ Rectangle {
       fill: parent
       margins: Theme.spacingM
     }
-    spacing: Theme.spacingS  // Changed from spacingM to spacingS for consistency
+    spacing: Theme.spacingS
     
     Text {
-      text: manager.wifiEnabled ? "󰤨" : "󰤭"
-      color: manager.wifiEnabled ? Theme.accent : Theme.fg
+      text: networkManager.wifiEnabled ? "󰤨" : "󰤭"
+      color: networkManager.wifiEnabled ? Theme.accent : Theme.fg
       font.pixelSize: Theme.fontSizeXL
       font.family: Theme.fontFamily
     }
@@ -35,15 +36,15 @@ Rectangle {
       spacing: 2
       
       Text {
-        text: "WiFi"  // Changed from "WIFI" to "WiFi" for consistency
+        text: "WiFi"
         color: Theme.fg
         font.pixelSize: Theme.fontSizeM
         font.family: Theme.fontFamily
       }
       
       Text {
-        text: manager.wifiEnabled ? "On" : "Off"
-        color: manager.wifiEnabled ? Theme.accent : Theme.fgMuted
+        text: networkManager.wifiEnabled ? "On" : "Off"
+        color: networkManager.wifiEnabled ? Theme.accent : Theme.fgMuted
         font.pixelSize: Theme.fontSizeS
         font.family: Theme.fontFamily
       }
@@ -58,7 +59,7 @@ Rectangle {
     
     onClicked: {
       console.log("WiFi tile clicked")
-      manager.toggleWifi()
+      networkManager.toggleWifi()
     }
   }
 }

@@ -5,7 +5,8 @@ import "../../theme"
 Rectangle {
   id: root
   
-  required property var manager
+  // Changed: now receives specific sub-manager
+  required property var audioManager
   
   radius: Theme.radiusXLarge
   color: Theme.bg2transparent
@@ -42,7 +43,7 @@ Rectangle {
       }
       
       Text {
-        text: Math.round(manager.volume * 100) + "%"
+        text: Math.round(audioManager.volume * 100) + "%"
         color: Theme.fgMuted
         font.pixelSize: Theme.fontSizeM
         font.family: Theme.fontFamily
@@ -73,7 +74,7 @@ Rectangle {
             top: parent.top
             bottom: parent.bottom
           }
-          width: parent.width * manager.volume
+          width: parent.width * audioManager.volume
           radius: parent.radius
           color: Theme.accent
           
@@ -89,7 +90,7 @@ Rectangle {
       // Draggable handle
       Rectangle {
         id: handle
-        x: (parent.width - width) * manager.volume
+        x: (parent.width - width) * audioManager.volume
         anchors.verticalCenter: parent.verticalCenter
         width: 16
         height: 16
@@ -130,7 +131,7 @@ Rectangle {
               var newVolume = (handle.x + handle.width / 2) / track.width
               newVolume = Math.max(0, Math.min(1, newVolume))
               console.log("Volume dragged to:", newVolume)
-              manager.setVolume(newVolume)
+              audioManager.setVolume(newVolume)
             }
           }
         }
@@ -145,7 +146,7 @@ Rectangle {
           var newVolume = mouse.x / track.width
           newVolume = Math.max(0, Math.min(1, newVolume))
           console.log("Volume track clicked at:", newVolume)
-          manager.setVolume(newVolume)
+          audioManager.setVolume(newVolume)
         }
       }
     }
