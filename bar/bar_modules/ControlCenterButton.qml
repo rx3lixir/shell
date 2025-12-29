@@ -35,12 +35,7 @@ Item {
     cursorShape: Qt.PointingHandCursor
     
     onClicked: {
-      console.log("=== CONTROL CENTER BUTTON CLICKED ===")
-      console.log("Current visible state:", controlCenterManager.visible)
-      
       controlCenterManager.visible = !controlCenterManager.visible
-      
-      console.log("New visible state:", controlCenterManager.visible)
     }
   }
 }

@@ -11,10 +11,6 @@ Rectangle {
   radius: Theme.radiusXLarge
   color: Theme.bg2transparent
   
-  Component.onCompleted: {
-    console.log("VolumeSlider module loaded")
-  }
-  
   ColumnLayout {
     anchors {
       fill: parent
@@ -130,7 +126,6 @@ Rectangle {
             if (drag.active) {
               var newVolume = (handle.x + handle.width / 2) / track.width
               newVolume = Math.max(0, Math.min(1, newVolume))
-              console.log("Volume dragged to:", newVolume)
               audioManager.setVolume(newVolume)
             }
           }
@@ -145,7 +140,6 @@ Rectangle {
         onClicked: mouse => {
           var newVolume = mouse.x / track.width
           newVolume = Math.max(0, Math.min(1, newVolume))
-          console.log("Volume track clicked at:", newVolume)
           audioManager.setVolume(newVolume)
         }
       }

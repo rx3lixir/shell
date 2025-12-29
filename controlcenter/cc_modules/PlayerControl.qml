@@ -11,10 +11,6 @@ Rectangle {
   radius: Theme.radiusXLarge
   color: Theme.bg2transparent
   
-  Component.onCompleted: {
-    console.log("PlayerControl module loaded")
-  }
-  
   ColumnLayout {
     anchors {
       fill: parent
@@ -166,7 +162,6 @@ Rectangle {
             onPositionChanged: {
               if (drag.active && mediaManager.playerLength > 0) {
                 var newPosition = ((timelineHandle.x + timelineHandle.width / 2) / timelineTrack.width) * mediaManager.playerLength
-                console.log("Timeline dragged to:", newPosition)
                 mediaManager.playerSeek(newPosition)
               }
             }
@@ -181,7 +176,6 @@ Rectangle {
           onClicked: mouse => {
             if (mediaManager.playerLength > 0) {
               var newPosition = (mouse.x / timelineTrack.width) * mediaManager.playerLength
-              console.log("Timeline clicked at:", newPosition)
               mediaManager.playerSeek(newPosition)
             }
           }
@@ -242,7 +236,6 @@ Rectangle {
           cursorShape: Qt.PointingHandCursor
           
           onClicked: {
-            console.log("Previous track clicked")
             mediaManager.playerPrevious()
           }
         }
@@ -278,7 +271,6 @@ Rectangle {
           cursorShape: Qt.PointingHandCursor
           
           onClicked: {
-            console.log("Play/Pause clicked")
             mediaManager.playerPlayPause()
           }
         }
@@ -307,7 +299,6 @@ Rectangle {
           cursorShape: Qt.PointingHandCursor
           
           onClicked: {
-            console.log("Next track clicked")
             mediaManager.playerNext()
           }
         }

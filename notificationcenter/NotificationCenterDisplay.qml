@@ -33,8 +33,6 @@ LazyLoader {
     mask: null
     
     Component.onCompleted: {
-      console.log("=== NOTIFICATION CENTER WINDOW LOADED ===")
-      console.log("Notifications in manager:", loader.manager.notifications.length)
       exclusiveZone = 0
       implicitWidth = 340
       implicitHeight = 420
@@ -45,10 +43,7 @@ LazyLoader {
       focus: true
       
       Keys.onPressed: event => {
-        console.log("Key pressed in notification center:", event.key)
-        
         if (event.key === Qt.Key_Escape) {
-          console.log("Escape pressed - closing notification center")
           loader.manager.visible = false
           event.accepted = true
         }
@@ -107,7 +102,6 @@ LazyLoader {
               cursorShape: Qt.PointingHandCursor
               
               onClicked: {
-                console.log("Clear all clicked")
                 loader.manager.clearAll()
               }
             }
@@ -135,7 +129,6 @@ LazyLoader {
               cursorShape: Qt.PointingHandCursor
               
               onClicked: {
-                console.log("Close button clicked")
                 loader.manager.visible = false
               }
             }
@@ -152,11 +145,6 @@ LazyLoader {
           
           model: loader.manager.notifications
           
-          Component.onCompleted: {
-            console.log("=== LISTVIEW LOADED ===")
-            console.log("Model count:", count)
-          }
-          
           // Smooth scrolling animation
           Behavior on contentY {
             NumberAnimation {
@@ -170,7 +158,7 @@ LazyLoader {
             required property int index
             
             width: notifList.width
-            height: 120  // Slightly taller for better text readability
+            height: 90  // Slightly taller for better text readability
             radius: Theme.radiusXLarge
             color: notifMouseArea.containsMouse ? Theme.bg2 : Theme.bg2transparent
             
@@ -218,7 +206,6 @@ LazyLoader {
                     cursorShape: Qt.PointingHandCursor
                     
                     onClicked: {
-                      console.log("Remove notification at index:", index)
                       loader.manager.removeNotification(index)
                       mouse.accepted = true
                     }

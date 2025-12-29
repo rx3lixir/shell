@@ -13,10 +13,6 @@ Rectangle {
   border.color: networkManager.wifiEnabled ? Theme.accent : "transparent"
   border.width: 0
   
-  Component.onCompleted: {
-    console.log("WiFiToggle module loaded")
-  }
-  
   RowLayout {
     anchors {
       fill: parent
@@ -58,7 +54,6 @@ Rectangle {
     cursorShape: Qt.PointingHandCursor
     
     onClicked: {
-      console.log("WiFi tile clicked")
       networkManager.toggleWifi()
     }
   }

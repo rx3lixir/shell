@@ -26,7 +26,6 @@ Scope {
           return
         }
         var status = data.trim()
-        console.log("Player status:", status)
         
         if (status === "Playing" || status === "Paused") {
           manager.playerActive = true
@@ -65,8 +64,6 @@ Scope {
         // Length comes in microseconds, convert to seconds
         var lengthMicro = parseInt(parts[3] || "0")
         manager.playerLength = lengthMicro / 1000000.0
-        
-        console.log("Player metadata - Title:", manager.playerTitle, "Artist:", manager.playerArtist, "Length:", manager.playerLength)
       }
     }
   }
@@ -114,11 +111,9 @@ Scope {
   
   // ========== MEDIA PLAYER CONTROLS ==========
   function playerPlayPause() {
-    console.log("=== PLAY/PAUSE ===")
     var proc = Qt.createQmlObject('import Quickshell.Io; Process { command: ["playerctl", "play-pause"] }', manager)
     proc.running = true
     proc.exited.connect(() => {
-      console.log("Play/pause command sent")
       proc.destroy()
       // Force update status
       playerStatusProcess.running = true
@@ -126,11 +121,9 @@ Scope {
   }
   
   function playerNext() {
-    console.log("=== NEXT TRACK ===")
     var proc = Qt.createQmlObject('import Quickshell.Io; Process { command: ["playerctl", "next"] }', manager)
     proc.running = true
     proc.exited.connect(() => {
-      console.log("Next command sent")
       proc.destroy()
       // Small delay before updating to let player switch
       Qt.callLater(() => playerStatusProcess.running = true)
@@ -138,11 +131,9 @@ Scope {
   }
   
   function playerPrevious() {
-    console.log("=== PREVIOUS TRACK ===")
     var proc = Qt.createQmlObject('import Quickshell.Io; Process { command: ["playerctl", "previous"] }', manager)
     proc.running = true
     proc.exited.connect(() => {
-      console.log("Previous command sent")
       proc.destroy()
       // Small delay before updating to let player switch
       Qt.callLater(() => playerStatusProcess.running = true)
@@ -150,14 +141,12 @@ Scope {
   }
   
   function playerSeek(position) {
-    console.log("=== SEEKING TO:", position, "===")
     // Update UI immediately for responsive feel
     manager.playerPosition = position
     
     var proc = Qt.createQmlObject('import Quickshell.Io; Process { command: ["playerctl", "position", "' + position + '"] }', manager)
     proc.running = true
     proc.exited.connect(() => {
-      console.log("Seek command sent")
       proc.destroy()
       // Update position after seek
       Qt.callLater(() => playerPositionProcess.running = true)
@@ -174,7 +163,6 @@ Scope {
   }
   
   Component.onCompleted: {
-    console.log("=== MEDIA MANAGER LOADED ===")
     // Get initial player status
     playerStatusProcess.running = true
   }

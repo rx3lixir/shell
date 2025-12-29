@@ -21,12 +21,6 @@ PanelWindow {
   implicitHeight: Theme.barHeight
   color: "transparent"
 
-  Component.onCompleted: {
-    console.log("Bar loaded with:")
-    console.log("  wlogoutWindow:", wlogoutWindow)
-    console.log("  controlCenterManager:", controlCenterManager)
-  }
-
   Rectangle {
     anchors.fill: parent
     color: Theme.bg1transparent

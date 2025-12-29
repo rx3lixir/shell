@@ -108,7 +108,6 @@ Rectangle {
     cursorShape: Qt.PointingHandCursor
     
     onClicked: {
-      console.log("MenuItem clicked:", root.item.name)
       root.clicked()
       root.activated()
     }

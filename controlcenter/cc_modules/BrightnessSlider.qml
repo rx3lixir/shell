@@ -11,11 +11,6 @@ Rectangle {
   radius: Theme.radiusXLarge
   color: Theme.bg2transparent
   
-  Component.onCompleted: {
-    console.log("BrightnessSlider module loaded")
-    console.log("Initial brightness:", brightnessManager.brightness)
-  }
-  
   ColumnLayout {
     anchors {
       fill: parent
@@ -131,7 +126,6 @@ Rectangle {
             if (drag.active) {
               var newBrightness = (handle.x + handle.width / 2) / track.width
               newBrightness = Math.max(0.01, Math.min(1, newBrightness))  // Min 1% to prevent black screen
-              console.log("Brightness dragged to:", newBrightness)
               brightnessManager.setBrightness(newBrightness)
             }
           }
@@ -146,7 +140,6 @@ Rectangle {
         onClicked: mouse => {
           var newBrightness = mouse.x / track.width
           newBrightness = Math.max(0.01, Math.min(1, newBrightness))  // Min 1% to prevent black screen
-          console.log("Brightness track clicked at:", newBrightness)
           brightnessManager.setBrightness(newBrightness)
         }
       }

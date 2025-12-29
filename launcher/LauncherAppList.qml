@@ -33,15 +33,11 @@ Rectangle {
     
     model: ScriptModel {
       values: {
-        console.log("=== FILTERING APPS ===")
         const search = root.searchTerm.toLowerCase()
-        console.log("Search term:", search)
         
         const allApps = DesktopEntries.applications.values
-        console.log("Total apps:", allApps.length)
         
         if (!search) {
-          console.log("No search term, showing all apps")
           return allApps
         }
         
@@ -52,7 +48,6 @@ Rectangle {
           return name.includes(search) || comment.includes(search)
         })
         
-        console.log("Filtered apps:", filtered.length)
         return filtered
       }
     }
@@ -95,7 +90,6 @@ Rectangle {
   function moveUp() {
     if (root.currentIndex > 0) {
       root.currentIndex--
-      console.log("Moved up to index:", root.currentIndex)
     }
   }
   
@@ -103,7 +97,6 @@ Rectangle {
     const maxIndex = appList.count - 1
     if (root.currentIndex < maxIndex) {
       root.currentIndex++
-      console.log("Moved down to index:", root.currentIndex)
     }
   }
   

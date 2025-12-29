@@ -5,17 +5,12 @@ import "../../theme"
 Rectangle {
   id: root
   
-  // Changed: now receives specific sub-manager
   required property var recordingManager
   
   radius: Theme.radiusXLarge
   color: mouseArea.containsMouse ? Theme.bg2 : Theme.bg2transparent
   border.color: recordingManager.isRecording ? Theme.error : "transparent"
   border.width: 2
-  
-  Component.onCompleted: {
-    console.log("RecordingButton module loaded")
-  }
   
   RowLayout {
     anchors {
@@ -58,7 +53,6 @@ Rectangle {
     cursorShape: Qt.PointingHandCursor
     
     onClicked: {
-      console.log("Recording tile clicked")
       recordingManager.toggleRecording()
     }
   }

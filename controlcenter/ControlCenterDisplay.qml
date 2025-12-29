@@ -167,7 +167,7 @@ LazyLoader {
         // ========== UTILITIES ==========
         Modules.UtilitiesGrid {
           Layout.fillWidth: true
-          Layout.preferredHeight: 200
+          Layout.preferredHeight: 160
           utilitiesManager: loader.manager.utilities
         }
         

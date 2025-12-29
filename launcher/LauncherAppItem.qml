@@ -96,30 +96,21 @@ Rectangle {
     cursorShape: Qt.PointingHandCursor
     
     onClicked: {
-      console.log("=== APP CLICKED ===")
-      console.log("App name:", root.app.name)
-      console.log("App command:", root.app.command)
-      
       // Notify parent that this item was clicked
       root.clicked()
       
       // Try execute() first
       try {
-        console.log("Attempting app.execute()...")
         root.app.execute()
-        console.log("execute() called successfully!")
         root.launched()
       } catch (error) {
         console.error("execute() failed:", error)
-        
         // Fallback: try execDetached
         try {
-          console.log("Trying fallback: Quickshell.execDetached()...")
           Quickshell.execDetached({
             command: root.app.command,
             workingDirectory: root.app.workingDirectory || ""
           })
-          console.log("Fallback launch successful!")
           root.launched()
         } catch (fallbackError) {
           console.error("Fallback also failed:", fallbackError)

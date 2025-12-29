@@ -10,10 +10,6 @@ Rectangle {
   radius: Theme.radiusXLarge
   color: Theme.bg2transparent
   
-  Component.onCompleted: {
-    console.log("UtilitiesGrid module loaded")
-  }
-  
   ColumnLayout {
     anchors {
       fill: parent
@@ -37,129 +33,11 @@ Rectangle {
       rowSpacing: Theme.spacingS
       columnSpacing: Theme.spacingS
       
-      // Xray toggle
-      Rectangle {
-        Layout.fillWidth: true
-        Layout.preferredHeight: 38
-        radius: Theme.radiusLarge
-        color: xrayMouseArea.containsMouse ? Theme.bg1 : "transparent"
-        border.color: utilitiesManager.xrayActive ? Theme.accent : Theme.bg2
-        border.width: 1
-        
-        RowLayout {
-          anchors {
-            fill: parent
-            margins: Theme.spacingS
-          }
-          spacing: Theme.spacingS
-          
-          Text {
-            text: "󰖟"
-            color: utilitiesManager.xrayActive ? Theme.accent : Theme.fg
-            font.pixelSize: Theme.fontSizeL
-            font.family: Theme.fontFamily
-          }
-          
-          Text {
-            Layout.fillWidth: true
-            text: "Xray"
-            color: Theme.fg
-            font.pixelSize: Theme.fontSizeS
-            font.family: Theme.fontFamily
-            elide: Text.ElideRight
-          }
-          
-          Rectangle {
-            width: 8
-            height: 8
-            radius: 4
-            color: utilitiesManager.xrayActive ? Theme.accent : Theme.fgMuted
-            
-            Behavior on color {
-              ColorAnimation {
-                duration: 200
-                easing.type: Easing.OutCubic
-              }
-            }
-          }
-        }
-        
-        MouseArea {
-          id: xrayMouseArea
-          anchors.fill: parent
-          hoverEnabled: true
-          cursorShape: Qt.PointingHandCursor
-          
-          onClicked: {
-            utilitiesManager.toggleXray()
-          }
-        }
-      }
-      
-      // Kanata toggle
-      Rectangle {
-        Layout.fillWidth: true
-        Layout.preferredHeight: 38
-        radius: Theme.radiusLarge
-        color: kanataMouseArea.containsMouse ? Theme.bg1 : "transparent"
-        border.color: utilitiesManager.kanataActive ? Theme.accent : Theme.border
-        border.width: 1
-        
-        RowLayout {
-          anchors {
-            fill: parent
-            margins: Theme.spacingS
-          }
-          spacing: Theme.spacingS
-          
-          Text {
-            text: "󰌌"
-            color: utilitiesManager.kanataActive ? Theme.accent : Theme.fg
-            font.pixelSize: Theme.fontSizeL
-            font.family: Theme.fontFamily
-          }
-          
-          Text {
-            Layout.fillWidth: true
-            text: "Kanata"
-            color: Theme.fg
-            font.pixelSize: Theme.fontSizeS
-            font.family: Theme.fontFamily
-            elide: Text.ElideRight
-          }
-          
-          Rectangle {
-            width: 8
-            height: 8
-            radius: 4
-            color: utilitiesManager.kanataActive ? Theme.accent : Theme.fgMuted
-            
-            Behavior on color {
-              ColorAnimation {
-                duration: 200
-                easing.type: Easing.OutCubic
-              }
-            }
-          }
-        }
-        
-        MouseArea {
-          id: kanataMouseArea
-          anchors.fill: parent
-          hoverEnabled: true
-          cursorShape: Qt.PointingHandCursor
-          
-          onClicked: {
-            utilitiesManager.toggleKanata()
-          }
-        }
-      }
-      
       // Color picker
       Rectangle {
         Layout.fillWidth: true
-        Layout.preferredHeight: 38
-        radius: Theme.radiusLarge
+        Layout.preferredHeight: 40
+        radius: Theme.radiusXLarge
         color: pickerMouseArea.containsMouse ? Qt.darker(Theme.accent, 1.3) : Theme.accent
         
         Behavior on color {
@@ -179,7 +57,7 @@ Rectangle {
           Text {
             text: "󰴱"
             color: Theme.fg
-            font.pixelSize: Theme.fontSizeL
+            font.pixelSize: Theme.fontSizeXL
             font.family: Theme.fontFamily
           }
           
@@ -200,7 +78,6 @@ Rectangle {
           cursorShape: Qt.PointingHandCursor
           
           onClicked: {
-            console.log("Color picker clicked")
             utilitiesManager.launchColorPicker()
           }
         }
@@ -209,8 +86,8 @@ Rectangle {
       // Screenshot
       Rectangle {
         Layout.fillWidth: true
-        Layout.preferredHeight: 38
-        radius: Theme.radiusLarge
+        Layout.preferredHeight: 40
+        radius: Theme.radiusXLarge
         color: screenshotMouseArea.containsMouse ? Theme.accent : Theme.accentTransparent
         
         Behavior on color {
@@ -260,8 +137,8 @@ Rectangle {
       // Night Light toggle
       Rectangle {
         Layout.fillWidth: true
-        Layout.preferredHeight: 38
-        radius: Theme.radiusLarge
+        Layout.preferredHeight: 40
+        radius: Theme.radiusXLarge
         color: nightLightMouseArea.containsMouse ? Theme.bg1 : "transparent"
         border.color: utilitiesManager.nightLightActive ? Theme.accent : Theme.border
         border.width: 1
@@ -319,8 +196,8 @@ Rectangle {
       // Clipboard Manager
       Rectangle {
         Layout.fillWidth: true
-        Layout.preferredHeight: 38
-        radius: Theme.radiusLarge
+        Layout.preferredHeight: 40
+        radius: Theme.radiusXLarge
         color: clipboardMouseArea.containsMouse ? Theme.accent : Theme.accentTransparent
         
         Behavior on color {

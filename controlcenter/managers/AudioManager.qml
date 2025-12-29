@@ -23,23 +23,17 @@ Scope {
     
     function onVolumeChanged() {
       if (!manager.audioSink) return
-      console.log("PipeWire volume changed:", manager.audioSink.volume)
       manager.volume = manager.audioSink.volume
     }
   }
   
   // ========== VOLUME CONTROL ==========
   function setVolume(newVolume) {
-    console.log("=== SETTING VOLUME ===")
-    console.log("Old volume:", volume)
-    console.log("New volume:", newVolume)
-    
     // Clamp between 0 and 1
     newVolume = Math.max(0, Math.min(1, newVolume))
     
     // Set via PipeWire
     if (audioSink) {
-      console.log("Setting PipeWire volume to:", newVolume)
       audioSink.volume = newVolume
       volume = newVolume
     } else {
@@ -48,10 +42,8 @@ Scope {
   }
   
   Component.onCompleted: {
-    console.log("=== AUDIO MANAGER LOADED ===")
     if (audioSink) {
       volume = audioSink.volume
-      console.log("Initial volume from PipeWire:", volume)
     }
   }
 }

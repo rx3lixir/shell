@@ -10,19 +10,8 @@ Scope {
   // List of notifications - no limit anymore!
   property var notifications: []
   
-  onVisibleChanged: {
-    console.log("=== NOTIFICATION CENTER VISIBILITY CHANGED ===")
-    console.log("Visible:", visible)
-  }
-  
   // Function to add a notification to our history
   function addNotification(notification) {
-    console.log("=== ADDING NOTIFICATION TO CENTER ===")
-    console.log("Summary:", notification.summary)
-    console.log("Body:", notification.body)
-    console.log("App:", notification.appName)
-    console.log("Current notification count:", notifications.length)
-    
     // Get current date/time
     var now = new Date()
     var dateStr = String(now.getMonth() + 1).padStart(2, '0') + "/" + 
@@ -46,27 +35,17 @@ Scope {
     var newNotifs = [notifCopy].concat(notifications)
     
     notifications = newNotifs
-    console.log("New notification count:", notifications.length)
-    console.log("===================================")
   }
   
   // Function to clear all notifications
   function clearAll() {
-    console.log("=== CLEARING ALL NOTIFICATIONS ===")
-    console.log("Cleared", notifications.length, "notifications")
     notifications = []
   }
   
   // Function to remove a single notification
   function removeNotification(index) {
-    console.log("=== REMOVING NOTIFICATION AT INDEX", index, "===")
     var newNotifs = notifications.slice()
     newNotifs.splice(index, 1)
     notifications = newNotifs
-    console.log("New notification count:", notifications.length)
-  }
-  
-  Component.onCompleted: {
-    console.log("=== NOTIFICATION CENTER MANAGER LOADED ===")
   }
 }
