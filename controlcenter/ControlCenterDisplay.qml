@@ -37,7 +37,7 @@ LazyLoader {
       console.log("=== CONTROL CENTER WINDOW LOADED ===")
       exclusiveZone = 0
       implicitWidth = 340
-      implicitHeight = 480
+      implicitHeight = 810
     }
     
     // Handle Escape key to close
@@ -149,6 +149,27 @@ LazyLoader {
         Modules.BrightnessSlider {
           Layout.fillWidth: true
           Layout.preferredHeight: 70
+          manager: loader.manager
+        }
+        
+        // Media Player Control
+        Modules.PlayerControl {
+          Layout.fillWidth: true
+          Layout.preferredHeight: loader.manager.playerActive ? 180 : 60
+          manager: loader.manager
+          
+          Behavior on Layout.preferredHeight {
+            NumberAnimation {
+              duration: 250
+              easing.type: Easing.OutCubic
+            }
+          }
+        }
+        
+        // Utilities Grid
+        Modules.UtilitiesGrid {
+          Layout.fillWidth: true
+          Layout.preferredHeight: 210
           manager: loader.manager
         }
         

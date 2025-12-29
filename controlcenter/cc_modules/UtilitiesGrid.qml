@@ -1,0 +1,374 @@
+import QtQuick
+import QtQuick.Layouts
+import "../../theme"
+
+Rectangle {
+  id: root
+  
+  required property var manager
+  
+  radius: Theme.radiusXLarge
+  color: Theme.bg2transparent
+  
+  Component.onCompleted: {
+    console.log("UtilitiesGrid module loaded")
+  }
+  
+  ColumnLayout {
+    anchors {
+      fill: parent
+      margins: Theme.spacingM
+    }
+    spacing: Theme.spacingS
+    
+    // Header
+    Text {
+      text: "Utilities"
+      color: Theme.fg
+      font.pixelSize: Theme.fontSizeM
+      font.family: Theme.fontFamily
+      font.bold: true
+    }
+    
+    // Buttons grid - 2 columns
+    GridLayout {
+      Layout.fillWidth: true
+      columns: 2
+      rowSpacing: Theme.spacingS
+      columnSpacing: Theme.spacingS
+      
+      // Xray toggle
+      Rectangle {
+        Layout.fillWidth: true
+        Layout.preferredHeight: 44
+        radius: Theme.radiusLarge
+        color: xrayMouseArea.containsMouse ? Theme.bg1 : "transparent"
+        border.color: manager.xrayActive ? Theme.accent : Theme.border
+        border.width: 1
+        
+        RowLayout {
+          anchors {
+            fill: parent
+            margins: Theme.spacingS
+          }
+          spacing: Theme.spacingS
+          
+          Text {
+            text: "󰖟"
+            color: manager.xrayActive ? Theme.accent : Theme.fg
+            font.pixelSize: Theme.fontSizeL
+            font.family: Theme.fontFamily
+          }
+          
+          Text {
+            Layout.fillWidth: true
+            text: "Xray"
+            color: Theme.fg
+            font.pixelSize: Theme.fontSizeS
+            font.family: Theme.fontFamily
+            elide: Text.ElideRight
+          }
+          
+          Rectangle {
+            width: 8
+            height: 8
+            radius: 4
+            color: manager.xrayActive ? Theme.accent : Theme.fgMuted
+            
+            Behavior on color {
+              ColorAnimation {
+                duration: 200
+                easing.type: Easing.OutCubic
+              }
+            }
+          }
+        }
+        
+        MouseArea {
+          id: xrayMouseArea
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+          
+          onClicked: {
+            console.log("Xray toggle clicked")
+            manager.toggleXray()
+          }
+        }
+      }
+      
+      // Kanata toggle
+      Rectangle {
+        Layout.fillWidth: true
+        Layout.preferredHeight: 44
+        radius: Theme.radiusLarge
+        color: kanataMouseArea.containsMouse ? Theme.bg1 : "transparent"
+        border.color: manager.kanataActive ? Theme.accent : Theme.border
+        border.width: 1
+        
+        RowLayout {
+          anchors {
+            fill: parent
+            margins: Theme.spacingS
+          }
+          spacing: Theme.spacingS
+          
+          Text {
+            text: "󰌌"
+            color: manager.kanataActive ? Theme.accent : Theme.fg
+            font.pixelSize: Theme.fontSizeL
+            font.family: Theme.fontFamily
+          }
+          
+          Text {
+            Layout.fillWidth: true
+            text: "Kanata"
+            color: Theme.fg
+            font.pixelSize: Theme.fontSizeS
+            font.family: Theme.fontFamily
+            elide: Text.ElideRight
+          }
+          
+          Rectangle {
+            width: 8
+            height: 8
+            radius: 4
+            color: manager.kanataActive ? Theme.accent : Theme.fgMuted
+            
+            Behavior on color {
+              ColorAnimation {
+                duration: 200
+                easing.type: Easing.OutCubic
+              }
+            }
+          }
+        }
+        
+        MouseArea {
+          id: kanataMouseArea
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+          
+          onClicked: {
+            console.log("Kanata toggle clicked")
+            manager.toggleKanata()
+          }
+        }
+      }
+      
+      // Color picker
+      Rectangle {
+        Layout.fillWidth: true
+        Layout.preferredHeight: 44
+        radius: Theme.radiusLarge
+        color: pickerMouseArea.containsMouse ? Theme.accent : Theme.accentTransparent
+        
+        Behavior on color {
+          ColorAnimation {
+            duration: 150
+            easing.type: Easing.OutCubic
+          }
+        }
+        
+        RowLayout {
+          anchors {
+            fill: parent
+            margins: Theme.spacingS
+          }
+          spacing: Theme.spacingS
+          
+          Text {
+            text: "󰏘"
+            color: Theme.fg
+            font.pixelSize: Theme.fontSizeL
+            font.family: Theme.fontFamily
+          }
+          
+          Text {
+            Layout.fillWidth: true
+            text: "Color Picker"
+            color: Theme.fg
+            font.pixelSize: Theme.fontSizeS
+            font.family: Theme.fontFamily
+            elide: Text.ElideRight
+          }
+        }
+        
+        MouseArea {
+          id: pickerMouseArea
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+          
+          onClicked: {
+            console.log("Color picker clicked")
+            manager.launchColorPicker()
+          }
+        }
+      }
+      
+      // Screenshot
+      Rectangle {
+        Layout.fillWidth: true
+        Layout.preferredHeight: 44
+        radius: Theme.radiusLarge
+        color: screenshotMouseArea.containsMouse ? Theme.accent : Theme.accentTransparent
+        
+        Behavior on color {
+          ColorAnimation {
+            duration: 150
+            easing.type: Easing.OutCubic
+          }
+        }
+        
+        RowLayout {
+          anchors {
+            fill: parent
+            margins: Theme.spacingS
+          }
+          spacing: Theme.spacingS
+          
+          Text {
+            text: "󰹑"
+            color: Theme.fg
+            font.pixelSize: Theme.fontSizeL
+            font.family: Theme.fontFamily
+          }
+          
+          Text {
+            Layout.fillWidth: true
+            text: "Screenshot"
+            color: Theme.fg
+            font.pixelSize: Theme.fontSizeS
+            font.family: Theme.fontFamily
+            elide: Text.ElideRight
+          }
+        }
+        
+        MouseArea {
+          id: screenshotMouseArea
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+          
+          onClicked: {
+            console.log("Screenshot clicked")
+            manager.takeScreenshot()
+          }
+        }
+      }
+      
+      // Night Light toggle
+      Rectangle {
+        Layout.fillWidth: true
+        Layout.preferredHeight: 44
+        radius: Theme.radiusLarge
+        color: nightLightMouseArea.containsMouse ? Theme.bg1 : "transparent"
+        border.color: manager.nightLightActive ? Theme.accent : Theme.border
+        border.width: 1
+        
+        RowLayout {
+          anchors {
+            fill: parent
+            margins: Theme.spacingS
+          }
+          spacing: Theme.spacingS
+          
+          Text {
+            text: manager.nightLightActive ? "󰛨" : "󱠂"
+            color: manager.nightLightActive ? Theme.accent : Theme.fg
+            font.pixelSize: Theme.fontSizeL
+            font.family: Theme.fontFamily
+          }
+          
+          Text {
+            Layout.fillWidth: true
+            text: "Night Light"
+            color: Theme.fg
+            font.pixelSize: Theme.fontSizeS
+            font.family: Theme.fontFamily
+            elide: Text.ElideRight
+          }
+          
+          Rectangle {
+            width: 8
+            height: 8
+            radius: 4
+            color: manager.nightLightActive ? Theme.accent : Theme.fgMuted
+            
+            Behavior on color {
+              ColorAnimation {
+                duration: 200
+                easing.type: Easing.OutCubic
+              }
+            }
+          }
+        }
+        
+        MouseArea {
+          id: nightLightMouseArea
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+          
+          onClicked: {
+            console.log("Night Light toggle clicked")
+            manager.toggleNightLight()
+          }
+        }
+      }
+      
+      // Clipboard Manager
+      Rectangle {
+        Layout.fillWidth: true
+        Layout.preferredHeight: 44
+        radius: Theme.radiusLarge
+        color: clipboardMouseArea.containsMouse ? Theme.accent : Theme.accentTransparent
+        
+        Behavior on color {
+          ColorAnimation {
+            duration: 150
+            easing.type: Easing.OutCubic
+          }
+        }
+        
+        RowLayout {
+          anchors {
+            fill: parent
+            margins: Theme.spacingS
+          }
+          spacing: Theme.spacingS
+          
+          Text {
+            text: "󰨸"
+            color: Theme.fg
+            font.pixelSize: Theme.fontSizeL
+            font.family: Theme.fontFamily
+          }
+          
+          Text {
+            Layout.fillWidth: true
+            text: "Clipboard"
+            color: Theme.fg
+            font.pixelSize: Theme.fontSizeS
+            font.family: Theme.fontFamily
+            elide: Text.ElideRight
+          }
+        }
+        
+        MouseArea {
+          id: clipboardMouseArea
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+          
+          onClicked: {
+            console.log("Clipboard manager clicked")
+            manager.openClipboard()
+          }
+        }
+      }
+    }
+  }
+}
