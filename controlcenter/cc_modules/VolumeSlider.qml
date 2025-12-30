@@ -41,7 +41,7 @@ Rectangle {
       Text {
         text: Math.round(audioManager.volume * 100) + "%"
         color: Theme.fgMuted
-        font.pixelSize: Theme.fontSizeM
+        font.pixelSize: Theme.fontSizeS
         font.family: Theme.fontFamily
       }
     }

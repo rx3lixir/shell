@@ -62,6 +62,14 @@ Item {
 
     onEntered: root.hovered = true
     onExited: root.hovered = false 
+
+    cursorShape: Qt.PointingHandCursor
+
+    onClicked: {
+      Quickshell.execDetached({
+        command: ["sh", "-c", "kitty --class floating_term_s -e wiremix"]
+      })
+    }
   }
 
   Process {

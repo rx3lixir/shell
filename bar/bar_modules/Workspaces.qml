@@ -14,16 +14,13 @@ RowLayout {
     Rectangle {
       required property int index
       
-      // Use Layout properties so the layout system handles spacing properly
+      // Use Layout properties - this is the proper way
       Layout.preferredWidth: {
         const focused = Hyprland.focusedWorkspace?.id === (index + 1)
         return focused ? Theme.workspaceIndicatorSize * 2 : Theme.workspaceIndicatorSize
       }
       Layout.preferredHeight: Theme.workspaceIndicatorSize
-
-      anchors{
-        verticalCenter: parent.verticalCenter
-      }
+      Layout.alignment: Qt.AlignVCenter  // This replaces anchors.verticalCenter
       
       radius: height / 2
       

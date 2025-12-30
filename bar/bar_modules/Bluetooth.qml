@@ -32,8 +32,8 @@ Item {
       id: iconText
       text: icon
       color: Theme.fg
-      font.pixelSize: theme.fontSizeS
-      font.family: theme.fontFamily
+      font.pixelSize: Theme.fontSizeS
+      font.family: Theme.fontFamily
       verticalAlignment: Text.AlignVCenter
     }
 
@@ -62,6 +62,14 @@ Item {
 
     onEntered: root.hovered = true
     onExited: root.hovered = false 
+
+    cursorShape: Qt.PointingHandCursor
+
+    onClicked: {
+      Quickshell.execDetached({
+        command: ["sh", "-c", "kitty --class floating_term_s -e bluetui"]
+      })
+    }
   }
 
   Process {

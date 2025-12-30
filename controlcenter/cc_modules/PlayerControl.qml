@@ -189,7 +189,7 @@ Rectangle {
         Text {
           text: mediaManager.formatTime(mediaManager.playerPosition)
           color: Theme.fgMuted
-          font.pixelSize: Theme.fontSizeXS
+          font.pixelSize: Theme.fontSizeS
           font.family: Theme.fontFamily
         }
         
@@ -198,7 +198,7 @@ Rectangle {
         Text {
           text: mediaManager.formatTime(mediaManager.playerLength)
           color: Theme.fgMuted
-          font.pixelSize: Theme.fontSizeXS
+          font.pixelSize: Theme.fontSizeS
           font.family: Theme.fontFamily
         }
       }

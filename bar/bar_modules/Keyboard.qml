@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../../theme"
 
 Item {
   id: root
@@ -14,7 +15,7 @@ Item {
   Text {
     text:" " + layout
     color: "#a9b1d6"
-    font.pixelSize: theme.fontSizeS
+    font.pixelSize: Theme.fontSizeS
     font.family: "Ubuntu Nerd Font"
   }
 
