@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import "../../theme"
@@ -9,14 +10,17 @@ Item {
   property string icon: "KB"
   property string layout: "Unknown"
 
-  width: childrenRect.width
-  height: childrenRect.height
+  implicitWidth: layoutText.implicitWidth
+  implicitHeight: Theme.barHeight
 
   Text {
-    text:" " + layout
+    id: layoutText
+    anchors.centerIn: parent
+    text: " " + root.layout
     color: "#a9b1d6"
     font.pixelSize: Theme.fontSizeS
     font.family: "Ubuntu Nerd Font"
+    verticalAlignment: Text.AlignVCenter
   }
 
   Process {
@@ -29,15 +33,15 @@ Item {
         var line = data.trim()
         var parts = line.split("|")
         if (parts.length === 2) {
-          root.icon = parts[0]      // "KB"
-          root.layout = parts[1]    // e.g. "English(US)" or "Русский"
+          root.icon = parts[0]
+          root.layout = parts[1]
         }
       }
     }
   }
 
   Timer {
-    interval: 2000 // Update every 2 seconds
+    interval: 2000
     running: true
     repeat: true
     onTriggered: if (!kbProc.running) kbProc.running = true

@@ -14,9 +14,9 @@ Item {
   Text {
     id: buttonText
     anchors.centerIn: parent
-    text: ""  // Settings/control icon
+    text: "󰣇"  // Settings/control icon
     color: mouseArea.containsMouse ? Qt.darker(Theme.accent, 1.3) : Theme.accent
-    font.pixelSize: Theme.fontSizeL
+    font.pixelSize: Theme.fontSizeS
     font.family: Theme.fontFamily
     verticalAlignment: Text.AlignVCenter
     

@@ -55,7 +55,7 @@ Rectangle {
           spacing: Theme.spacingS
           
           Text {
-            text: "󰴱"
+            text: ""
             color: Theme.fg
             font.pixelSize: Theme.fontSizeXL
             font.family: Theme.fontFamily
@@ -128,7 +128,6 @@ Rectangle {
           cursorShape: Qt.PointingHandCursor
           
           onClicked: {
-            console.log("Screenshot clicked")
             utilitiesManager.takeScreenshot()
           }
         }
