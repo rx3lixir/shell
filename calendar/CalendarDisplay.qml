@@ -169,7 +169,7 @@ LazyLoader {
             
             Text {
               anchors.centerIn: parent
-              text: "󰒮"
+              text: ""
               color: Theme.fg
               font.pixelSize: Theme.fontSizeL
               font.family: Theme.fontFamily
@@ -210,7 +210,7 @@ LazyLoader {
             
             Text {
               anchors.centerIn: parent
-              text: "󰒭"
+              text: ""
               color: Theme.fg
               font.pixelSize: Theme.fontSizeL
               font.family: Theme.fontFamily
@@ -282,7 +282,7 @@ LazyLoader {
                                 model.year === now.getFullYear()
                   
                   if (isToday) return Theme.accent
-                  if (dateMouseArea.containsMouse) return Theme.bg1
+                  if (dateMouseArea.containsMouse) return Qt.darker(Theme.accent, 2)
                   return "transparent"
                 }
                 
@@ -308,7 +308,7 @@ LazyLoader {
                   }
                   font.pixelSize: Theme.fontSizeM
                   font.family: Theme.fontFamily
-                  opacity: model.month === monthGrid.month ? 1.0 : 0.4
+                  opacity: model.month === monthGrid.month ? 1.0 : 0.8
                   
                   Behavior on color {
                     ColorAnimation {

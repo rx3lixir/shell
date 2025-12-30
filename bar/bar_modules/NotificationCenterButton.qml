@@ -49,9 +49,9 @@ Item {
     // Notification count badge
     Rectangle {
       Layout.preferredWidth: countText.implicitWidth + Theme.spacingS
-      Layout.preferredHeight: 16
+      Layout.preferredHeight: 12
       radius: 8
-      color: Theme.accent
+      color: Qt.darker(Theme.fg, 1.2)
       visible: notificationCount > 0
       
       Text {
