@@ -30,45 +30,45 @@ Rectangle {
     GridLayout {
       Layout.fillWidth: true
       columns: 2
-      rowSpacing: Theme.spacingS
-      columnSpacing: Theme.spacingS
+      rowSpacing: Theme.spacingM
+      columnSpacing: Theme.spacingM
       
       // Color picker
       Rectangle {
         Layout.fillWidth: true
         Layout.preferredHeight: 40
         radius: Theme.radiusXLarge
-        color: pickerMouseArea.containsMouse ? Qt.darker(Theme.accent, 1.3) : Theme.accent
+        color: pickerMouseArea.containsMouse ? Qt.darker(Theme.accent, 1.8) : Qt.darker(Theme.accent, 1.6)
         
         Behavior on color {
           ColorAnimation {
-            duration: 150
+            duration: 200
             easing.type: Easing.OutCubic
           }
         }
         
         RowLayout {
-          anchors {
-            fill: parent
-            margins: Theme.spacingS
-          }
+          anchors.verticalCenter: parent.verticalCenter
+          anchors.horizontalCenter: parent.horizontalCenter
           spacing: Theme.spacingS
-          
+
+          Item { Layout.fillWidth: true }
+
           Text {
             text: ""
             color: Theme.fg
-            font.pixelSize: Theme.fontSizeXL
+            font.pixelSize: Theme.fontSizeL
             font.family: Theme.fontFamily
           }
           
           Text {
-            Layout.fillWidth: true
             text: "Color Picker"
             color: Theme.fg
             font.pixelSize: Theme.fontSizeS
             font.family: Theme.fontFamily
-            elide: Text.ElideRight
           }
+
+          Item { Layout.fillWidth: true }
         }
         
         MouseArea {
@@ -88,22 +88,22 @@ Rectangle {
         Layout.fillWidth: true
         Layout.preferredHeight: 40
         radius: Theme.radiusXLarge
-        color: screenshotMouseArea.containsMouse ? Theme.accent : Theme.accentTransparent
+        color: screenshotMouseArea.containsMouse ? Qt.darker(Theme.accent, 1.8) : Qt.darker(Theme.accent, 1.6)
         
         Behavior on color {
           ColorAnimation {
-            duration: 150
+            duration: 200 
             easing.type: Easing.OutCubic
           }
         }
         
         RowLayout {
-          anchors {
-            fill: parent
-            margins: Theme.spacingS
-          }
+          anchors.verticalCenter: parent.verticalCenter
+          anchors.horizontalCenter: parent.horizontalCenter
           spacing: Theme.spacingS
-          
+
+          Item { Layout.fillWidth: true }
+
           Text {
             text: "󰹑"
             color: Theme.fg
@@ -112,13 +112,13 @@ Rectangle {
           }
           
           Text {
-            Layout.fillWidth: true
             text: "Screenshot"
             color: Theme.fg
             font.pixelSize: Theme.fontSizeS
             font.family: Theme.fontFamily
-            elide: Text.ElideRight
           }
+
+          Item { Layout.fillWidth: true }
         }
         
         MouseArea {
@@ -140,15 +140,15 @@ Rectangle {
         radius: Theme.radiusXLarge
         color: nightLightMouseArea.containsMouse ? Theme.bg1 : "transparent"
         border.color: utilitiesManager.nightLightActive ? Theme.accent : Theme.border
-        border.width: 1
+        border.width: 2
         
         RowLayout {
-          anchors {
-            fill: parent
-            margins: Theme.spacingS
-          }
+          anchors.verticalCenter: parent.verticalCenter
+          anchors.horizontalCenter: parent.horizontalCenter
           spacing: Theme.spacingS
-          
+
+          Item { Layout.fillWidth: true }
+
           Text {
             text: utilitiesManager.nightLightActive ? "󱩌" : "󰹐"
             color: utilitiesManager.nightLightActive ? Theme.accent : Theme.fg
@@ -157,12 +157,10 @@ Rectangle {
           }
           
           Text {
-            Layout.fillWidth: true
             text: "Night Light"
             color: Theme.fg
             font.pixelSize: Theme.fontSizeS
             font.family: Theme.fontFamily
-            elide: Text.ElideRight
           }
           
           Rectangle {
@@ -178,6 +176,8 @@ Rectangle {
               }
             }
           }
+
+          Item { Layout.fillWidth: true }
         }
         
         MouseArea {
@@ -197,22 +197,22 @@ Rectangle {
         Layout.fillWidth: true
         Layout.preferredHeight: 40
         radius: Theme.radiusXLarge
-        color: clipboardMouseArea.containsMouse ? Theme.accent : Theme.accentTransparent
+        color: clipboardMouseArea.containsMouse ? Qt.darker(Theme.accent, 1.8) : Qt.darker(Theme.accent, 1.6)
         
         Behavior on color {
           ColorAnimation {
-            duration: 150
+            duration: 200
             easing.type: Easing.OutCubic
           }
         }
         
         RowLayout {
-          anchors {
-            fill: parent
-            margins: Theme.spacingS
-          }
+          anchors.verticalCenter: parent.verticalCenter
+          anchors.horizontalCenter: parent.horizontalCenter
           spacing: Theme.spacingS
-          
+
+          Item { Layout.fillWidth: true }
+
           Text {
             text: "󰨸"
             color: Theme.fg
@@ -221,13 +221,13 @@ Rectangle {
           }
           
           Text {
-            Layout.fillWidth: true
             text: "Clipboard"
             color: Theme.fg
             font.pixelSize: Theme.fontSizeS
             font.family: Theme.fontFamily
-            elide: Text.ElideRight
           }
+
+          Item { Layout.fillWidth: true }
         }
         
         MouseArea {

@@ -14,6 +14,9 @@ Scope {
   // Reference to launcher manager (for the Applications item)
   required property var launcherManager
   
+  // Reference to wallpaper manager (for the Wallpapers item)
+  required property var wallpaperManager
+  
   onVisibleChanged: {
     if (visible) {
       searchText = "" // Reset search when opening
@@ -41,13 +44,19 @@ Scope {
       command: "kitty --class floating_term_s -e wiremix"
     },
     {
-      icon: "",
+      icon: "",
       name: "Applications",
       description: "Launch applications",
       command: "launcher"  // Special command to trigger launcher
     },
     {
-      icon: "",
+      icon: "󰸉",
+      name: "Wallpapers",
+      description: "Change wallpaper",
+      command: "wallpapers"  // Special command to trigger wallpaper picker
+    },
+    {
+      icon: "",
       name: "Files",
       description: "Browse files with Yazi",
       command: "kitty --class floating_term_l -e yazi"
@@ -62,10 +71,20 @@ Scope {
   
   // Execute a menu item's command
   function executeItem(item) {
+    console.log("[MenuManager] Executing item:", item.name, "command:", item.command)
+    
     // Special case: Applications opens the launcher
     if (item.command === "launcher") {
       manager.visible = false
       launcherManager.visible = true
+      return
+    }
+    
+    // Special case: Wallpapers opens the wallpaper picker
+    if (item.command === "wallpapers") {
+      console.log("[MenuManager] Opening wallpaper picker")
+      manager.visible = false
+      wallpaperManager.visible = true
       return
     }
     
@@ -76,7 +95,7 @@ Scope {
       })
       manager.visible = false
     } catch (error) {
-      console.error("Failed to execute command:", error)
+      console.error("[MenuManager] Failed to execute command:", error)
     }
   }
   

@@ -9,6 +9,7 @@ import "notificationcenter"
 import "controlcenter"
 import "menu"
 import "calendar"
+import "wallpaper"
 
 ShellRoot {
   // Load the control center system first (brightness monitoring happens here)
@@ -59,10 +60,20 @@ ShellRoot {
     manager: launcherManager
   }
   
-  // Load the menu system (needs launcher reference)
+  // Load the wallpaper system
+  WallpaperManager {
+    id: wallpaperManager
+  }
+  
+  WallpaperGrid {
+    manager: wallpaperManager
+  }
+  
+  // Load the menu system (needs launcher and wallpaper references)
   MenuManager {
     id: menuManager
     launcherManager: launcherManager
+    wallpaperManager: wallpaperManager
   }
   
   MenuDisplay {
