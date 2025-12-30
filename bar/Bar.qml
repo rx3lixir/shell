@@ -8,12 +8,10 @@ import "bar_modules" as Modules
 PanelWindow {
   id: barWindow
   
-  // Accept the wlogout window from shell.qml
+  // Accept managers from shell.qml
   required property var controlCenterManager 
-  
-  // Accept the notification manager from shell.qml
   required property var notificationCenterManager
-
+  required property var calendarManager
   
   anchors.top: true
   anchors.left: true
@@ -65,12 +63,13 @@ PanelWindow {
 
         Modules.Network {}
         
-        // Add the control center button here
-        Modules.NotificationCenterButton {  // Changed name
+        Modules.NotificationCenterButton {
           notificationCenterManager: barWindow.notificationCenterManager
         }
         
-        Modules.Clock {}
+        Modules.Clock {
+          calendarManager: barWindow.calendarManager
+        }
       }
     }
   }

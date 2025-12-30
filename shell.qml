@@ -8,6 +8,7 @@ import "launcher"
 import "notificationcenter"
 import "controlcenter"
 import "menu"
+import "calendar"
 
 ShellRoot {
   // Load the control center system first (brightness monitoring happens here)
@@ -67,6 +68,15 @@ ShellRoot {
   MenuDisplay {
     manager: menuManager
   }
+  
+  // Load the calendar system
+  CalendarManager {
+    id: calendarManager
+  }
+  
+  CalendarDisplay {
+    manager: calendarManager
+  }
 
   // Load the wlogout window
   WLogout {
@@ -122,5 +132,6 @@ ShellRoot {
     id: bar
     controlCenterManager: controlCenterManager
     notificationCenterManager: notificationCenterManager
+    calendarManager: calendarManager
   }
 }
