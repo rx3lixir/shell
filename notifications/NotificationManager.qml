@@ -8,41 +8,53 @@ Scope {
   // Reference to the notification center manager
   required property var notificationCenterManager
   
-  // Current notification data being displayed (for the popup)
-  property string notifSummary: ""
-  property string notifBody: ""
-  property string notifApp: ""
-  property bool hasNotification: false
-
-  onHasNotificationChanged: {
-    if (!hasNotification) {
-      showTimer.stop()
-    }
-  }
+  // Queue of notification data to display
+  // Each item is { id, summary, body, appName, timestamp }
+  property var notificationQueue: []
   
-  // Timer to hide notification popup after a few seconds
-  Timer {
-    id: showTimer
-    interval: 5000 // Show for 5 seconds
-    onTriggered: {
-      manager.hasNotification = false
-    }
-  }
+  // Counter for generating unique IDs
+  property int notificationIdCounter: 0
   
   // The actual notification server
   NotificationServer {
     id: notifServer
     
     onNotification: notification => {
+      // Add to notification center history
       notificationCenterManager.addNotification(notification)
       
-      // Then show the popup
-      manager.notifSummary = notification.summary
-      manager.notifBody = notification.body
-      manager.notifApp = notification.appName
-      manager.hasNotification = true
-      
-      showTimer.restart()
+      // Add to popup queue
+      addToQueue(notification)
     }
+  }
+  
+  // Function to add a notification to the queue
+  function addToQueue(notification) {
+    var notifData = {
+      id: manager.notificationIdCounter++,
+      summary: notification.summary,
+      body: notification.body,
+      appName: notification.appName,
+      timestamp: Date.now()
+    }
+    
+    var newQueue = notificationQueue.slice()
+    newQueue.push(notifData)
+    notificationQueue = newQueue
+    
+    console.log("[NotificationManager] Added notification to queue. Queue length:", notificationQueue.length)
+  }
+  
+  // Function to remove a notification from the queue
+  function removeFromQueue(notifId) {
+    var newQueue = []
+    for (var i = 0; i < notificationQueue.length; i++) {
+      if (notificationQueue[i].id !== notifId) {
+        newQueue.push(notificationQueue[i])
+      }
+    }
+    notificationQueue = newQueue
+    
+    console.log("[NotificationManager] Removed notification. Queue length:", notificationQueue.length)
   }
 }
