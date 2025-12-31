@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Widgets
 import Quickshell.Wayland
 import "../theme"
+import "wallpaper_components" as Components
 
 LazyLoader {
   id: loader
@@ -103,7 +104,7 @@ LazyLoader {
           // Move up (left in grid)
           if (wallpaperWindow.selectedIndex > 0) {
             wallpaperWindow.selectedIndex--
-            wallpaperGrid.positionViewAtIndex(wallpaperWindow.selectedIndex, GridView.Contain)
+            gridView.positionViewAtIndex(wallpaperWindow.selectedIndex, GridView.Contain)
           }
           event.accepted = true
         }
@@ -111,7 +112,7 @@ LazyLoader {
           // Move down (right in grid)
           if (wallpaperWindow.selectedIndex < wallpaperWindow.filteredWallpapers.length - 1) {
             wallpaperWindow.selectedIndex++
-            wallpaperGrid.positionViewAtIndex(wallpaperWindow.selectedIndex, GridView.Contain)
+            gridView.positionViewAtIndex(wallpaperWindow.selectedIndex, GridView.Contain)
           }
           event.accepted = true
         }
@@ -119,7 +120,7 @@ LazyLoader {
           // Move left by 3 (one row up)
           if (wallpaperWindow.selectedIndex >= 3) {
             wallpaperWindow.selectedIndex -= 3
-            wallpaperGrid.positionViewAtIndex(wallpaperWindow.selectedIndex, GridView.Contain)
+            gridView.positionViewAtIndex(wallpaperWindow.selectedIndex, GridView.Contain)
           }
           event.accepted = true
         }
@@ -127,7 +128,7 @@ LazyLoader {
           // Move right by 3 (one row down)
           if (wallpaperWindow.selectedIndex + 3 < wallpaperWindow.filteredWallpapers.length) {
             wallpaperWindow.selectedIndex += 3
-            wallpaperGrid.positionViewAtIndex(wallpaperWindow.selectedIndex, GridView.Contain)
+            gridView.positionViewAtIndex(wallpaperWindow.selectedIndex, GridView.Contain)
           }
           event.accepted = true
         }
@@ -234,44 +235,13 @@ LazyLoader {
         }
         
         // Search bar
-        Rectangle {
+        Components.WallpaperSearchBar {
           Layout.fillWidth: true
           Layout.preferredHeight: 40
-          radius: Theme.radiusLarge
-          color: Theme.bg2transparent
-          border.color: searchInput.activeFocus ? Theme.accent : "transparent"
-          border.width: 2
           
-          TextInput {
-            id: searchInput
-            anchors {
-              fill: parent
-              leftMargin: Theme.spacingM
-              rightMargin: Theme.spacingM
-            }
-            verticalAlignment: TextInput.AlignVCenter
-            color: Theme.fg
-            font.pixelSize: Theme.fontSizeM
-            font.family: Theme.fontFamily
-            
-            // Placeholder
-            Text {
-              anchors.fill: parent
-              text: "Search wallpapers..."
-              color: Theme.fgMuted
-              font: parent.font
-              verticalAlignment: Text.AlignVCenter
-              visible: !parent.text
-            }
-            
-            onTextChanged: {
-              wallpaperWindow.searchText = text
-              wallpaperWindow.updateFilteredWallpapers()
-            }
-            
-            Component.onCompleted: {
-              forceActiveFocus()
-            }
+          onSearchChanged: text => {
+            wallpaperWindow.searchText = text
+            wallpaperWindow.updateFilteredWallpapers()
           }
         }
         
@@ -300,237 +270,26 @@ LazyLoader {
           visible: loader.manager.errorMessage !== ""
         }
         
-        // Wallpaper grid - 3 columns, bigger cells
-        GridView {
-          id: wallpaperGrid
+        // Wallpaper grid
+        Components.WallpaperGridView {
+          id: gridView
           Layout.fillWidth: true
           Layout.fillHeight: true
-          clip: true
-          
-          cellWidth: 280
-          cellHeight: 200
           
           visible: !loader.manager.isLoading && loader.manager.errorMessage === ""
           
-          model: wallpaperWindow.filteredWallpapers
+          wallpapers: wallpaperWindow.filteredWallpapers
+          selectedIndex: wallpaperWindow.selectedIndex
+          currentWallpaper: loader.manager.currentWallpaper
+          wallpaperDir: loader.manager.wallpaperDir
           
-          currentIndex: wallpaperWindow.selectedIndex
-          
-          delegate: Item {
-            required property string modelData
-            required property int index
-            
-            width: wallpaperGrid.cellWidth
-            height: wallpaperGrid.cellHeight
-            
-            Rectangle {
-              anchors {
-                fill: parent
-                margins: Theme.spacingS
-              }
-              radius: Theme.radiusLarge
-              color: {
-                if (index === wallpaperWindow.selectedIndex) return Theme.accent
-                if (itemMouseArea.containsMouse) return Theme.bg2
-                return Theme.bg2transparent
-              }
-              border.color: loader.manager.currentWallpaper === modelData ? Theme.accent : "transparent"
-              border.width: 3
-              
-              Behavior on color {
-                ColorAnimation {
-                  duration: 150
-                  easing.type: Easing.OutCubic
-                }
-              }
-              
-              ColumnLayout {
-                anchors {
-                  fill: parent
-                  margins: Theme.spacingS
-                }
-                spacing: Theme.spacingS
-                
-                // Image preview
-                Rectangle {
-                  Layout.fillWidth: true
-                  Layout.fillHeight: true
-                  radius: Theme.radiusMedium
-                  color: Theme.bg1
-                  clip: true
-                  
-                  Image {
-                    anchors.fill: parent
-                    source: "file://" + loader.manager.wallpaperDir + "/" + modelData
-                    fillMode: Image.PreserveAspectCrop
-                    smooth: true
-                    cache: true
-                    asynchronous: true
-                    
-                    // Use lower source size for faster loading (thumbnail quality)
-                    sourceSize.width: 280
-                    sourceSize.height: 200
-                    
-                    // Loading indicator
-                    Rectangle {
-                      anchors.centerIn: parent
-                      width: 32
-                      height: 32
-                      radius: 16
-                      color: Theme.accentTransparent
-                      visible: parent.status === Image.Loading
-                      
-                      Text {
-                        anchors.centerIn: parent
-                        text: "⏳"
-                        color: Theme.fg
-                        font.pixelSize: Theme.fontSizeM
-                        font.family: Theme.fontFamily
-                      }
-                    }
-                    
-                    // Error indicator
-                    Text {
-                      anchors.centerIn: parent
-                      text: "❌ Failed"
-                      color: Theme.error
-                      font.pixelSize: Theme.fontSizeS
-                      font.family: Theme.fontFamily
-                      visible: parent.status === Image.Error
-                    }
-                  }
-                  
-                  // Current wallpaper indicator
-                  Rectangle {
-                    anchors {
-                      top: parent.top
-                      right: parent.right
-                      margins: Theme.spacingS
-                    }
-                    width: 28
-                    height: 28
-                    radius: 14
-                    color: Theme.accent
-                    visible: loader.manager.currentWallpaper === modelData
-                    
-                    Text {
-                      anchors.centerIn: parent
-                      text: "✓"
-                      color: Theme.bg1
-                      font.pixelSize: Theme.fontSizeM
-                      font.family: Theme.fontFamily
-                      font.bold: true
-                    }
-                  }
-                  
-                  // Selected indicator (keyboard nav)
-                  Rectangle {
-                    anchors {
-                      top: parent.top
-                      left: parent.left
-                      margins: Theme.spacingS
-                    }
-                    width: 28
-                    height: 28
-                    radius: 14
-                    color: Theme.accent
-                    visible: index === wallpaperWindow.selectedIndex && 
-                             loader.manager.currentWallpaper !== modelData
-                    
-                    Text {
-                      anchors.centerIn: parent
-                      text: "→"
-                      color: Theme.bg1
-                      font.pixelSize: Theme.fontSizeM
-                      font.family: Theme.fontFamily
-                      font.bold: true
-                    }
-                  }
-                }
-                
-                // Filename
-                Text {
-                  Layout.fillWidth: true
-                  text: modelData
-                  color: {
-                    if (index === wallpaperWindow.selectedIndex) return Theme.bg1
-                    if (loader.manager.currentWallpaper === modelData) return Theme.accent
-                    return Theme.fg
-                  }
-                  font.pixelSize: Theme.fontSizeS
-                  font.family: Theme.fontFamily
-                  elide: Text.ElideMiddle
-                  horizontalAlignment: Text.AlignHCenter
-                  
-                  Behavior on color {
-                    ColorAnimation {
-                      duration: 150
-                      easing.type: Easing.OutCubic
-                    }
-                  }
-                }
-              }
-              
-              MouseArea {
-                id: itemMouseArea
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                
-                onClicked: {
-                  wallpaperWindow.selectedIndex = index
-                  console.log("[WallpaperGrid] Selected via click:", modelData)
-                  loader.manager.setWallpaper(modelData)
-                }
-              }
-            }
+          onWallpaperSelected: filename => {
+            console.log("[WallpaperGrid] Selected via click:", filename)
+            loader.manager.setWallpaper(filename)
           }
           
-          // Scrollbar
-          Rectangle {
-            anchors {
-              right: parent.right
-              top: parent.top
-              bottom: parent.bottom
-              rightMargin: 2
-              topMargin: 2
-              bottomMargin: 2
-            }
-            width: 4
-            radius: 2
-            color: "transparent"
-            visible: wallpaperGrid.contentHeight > wallpaperGrid.height
-            
-            Rectangle {
-              anchors.fill: parent
-              radius: parent.radius
-              color: Theme.borderDim
-              opacity: 0.2
-            }
-            
-            Rectangle {
-              width: parent.width
-              height: {
-                if (wallpaperGrid.contentHeight <= wallpaperGrid.height) return 0
-                return Math.max(30, parent.height * (wallpaperGrid.height / wallpaperGrid.contentHeight))
-              }
-              y: {
-                if (wallpaperGrid.contentHeight <= wallpaperGrid.height) return 0
-                var maxY = parent.height - height
-                var progress = wallpaperGrid.contentY / (wallpaperGrid.contentHeight - wallpaperGrid.height)
-                return maxY * progress
-              }
-              radius: parent.radius
-              color: Theme.fgMuted
-              opacity: 0.4
-              
-              Behavior on y {
-                NumberAnimation {
-                  duration: 100
-                  easing.type: Easing.OutCubic
-                }
-              }
-            }
+          onIndexSelected: index => {
+            wallpaperWindow.selectedIndex = index
           }
         }
         
