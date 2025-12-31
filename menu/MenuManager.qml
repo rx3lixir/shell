@@ -44,7 +44,7 @@ Scope {
       command: "kitty --class floating_term_s -e wiremix"
     },
     {
-      icon: "",
+      icon: "",
       name: "Applications",
       description: "Launch applications",
       command: "launcher"  // Special command to trigger launcher
@@ -56,7 +56,7 @@ Scope {
       command: "wallpapers"  // Special command to trigger wallpaper picker
     },
     {
-      icon: "",
+      icon: "",
       name: "Files",
       description: "Browse files with Yazi",
       command: "kitty --class floating_term_l -e yazi"
