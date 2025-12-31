@@ -17,6 +17,7 @@ Scope {
       // Exit code 0 means process found (night light is on)
       // Exit code 1 means process not found (night light is off)
       manager.nightLightActive = (code === 0)
+      console.log("[UtilitiesManager] Night light state:", manager.nightLightActive)
     }
     
     stderr: SplitParser {
@@ -40,7 +41,7 @@ Scope {
   
   // ========== TOGGLE NIGHT LIGHT ==========
   function toggleNightLight() {
-    console.log("Toggling night light, current state:", manager.nightLightActive)
+    console.log("[UtilitiesManager] Toggling night light, current state:", manager.nightLightActive)
     
     // Create a process to run your script
     var proc = Qt.createQmlObject(
@@ -48,17 +49,27 @@ Scope {
       manager
     )
     
+    // Listen for when the script completes
     proc.exited.connect(code => {
-      console.log("night-mode script exited with code:", code)
+      console.log("[UtilitiesManager] night-mode script exited with code:", code)
       proc.destroy()
       
-      // Force immediate state check after toggle
+      // Wait a bit longer after script completes to ensure state is settled
       Qt.callLater(() => {
-        nightLightCheckProcess.running = true
+        checkStateDelayTimer.restart()
       })
     })
     
     proc.running = true
+  }
+  
+  // Delayed state check timer - gives the system time to settle
+  Timer {
+    id: checkStateDelayTimer
+    interval: 250  // Wait 250ms after toggle
+    onTriggered: {
+      nightLightCheckProcess.running = true
+    }
   }
   
   // ========== LAUNCHER FUNCTIONS ==========
