@@ -5,44 +5,62 @@ import Quickshell.Services.Pipewire
 Scope {
   id: manager
   
-  // Receives the specific BrightnessManager instead of whole ControlCenterManager
   required property var brightnessManager
 
-  // Track PipeWire objects
   PwObjectTracker {
     objects: [ Pipewire.defaultAudioSink, Pipewire.defaultAudioSource ]
   }
 
-  // OSD Types
   readonly property string typeNone: "none"
   readonly property string typeVolume: "volume"
   readonly property string typeMic: "mic"
   readonly property string typeBrightness: "brightness"
 
-  // Exposed state for the display
   property string currentType: typeNone
   property real currentValue: 0.0
   property bool currentMuted: false
   property string currentIcon: ""
+  
+  // Track if user is interacting with OSD
+  property bool userInteracting: false
 
-  // Single unified timer
+  // Hide timer - stops when user is interacting
   Timer {
     id: hideTimer
     interval: 1500
-    onTriggered: manager.currentType = manager.typeNone
+    running: false
+    repeat: false
+    
+    onTriggered: {
+      manager.currentType = manager.typeNone
+    }
+  }
+  
+  // Watch for interaction changes
+  onUserInteractingChanged: {
+    if (userInteracting) {
+      // User started interacting - stop the timer
+      if (hideTimer.running) {
+        hideTimer.stop()
+      }
+    } else {
+      // User stopped interacting - restart the timer
+      if (manager.currentType !== manager.typeNone) {
+        hideTimer.restart()
+      }
+    }
   }
 
   // Debounce timer for brightness OSD
   Timer {
     id: brightnessDebounceTimer
-    interval: 150  // Short delay to batch rapid changes
+    interval: 150
     onTriggered: {
-      console.log("Showing brightness OSD")
       manager.showOsd(
         manager.typeBrightness,
-        manager.brightnessManager.brightness,  // CHANGED: access via brightnessManager
+        manager.brightnessManager.brightness,
         false,
-        manager.getBrightnessIcon(manager.brightnessManager.brightness)  // CHANGED
+        manager.getBrightnessIcon(manager.brightnessManager.brightness)
       )
     }
   }
@@ -53,7 +71,11 @@ Scope {
     manager.currentValue = value
     manager.currentMuted = muted
     manager.currentIcon = icon
-    hideTimer.restart()
+    
+    // Only start timer if user is NOT currently interacting
+    if (!manager.userInteracting) {
+      hideTimer.restart()
+    }
   }
 
   // Volume icon logic
@@ -142,14 +164,10 @@ Scope {
     target: manager.brightnessManager
     
     function onBrightnessChanged() {
-      // Skip OSD if this is a user-initiated change from the slider
-      // (user can see the slider moving, doesn't need OSD spam)
       if (manager.brightnessManager.brightnessUserChange) {
         return
       }
       
-      // For external changes (keyboard shortcuts, other apps), show OSD
-      // but debounce it to avoid rapid fire
       brightnessDebounceTimer.restart()
     }
   }

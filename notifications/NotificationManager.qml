@@ -41,8 +41,6 @@ Scope {
     var newQueue = notificationQueue.slice()
     newQueue.push(notifData)
     notificationQueue = newQueue
-    
-    console.log("[NotificationManager] Added notification to queue. Queue length:", notificationQueue.length)
   }
   
   // Function to remove a notification from the queue
@@ -54,7 +52,5 @@ Scope {
       }
     }
     notificationQueue = newQueue
-    
-    console.log("[NotificationManager] Removed notification. Queue length:", notificationQueue.length)
   }
 }

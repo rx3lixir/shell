@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
+import Quickshell.Wayland
 import "../theme"
 import "osd_components" as Components
 
@@ -28,13 +29,23 @@ LazyLoader {
     implicitHeight: 100
     
     color: "transparent"
-    mask: Region {}
+    mask: null
+    
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     
     Rectangle {
       id: card
       anchors.fill: parent
       radius: Theme.radiusXLarge
       color: Theme.bg0transparent
+      
+      // Track if user is interacting - BOTH hover AND dragging
+      property bool userInteracting: cardMouseArea.containsMouse || osdSlider.isDragging
+      
+      // Notify manager about interaction state
+      onUserInteractingChanged: {
+        loader.manager.userInteracting = userInteracting
+      }
       
       opacity: loader.active ? 1.0 : 0.0
       
@@ -50,17 +61,17 @@ LazyLoader {
           fill: parent
           margins: Theme.spacingM
         }
-        spacing: Theme.spacingS
+        spacing: Theme.spacingM
         
         // Header row
         RowLayout {
           Layout.fillWidth: true
-          spacing: Theme.spacingM
+          spacing: Theme.spacingS
           
           Text {
             text: loader.manager.currentIcon
             font.family: Theme.fontFamily
-            font.pixelSize: 24
+            font.pixelSize: 20
             color: Theme.fg
           }
           
@@ -92,6 +103,7 @@ LazyLoader {
         
         // Slider component
         Components.OsdSlider {
+          id: osdSlider
           Layout.fillWidth: true
           Layout.preferredHeight: 50
           
@@ -105,6 +117,14 @@ LazyLoader {
             }
           }
         }
+      }
+      
+      // Main mouse area to detect hover
+      MouseArea {
+        id: cardMouseArea
+        anchors.fill: parent
+        z: -1
+        hoverEnabled: true
       }
     }
   }

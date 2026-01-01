@@ -1,10 +1,11 @@
 import QtQuick
-import "../theme"
+import "../../theme"
 
 Item {
   id: root
   
   property real value: 0.5
+  property bool isDragging: false  // Expose drag state
   signal sliderMoved(real newValue)
   
   implicitHeight: 50
@@ -71,7 +72,7 @@ Item {
     MouseArea {
       id: handleMouseArea
       anchors.fill: parent
-      anchors.margins: -4
+      anchors.margins: -8  // Bigger hit area
       hoverEnabled: true
       cursorShape: Qt.PointingHandCursor
       
@@ -80,13 +81,22 @@ Item {
       drag.minimumX: 0
       drag.maximumX: root.width - handle.width
       
+      onPressed: {
+        root.isDragging = true  // Signal that dragging started
+      }
+      
       onPositionChanged: {
         if (drag.active) {
-          var newValue = handle.x / (root.width - handle.width)
+          var newValue = (handle.x + handle.width / 2) / root.width
           newValue = Math.max(0, Math.min(1, newValue))
+          
           root.value = newValue
-          root.valueChanged(newValue)
+          root.sliderMoved(newValue)
         }
+      }
+      
+      onReleased: {
+        root.isDragging = false  // Signal that dragging ended
       }
     }
   }
@@ -99,8 +109,9 @@ Item {
     onClicked: mouse => {
       var newValue = mouse.x / track.width
       newValue = Math.max(0, Math.min(1, newValue))
+      
       root.value = newValue
-      root.valueChanged(newValue)
+      root.sliderMoved(newValue)
     }
   }
   
@@ -110,16 +121,23 @@ Item {
       left: parent.left
       right: parent.right
       top: track.bottom
-      topMargin: 4
+      topMargin: 8
     }
     height: 20
     
     Repeater {
       model: [
         { pos: 0.0, label: "" },
-        { pos: 0.25, label: "25" },
-        { pos: 0.5, label: "50" },
-        { pos: 0.75, label: "75" }
+        { pos: 0.10, label: "" },
+        { pos: 0.20, label: "" },
+        { pos: 0.30, label: "" },
+        { pos: 0.40, label: "" },
+        { pos: 0.50, label: "" },
+        { pos: 0.60, label: "" },
+        { pos: 0.70, label: "" },
+        { pos: 0.80, label: "" },
+        { pos: 0.90, label: "" },
+        { pos: 1, label: "" },
       ]
       
       delegate: Item {
@@ -137,7 +155,7 @@ Item {
             top: parent.top
           }
           width: 2
-          height: 6
+          height: 5
           color: Theme.fgMuted
         }
         
