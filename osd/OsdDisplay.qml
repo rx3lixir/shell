@@ -2,88 +2,110 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
-import QtQuick.Effects
 import "../theme"
+import "osd_components" as Components
 
 LazyLoader {
-	id: loader
-	
-	// Bind to the manager's state
-	required property var manager
-	
-	active: manager.currentType !== manager.typeNone
-	
-	PanelWindow {
-		anchors.bottom: true
-		margins.bottom: screen.height / 8
-		exclusiveZone: 0
-		implicitWidth: 200
-		implicitHeight: 50
-
-		color: "transparent"
-		mask: Region {}
-
-		Rectangle {
-			id: background
-			anchors.fill: parent
-			radius: height / 3
-			color: Theme.bg2transparent
-
-			RowLayout {
-				anchors {
-					fill: parent
-          leftMargin: 10    // Space before the icon (adjust as needed)
-          rightMargin: 20   // Extra space after the progress bar for balance
-          topMargin: 6
-          bottomMargin: 6
-				}
-
-				// Icon
-				Text {
-					Layout.alignment: Qt.AlignVCenter
-					Layout.preferredWidth: 28
-					Layout.preferredHeight: 28
-					font.family: "Ubuntu Nerd Font Propo"
-					font.pixelSize: 22
-					color: "white"
-					text: loader.manager.currentIcon
-					horizontalAlignment: Text.AlignHCenter
-					verticalAlignment: Text.AlignVCenter
-				}
-				
-				// Progress bar container
-				Item {
-					Layout.fillWidth: true
-					Layout.fillHeight: true
-					Layout.alignment: Qt.AlignVCenter
-					
-					Rectangle {
-						anchors.centerIn: parent
-						width: parent.width
-						height: 6
-						radius: 3
-						color: "#50ffffff"
-						
-						Rectangle {
-							anchors {
-								left: parent.left
-								top: parent.top
-								bottom: parent.bottom
-							}
-							width: parent.width * loader.manager.currentValue
-							radius: parent.radius
-							color: "white"
-							
-							Behavior on width {
-								NumberAnimation {
-									duration: 100
-									easing.type: Easing.OutCubic
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+  id: loader
+  
+  required property var manager
+  
+  active: manager.currentType !== manager.typeNone
+  
+  PanelWindow {
+    anchors {
+      top: true
+      right: true
+    }
+    
+    margins {
+      top: Theme.barHeight + Theme.spacingS
+      right: Theme.spacingM
+    }
+    
+    exclusiveZone: 0
+    implicitWidth: 300
+    implicitHeight: 100
+    
+    color: "transparent"
+    mask: Region {}
+    
+    Rectangle {
+      id: card
+      anchors.fill: parent
+      radius: Theme.radiusXLarge
+      color: Theme.bg0transparent
+      
+      opacity: loader.active ? 1.0 : 0.0
+      
+      Behavior on opacity {
+        NumberAnimation {
+          duration: 200
+          easing.type: Easing.OutCubic
+        }
+      }
+      
+      ColumnLayout {
+        anchors {
+          fill: parent
+          margins: Theme.spacingM
+        }
+        spacing: Theme.spacingS
+        
+        // Header row
+        RowLayout {
+          Layout.fillWidth: true
+          spacing: Theme.spacingM
+          
+          Text {
+            text: loader.manager.currentIcon
+            font.family: Theme.fontFamily
+            font.pixelSize: 24
+            color: Theme.fg
+          }
+          
+          Text {
+            Layout.fillWidth: true
+            text: {
+              if (loader.manager.currentType === loader.manager.typeVolume) {
+                return loader.manager.currentMuted ? "Volume (Muted)" : "Volume"
+              } else if (loader.manager.currentType === loader.manager.typeMic) {
+                return loader.manager.currentMuted ? "Microphone (Muted)" : "Microphone"
+              } else if (loader.manager.currentType === loader.manager.typeBrightness) {
+                return "Brightness"
+              }
+              return ""
+            }
+            color: Theme.fg
+            font.pixelSize: Theme.fontSizeM
+            font.family: Theme.fontFamily
+            font.bold: true
+          }
+          
+          Text {
+            text: Math.round(loader.manager.currentValue * 100) + "%"
+            color: Theme.fgMuted
+            font.pixelSize: Theme.fontSizeS
+            font.family: Theme.fontFamily
+          }
+        }
+        
+        // Slider component
+        Components.OsdSlider {
+          Layout.fillWidth: true
+          Layout.preferredHeight: 50
+          
+          value: loader.manager.currentValue
+          
+          onSliderMoved: newValue => {
+            if (loader.manager.currentType === loader.manager.typeVolume && loader.manager.audioSink) {
+              loader.manager.audioSink.volume = newValue
+            } else if (loader.manager.currentType === loader.manager.typeBrightness) {
+              loader.manager.brightnessManager.setBrightness(newValue)
+            }
+          }
+        }
+      }
+    }
+  }
 }
