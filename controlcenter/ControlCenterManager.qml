@@ -8,6 +8,9 @@ Scope {
   // Visibility state
   property bool visible: false
   
+  // Reference to power menu manager
+  required property var powerMenuManager
+  
   // Sub-managers - each handles its own domain
   Managers.NetworkManager {
     id: networkManager

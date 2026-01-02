@@ -36,9 +36,7 @@ LazyLoader {
       exclusiveZone = 0
       implicitWidth = 340
       implicitHeight = 800
-      //implicitHeight = loader.manager.mediaManager.playerActive ? 800 : 600
     }
-
     
     contentItem {
       focus: true
@@ -110,16 +108,17 @@ LazyLoader {
           }
         }
         
-        // ========== NETWORK TOGGLES ==========
+        // ========== TOGGLES ==========
         GridLayout {
           Layout.fillWidth: true
           columns: 2
+          rows: 2
           rowSpacing: Theme.spacingS
           columnSpacing: Theme.spacingS
           
           Modules.WiFiToggle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 60
+            Layout.fillWidth: true 
+            Layout.preferredHeight: 60 
             networkManager: loader.manager.network
           }
           
@@ -128,13 +127,18 @@ LazyLoader {
             Layout.preferredHeight: 60
             networkManager: loader.manager.network
           }
-        }
-        
-        // ========== RECORDING ==========
-        Modules.RecordingButton {
-          Layout.fillWidth: true
-          Layout.preferredHeight: 60
-          recordingManager: loader.manager.recording
+
+          Modules.RecordingButton {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 60
+            recordingManager: loader.manager.recording
+          }
+
+          Modules.PowerButton {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 60
+            powerMenuManager: loader.manager.powerMenuManager
+          }
         }
         
         // ========== SLIDERS ==========
@@ -167,12 +171,9 @@ LazyLoader {
         // ========== UTILITIES ==========
         Modules.UtilitiesGrid {
           Layout.fillWidth: true
-          Layout.preferredHeight: 160
+          Layout.preferredHeight: 170
           utilitiesManager: loader.manager.utilities
         }
-        
-        // Spacer
-        Item { Layout.fillHeight: true }
       }
     }
   }

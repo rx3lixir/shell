@@ -4,24 +4,21 @@ import "../../theme"
 
 Rectangle {
   id: root
-  
-  // Changed: now receives specific sub-manager
+
   required property var networkManager
   
   radius: Theme.radiusXLarge
   color: mouseArea.containsMouse ? Theme.bg2 : Theme.bg2transparent
-  border.color: networkManager.wifiEnabled ? Theme.accent : "transparent"
-  border.width: 0
   
   RowLayout {
     anchors {
       fill: parent
       margins: Theme.spacingM
     }
-    spacing: Theme.spacingS
+    spacing: Theme.spacingM
     
     Text {
-      text: networkManager.wifiEnabled ? "󰤨" : "󰤭"
+      text: networkManager.wifiEnabled ? "󰤥" : "󰤭"
       color: networkManager.wifiEnabled ? Theme.accent : Theme.fg
       font.pixelSize: Theme.fontSizeXL
       font.family: Theme.fontFamily
@@ -32,7 +29,7 @@ Rectangle {
       spacing: 2
       
       Text {
-        text: "WiFi"
+        text: "Wireless Net"
         color: Theme.fg
         font.pixelSize: Theme.fontSizeM
         font.family: Theme.fontFamily

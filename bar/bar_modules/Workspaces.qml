@@ -27,13 +27,13 @@ RowLayout {
         const ws = Hyprland.workspaces.values.find(w => w.id === index + 1)
         const focused = Hyprland.focusedWorkspace?.id === (index + 1)
         
-        // Focused workspace - filled circle
-        if (focused) return ""  // 
+        // Focused workspace
+        if (focused) return "󰄯"  // 
         
-        // Empty workspace - small dot
-        if (ws) return ""  // 
+        // Occupied workspace
+        if (ws) return "󰄯"
 
-        // Occupied workspace - ring/outline circle
+        // Empty workspace
         return "󰻃"  // 
       }
       

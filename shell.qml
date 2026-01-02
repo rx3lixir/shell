@@ -2,7 +2,6 @@ import QtQuick
 import Quickshell
 import "osd"
 import "bar"
-import "wlogout"
 import "notifications"
 import "launcher"
 import "notificationcenter"
@@ -10,11 +9,22 @@ import "controlcenter"
 import "menu"
 import "calendar"
 import "wallpaper"
+import "powermenu"
 
 ShellRoot {
-  // Load the control center system first (brightness monitoring happens here)
+  // Load the power menu system first (needed by control center)
+  PowerMenuManager {
+    id: powerMenuManager
+  }
+  
+  PowerMenuDisplay {
+    manager: powerMenuManager
+  }
+  
+  // Load the control center system (brightness monitoring happens here)
   ControlCenterManager {
     id: controlCenterManager
+    powerMenuManager: powerMenuManager
   }
   
   ControlCenterDisplay {
@@ -69,11 +79,12 @@ ShellRoot {
     manager: wallpaperManager
   }
   
-  // Load the menu system (needs launcher and wallpaper references)
+  // Load the menu system (needs launcher, wallpaper, and power menu references)
   MenuManager {
     id: menuManager
     launcherManager: launcherManager
     wallpaperManager: wallpaperManager
+    powerMenuManager: powerMenuManager
   }
   
   MenuDisplay {
@@ -87,55 +98,6 @@ ShellRoot {
   
   CalendarDisplay {
     manager: calendarManager
-  }
-
-  // Load the wlogout window
-  WLogout {
-    id: wlogout
-    visible: false
-    
-    // Define your logout buttons here
-    LogoutButton {
-      text: "Shutdown"
-      nerdIcon: "󰐥"
-      command: "systemctl poweroff"
-      keybind: Qt.Key_S
-    }
-    
-    LogoutButton {
-      text: "Reboot"
-      nerdIcon: "󰜉"
-      command: "systemctl reboot"
-      keybind: Qt.Key_R
-    }
-    
-    LogoutButton {
-      text: "Logout"
-      nerdIcon: "󰍃"
-      command: "hyprctl dispatch exit"
-      keybind: Qt.Key_L
-    }
-    
-    LogoutButton {
-      text: "Lock"
-      nerdIcon: "󰌾"
-      command: "hyprlock"
-      keybind: Qt.Key_K
-    }
-    
-    LogoutButton {
-      text: "Suspend"
-      nerdIcon: "󰤄"
-      command: "systemctl suspend"
-      keybind: Qt.Key_U
-    }
-    
-    LogoutButton {
-      text: "Hibernate"
-      nerdIcon: "󰋊"
-      command: "systemctl hibernate"
-      keybind: Qt.Key_H
-    }
   }
 
   // Load the Bar component and pass references

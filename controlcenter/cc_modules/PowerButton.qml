@@ -5,12 +5,10 @@ import "../../theme"
 Rectangle {
   id: root
   
-  required property var recordingManager
+  required property var powerMenuManager
   
   radius: Theme.radiusXLarge
   color: mouseArea.containsMouse ? Theme.bg2 : Theme.bg2transparent
-  border.color: recordingManager.isRecording ? Theme.error : "transparent"
-  border.width: 2
   
   RowLayout {
     anchors {
@@ -20,8 +18,8 @@ Rectangle {
     spacing: Theme.spacingM
     
     Text {
-      text: recordingManager.isRecording ? "󰑊" : "󰻃"
-      color: recordingManager.isRecording ? Theme.error : Theme.fg
+      text: "󰐥"
+      color: Theme.fg
       font.pixelSize: Theme.fontSizeXL
       font.family: Theme.fontFamily
     }
@@ -31,14 +29,14 @@ Rectangle {
       spacing: 2
       
       Text {
-        text: "Record"
+        text: "Power Menu"
         color: Theme.fg
         font.pixelSize: Theme.fontSizeM
         font.family: Theme.fontFamily
       }
       
       Text {
-        text: recordingManager.isRecording ? "Recording..." : "Record screen"
+        text: "Power actions"
         color: Theme.fgMuted
         font.pixelSize: Theme.fontSizeS
         font.family: Theme.fontFamily
@@ -53,7 +51,7 @@ Rectangle {
     cursorShape: Qt.PointingHandCursor
     
     onClicked: {
-      recordingManager.toggleRecording()
+      powerMenuManager.visible = true
     }
   }
 }

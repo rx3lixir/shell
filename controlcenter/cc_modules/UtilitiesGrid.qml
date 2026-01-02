@@ -15,7 +15,6 @@ Rectangle {
       fill: parent
       margins: Theme.spacingM
     }
-    spacing: Theme.spacingS
     
     // Header
     Text {
@@ -30,45 +29,37 @@ Rectangle {
     GridLayout {
       Layout.fillWidth: true
       columns: 2
-      rowSpacing: Theme.spacingM
-      columnSpacing: Theme.spacingM
+      rowSpacing: Theme.spacingS
+      columnSpacing: Theme.spacingS
       
-      // Color picker
+      // Color Picker
       Rectangle {
         Layout.fillWidth: true
-        Layout.preferredHeight: 40
+        Layout.preferredHeight: 48
         radius: Theme.radiusXLarge
-        color: pickerMouseArea.containsMouse ? Qt.darker(Theme.accent, 1.8) : Qt.darker(Theme.accent, 1.6)
-        
-        Behavior on color {
-          ColorAnimation {
-            duration: 200
-            easing.type: Easing.OutCubic
-          }
-        }
+        color: pickerMouseArea.containsMouse ? Theme.bg2 : Theme.bg2transparent
         
         RowLayout {
-          anchors.verticalCenter: parent.verticalCenter
-          anchors.horizontalCenter: parent.horizontalCenter
+          anchors {
+            fill: parent
+            margins: Theme.spacingM
+          }
+
           spacing: Theme.spacingS
-
-          Item { Layout.fillWidth: true }
-
+          
           Text {
-            text: ""
+            text: "󰈊"
             color: Theme.fg
             font.pixelSize: Theme.fontSizeL
             font.family: Theme.fontFamily
           }
-          
+            
           Text {
             text: "Color Picker"
             color: Theme.fg
-            font.pixelSize: Theme.fontSizeS
+            font.pixelSize: Theme.fontSizeM
             font.family: Theme.fontFamily
           }
-
-          Item { Layout.fillWidth: true }
         }
         
         MouseArea {
@@ -86,39 +77,35 @@ Rectangle {
       // Screenshot
       Rectangle {
         Layout.fillWidth: true
-        Layout.preferredHeight: 40
+        Layout.preferredHeight: 48
         radius: Theme.radiusXLarge
-        color: screenshotMouseArea.containsMouse ? Qt.darker(Theme.accent, 1.8) : Qt.darker(Theme.accent, 1.6)
-        
-        Behavior on color {
-          ColorAnimation {
-            duration: 200 
-            easing.type: Easing.OutCubic
-          }
-        }
+        color: screenshotMouseArea.containsMouse ? Theme.bg2 : Theme.bg2transparent
         
         RowLayout {
-          anchors.verticalCenter: parent.verticalCenter
-          anchors.horizontalCenter: parent.horizontalCenter
+          anchors {
+            fill: parent
+            margins: Theme.spacingM
+          }
           spacing: Theme.spacingS
-
-          Item { Layout.fillWidth: true }
-
+          
           Text {
-            text: "󰹑"
+            text: "󱣴"
             color: Theme.fg
             font.pixelSize: Theme.fontSizeL
             font.family: Theme.fontFamily
           }
           
-          Text {
-            text: "Screenshot"
-            color: Theme.fg
-            font.pixelSize: Theme.fontSizeS
-            font.family: Theme.fontFamily
+          ColumnLayout {
+            Layout.fillWidth: true
+            spacing: 2
+            
+            Text {
+              text: "Screenshot"
+              color: Theme.fg
+              font.pixelSize: Theme.fontSizeM
+              font.family: Theme.fontFamily
+            }
           }
-
-          Item { Layout.fillWidth: true }
         }
         
         MouseArea {
@@ -133,51 +120,39 @@ Rectangle {
         }
       }
       
-      // Night Light toggle
+      // Night Light toggle (special: shows active state)
       Rectangle {
         Layout.fillWidth: true
-        Layout.preferredHeight: 40
+        Layout.preferredHeight: 48
         radius: Theme.radiusXLarge
-        color: nightLightMouseArea.containsMouse ? Theme.bg1 : "transparent"
-        border.color: utilitiesManager.nightLightActive ? Theme.accent : Theme.border
-        border.width: 2
+        color: nightLightMouseArea.containsMouse ? Theme.bg2 : Theme.bg2transparent
         
         RowLayout {
-          anchors.verticalCenter: parent.verticalCenter
-          anchors.horizontalCenter: parent.horizontalCenter
+          anchors {
+            fill: parent
+            margins: Theme.spacingM
+          }
+
           spacing: Theme.spacingS
-
-          Item { Layout.fillWidth: true }
-
+          
           Text {
-            text: utilitiesManager.nightLightActive ? "󱩌" : "󰹐"
+            text: utilitiesManager.nightLightActive ? "󱩌" : "󰹏"
             color: utilitiesManager.nightLightActive ? Theme.accent : Theme.fg
             font.pixelSize: Theme.fontSizeL
             font.family: Theme.fontFamily
           }
           
-          Text {
-            text: "Night Light"
-            color: Theme.fg
-            font.pixelSize: Theme.fontSizeS
-            font.family: Theme.fontFamily
-          }
-          
-          Rectangle {
-            width: 8
-            height: 8
-            radius: 4
-            color: utilitiesManager.nightLightActive ? Theme.accent : Theme.fgMuted
+          ColumnLayout {
+            Layout.fillWidth: true
+            spacing: 2
             
-            Behavior on color {
-              ColorAnimation {
-                duration: 200
-                easing.type: Easing.OutCubic
-              }
+            Text {
+              text: "Night Light"
+              color: utilitiesManager.nightLightActive ? Theme.accent : Theme.fg
+              font.pixelSize: Theme.fontSizeM
+              font.family: Theme.fontFamily
             }
           }
-
-          Item { Layout.fillWidth: true }
         }
         
         MouseArea {
@@ -195,26 +170,20 @@ Rectangle {
       // Clipboard Manager
       Rectangle {
         Layout.fillWidth: true
-        Layout.preferredHeight: 40
+        Layout.preferredHeight: 48
         radius: Theme.radiusXLarge
-        color: clipboardMouseArea.containsMouse ? Qt.darker(Theme.accent, 1.8) : Qt.darker(Theme.accent, 1.6)
-        
-        Behavior on color {
-          ColorAnimation {
-            duration: 200
-            easing.type: Easing.OutCubic
-          }
-        }
+        color: clipboardMouseArea.containsMouse ? Theme.bg2 : Theme.bg2transparent
         
         RowLayout {
-          anchors.verticalCenter: parent.verticalCenter
-          anchors.horizontalCenter: parent.horizontalCenter
+          anchors {
+            fill: parent
+            margins: Theme.spacingM
+          }
+
           spacing: Theme.spacingS
-
-          Item { Layout.fillWidth: true }
-
+          
           Text {
-            text: "󰨸"
+            text: "󰅍"
             color: Theme.fg
             font.pixelSize: Theme.fontSizeL
             font.family: Theme.fontFamily
@@ -223,11 +192,9 @@ Rectangle {
           Text {
             text: "Clipboard"
             color: Theme.fg
-            font.pixelSize: Theme.fontSizeS
+            font.pixelSize: Theme.fontSizeM
             font.family: Theme.fontFamily
           }
-
-          Item { Layout.fillWidth: true }
         }
         
         MouseArea {
@@ -237,7 +204,7 @@ Rectangle {
           cursorShape: Qt.PointingHandCursor
           
           onClicked: {
-            manager.openClipboard()
+            manager.openClipboard()  // Note: this still references global 'manager' – adjust if needed
           }
         }
       }

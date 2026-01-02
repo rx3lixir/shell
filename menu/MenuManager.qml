@@ -17,6 +17,9 @@ Scope {
   // Reference to wallpaper manager (for the Wallpapers item)
   required property var wallpaperManager
   
+  // Reference to power menu manager (for the Power item)
+  required property var powerMenuManager
+  
   onVisibleChanged: {
     if (visible) {
       searchText = "" // Reset search when opening
@@ -44,7 +47,7 @@ Scope {
       command: "kitty --class floating_term_s -e wiremix"
     },
     {
-      icon: "",
+      icon: "",
       name: "Applications",
       description: "Launch applications",
       command: "launcher"  // Special command to trigger launcher
@@ -56,7 +59,13 @@ Scope {
       command: "wallpapers"  // Special command to trigger wallpaper picker
     },
     {
-      icon: "",
+      icon: "󰐥",
+      name: "Power",
+      description: "Shutdown, reboot, logout...",
+      command: "power"  // Special command to trigger power menu
+    },
+    {
+      icon: "",
       name: "Files",
       description: "Browse files with Yazi",
       command: "kitty --class floating_term_l -e yazi"
@@ -85,6 +94,14 @@ Scope {
       console.log("[MenuManager] Opening wallpaper picker")
       manager.visible = false
       wallpaperManager.visible = true
+      return
+    }
+    
+    // Special case: Power opens the power menu
+    if (item.command === "power") {
+      console.log("[MenuManager] Opening power menu")
+      manager.visible = false
+      powerMenuManager.visible = true
       return
     }
     
