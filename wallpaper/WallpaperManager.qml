@@ -8,10 +8,10 @@ Scope {
   // Visibility state
   property bool visible: false
   
-  // Wallpaper directory - using StandardPaths to get home directory properly
+  // Wallpaper directory
   property string wallpaperDir: ""
   
-  // Script path - you'll need to put the script somewhere in PATH or specify full path
+  // Script path
   readonly property string switcherScript: "wallpaper-switcher"
   
   // List of wallpaper files
@@ -26,7 +26,6 @@ Scope {
   
   // Initialize wallpaper directory on component creation
   Component.onCompleted: {
-    // Get HOME from environment
     var homeDir = Quickshell.env("HOME")
     if (!homeDir) {
       manager.errorMessage = "Failed to get HOME directory"
@@ -34,8 +33,6 @@ Scope {
     }
     
     manager.wallpaperDir = homeDir + "/.config/hypr/wpapers"
-    
-    // Now refresh wallpapers
     refreshWallpapers()
   }
   
@@ -48,7 +45,6 @@ Scope {
     command: ["sh", "-c", ""]
     
     onStarted: {
-      // Clear buffer when process starts
       manager.wallpaperBuffer = []
     }
     
@@ -58,7 +54,6 @@ Scope {
         
         var line = data.trim()
         if (line && line !== "") {
-          // Accumulate in buffer instead of replacing
           manager.wallpaperBuffer.push(line)
         }
       }
@@ -73,8 +68,6 @@ Scope {
     }
     
     onExited: code => {
-      
-      // Now set the final wallpapers array from buffer
       manager.wallpapers = manager.wallpaperBuffer.slice()
       manager.isLoading = false
       
@@ -84,17 +77,29 @@ Scope {
     }
   }
   
-  // Process to get current wallpaper
+  // Process to get current wallpaper from new config format
   Process {
     id: currentWallpaperProcess
     command: ["sh", "-c", ""]
     
+    property bool insideWallpaperBlock: false
+    
     stdout: SplitParser {
       onRead: data => {
         if (!data) return
-        var current = data.trim()
-        if (current) {
-          manager.currentWallpaper = current
+        
+        var line = data.trim()
+        
+        // Parse the new wallpaper { } block format
+        // Look for lines like: path = /path/to/wallpaper.jpg
+        var pathMatch = line.match(/^\s*path\s*=\s*(.+)$/)
+        if (pathMatch && pathMatch[1]) {
+          var fullPath = pathMatch[1].trim()
+          // Extract just the filename from the full path
+          var filename = fullPath.split('/').pop()
+          if (filename) {
+            manager.currentWallpaper = filename
+          }
         }
       }
     }
@@ -121,9 +126,9 @@ Scope {
     listProcess.command = ["sh", "-c", listCmd]
     listProcess.running = true
     
-    // Get current wallpaper
+    // Get current wallpaper from new config format
     var homeDir = Quickshell.env("HOME")
-    var currentCmd = "grep '^preload' \"" + homeDir + "/.config/hypr/hyprpaper.conf\" 2>/dev/null | awk -F'/' '{print $NF}' || echo ''"
+    var currentCmd = "cat \"" + homeDir + "/.config/hypr/hyprpaper.conf\" 2>/dev/null || echo ''"
     currentWallpaperProcess.command = ["sh", "-c", currentCmd]
     currentWallpaperProcess.running = true
   }
