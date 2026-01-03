@@ -132,20 +132,6 @@ LazyLoader {
           hoverEnabled: true
         }
       }
-      
-      // Shadow effect
-      MultiEffect {
-        source: card
-        anchors.fill: card
-        
-        shadowEnabled: true
-        shadowBlur: 0.8
-        shadowOpacity: 0.6
-        shadowColor: "#000000"
-        shadowHorizontalOffset: 0
-        shadowVerticalOffset: 6
-        shadowScale: 1.0
-      }
     }
   }
 }
