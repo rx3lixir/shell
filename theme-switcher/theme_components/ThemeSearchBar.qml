@@ -12,13 +12,11 @@ Rectangle {
   
   TextInput {
     id: searchInput
-
     anchors {
       fill: parent
       leftMargin: Theme.spacingM
       rightMargin: Theme.spacingM
     }
-
     verticalAlignment: TextInput.AlignVCenter
     color: Theme.fg
     font.pixelSize: Theme.fontSizeM
@@ -27,16 +25,16 @@ Rectangle {
     // Placeholder
     Text {
       anchors.fill: parent
-      text: "Search wallpapers..."
+      text: "Search themes..."
       color: Theme.fgMuted
       font: parent.font
       verticalAlignment: Text.AlignVCenter
       visible: !parent.text
     }
-
+    
     Timer {
       id: searchTimer
-      interval: 100
+      interval: 150
       repeat: false
       onTriggered: root.searchChanged(searchInput.text)
     }

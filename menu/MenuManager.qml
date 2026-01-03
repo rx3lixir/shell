@@ -23,13 +23,16 @@ Scope {
   // Reference to emoji manager (for the Emoji item)
   required property var emojiManager
   
+  // Reference to theme manager (for the Themes item) - NEW
+  required property var themeManager
+  
   onVisibleChanged: {
     if (visible) {
       searchText = "" // Reset search when opening
     }
   }
   
-  // Define our menu items
+  // Define our menu items - NEW: Added Themes entry
   property var menuItems: [
     {
       icon: "󰂯",
@@ -50,13 +53,13 @@ Scope {
       command: "kitty --class floating_term_s -e wiremix"
     },
     {
-      icon: "",
+      icon: "󰀻",
       name: "Applications",
       description: "Launch applications",
       command: "launcher"  // Special command to trigger launcher
     },
     {
-      icon: "😀",
+      icon: "󱚣",
       name: "Emoji Picker",
       description: "Pick and copy emojis",
       command: "emoji"  // Special command to trigger emoji picker
@@ -68,13 +71,19 @@ Scope {
       command: "wallpapers"  // Special command to trigger wallpaper picker
     },
     {
+      icon: "󰏘",
+      name: "Themes",
+      description: "Switch color scheme",
+      command: "themes"  // Special command to trigger theme switcher
+    },
+    {
       icon: "󰐥",
       name: "Power",
       description: "Shutdown, reboot, logout...",
       command: "power"  // Special command to trigger power menu
     },
     {
-      icon: "",
+      icon: "",
       name: "Files",
       description: "Browse files with Yazi",
       command: "kitty --class floating_term_l -e yazi"
@@ -111,6 +120,14 @@ Scope {
       console.log("[MenuManager] Opening wallpaper picker")
       manager.visible = false
       wallpaperManager.visible = true
+      return
+    }
+    
+    // Special case: Themes opens the theme switcher - NEW
+    if (item.command === "themes") {
+      console.log("[MenuManager] Opening theme switcher")
+      manager.visible = false
+      themeManager.visible = true
       return
     }
     

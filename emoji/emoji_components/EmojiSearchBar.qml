@@ -36,7 +36,7 @@ Rectangle {
 
     Timer {
       id: searchTimer
-      interval: 150
+      interval: 200
       repeat: false
       onTriggered: root.searchChanged(searchInput.text)
     }

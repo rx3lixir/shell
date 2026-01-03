@@ -11,6 +11,7 @@ import "calendar"
 import "wallpaper"
 import "powermenu"
 import "emoji"
+import "theme-switcher"  // NEW: Add themes import
 
 ShellRoot {
   // Load the power menu system first (needed by control center)
@@ -89,13 +90,23 @@ ShellRoot {
     manager: emojiManager
   }
   
-  // Load the menu system (needs launcher, wallpaper, power menu, and emoji references)
+  // NEW: Load the theme switcher system
+  ThemeManager {
+    id: themeManager
+  }
+  
+  ThemeDisplay {
+    manager: themeManager
+  }
+  
+  // Load the menu system (needs launcher, wallpaper, power menu, emoji, and theme references)
   MenuManager {
     id: menuManager
     launcherManager: launcherManager
     wallpaperManager: wallpaperManager
     powerMenuManager: powerMenuManager
     emojiManager: emojiManager
+    themeManager: themeManager  // NEW: Add theme manager reference
   }
   
   MenuDisplay {
