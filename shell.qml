@@ -10,6 +10,7 @@ import "menu"
 import "calendar"
 import "wallpaper"
 import "powermenu"
+import "emoji"
 
 ShellRoot {
   // Load the power menu system first (needed by control center)
@@ -79,12 +80,22 @@ ShellRoot {
     manager: wallpaperManager
   }
   
-  // Load the menu system (needs launcher, wallpaper, and power menu references)
+  // Load the emoji picker system
+  EmojiManager {
+    id: emojiManager
+  }
+  
+  EmojiDisplay {
+    manager: emojiManager
+  }
+  
+  // Load the menu system (needs launcher, wallpaper, power menu, and emoji references)
   MenuManager {
     id: menuManager
     launcherManager: launcherManager
     wallpaperManager: wallpaperManager
     powerMenuManager: powerMenuManager
+    emojiManager: emojiManager
   }
   
   MenuDisplay {

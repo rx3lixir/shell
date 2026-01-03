@@ -20,6 +20,9 @@ Scope {
   // Reference to power menu manager (for the Power item)
   required property var powerMenuManager
   
+  // Reference to emoji manager (for the Emoji item)
+  required property var emojiManager
+  
   onVisibleChanged: {
     if (visible) {
       searchText = "" // Reset search when opening
@@ -51,6 +54,12 @@ Scope {
       name: "Applications",
       description: "Launch applications",
       command: "launcher"  // Special command to trigger launcher
+    },
+    {
+      icon: "😀",
+      name: "Emoji Picker",
+      description: "Pick and copy emojis",
+      command: "emoji"  // Special command to trigger emoji picker
     },
     {
       icon: "󰸉",
@@ -86,6 +95,14 @@ Scope {
     if (item.command === "launcher") {
       manager.visible = false
       launcherManager.visible = true
+      return
+    }
+    
+    // Special case: Emoji Picker opens the emoji picker
+    if (item.command === "emoji") {
+      console.log("[MenuManager] Opening emoji picker")
+      manager.visible = false
+      emojiManager.visible = true
       return
     }
     
