@@ -39,8 +39,8 @@ LazyLoader {
     
     // Dynamic height based on media player state
     implicitHeight: {
-      let baseHeight = 668
-      let mediaExpansion = manager.media.playerActive ? 120 : 0
+      let baseHeight = 640
+      let mediaExpansion = manager.media.playerActive ? 148 : 0
       return baseHeight + mediaExpansion
     }
     

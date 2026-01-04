@@ -29,13 +29,10 @@ Scope {
       PanelWindow {
         id: notifWindow
         
-        property real slideOffset: 0
-        
         // Calculate Y position based on stack index
         property real stackOffset: {
-          // Each notification takes roughly 100px + spacing
           var baseOffset = Theme.barHeight + Theme.spacingM
-          var perNotifOffset = 108  // Approximate height + spacing
+          var perNotifOffset = 120 // More compact
           return baseOffset + (loader.index * perNotifOffset)
         }
         
@@ -46,7 +43,7 @@ Scope {
         
         margins {
           top: stackOffset
-          right: Theme.spacingL
+          right: Theme.spacingM
         }
         
         WlrLayershell.layer: WlrLayer.Overlay
@@ -59,50 +56,85 @@ Scope {
           exclusiveZone = 0
           implicitWidth = 300
           implicitHeight = notifContent.implicitHeight + (Theme.spacingM * 2)
-          slideOffset = 350
-          slideAnim.start()
-        }
-        
-        // Slide in animation
-        NumberAnimation {
-          id: slideAnim
-          target: notifWindow
-          property: "slideOffset"
-          from: 350
-          to: 0
-          duration: 500
-          easing.type: Easing.OutCubic
         }
         
         // Smooth position transitions when notifications above are removed
         Behavior on stackOffset {
           NumberAnimation {
-            duration: 300
+            duration: 250
             easing.type: Easing.OutCubic
           }
         }
         
+        // Wrapper item for fade animation
+        Item {
+          id: wrapper
+          anchors.fill: parent
+          opacity: 0
+          
+          // Simple fade in
+          NumberAnimation on opacity {
+            from: 0
+            to: 1
+            duration: 200
+            easing.type: Easing.OutCubic
+          }
+        
+        // Main notification container
         Rectangle {
           id: background
           anchors.fill: parent
-          anchors.rightMargin: -notifWindow.slideOffset
-          radius: Theme.radiusXLarge
-          color: Theme.bg0transparent
+          radius: 16 // Slightly less rounded for compact look
+          color: Theme.bg1
+          border.width: 1
+          border.color: Theme.borderDim
           
           property bool hovered: false
+          
+          // Just the rounding animation on hover
+          Behavior on radius {
+            NumberAnimation {
+              duration: 200
+              easing.type: Easing.OutCubic
+            }
+          }
+          
+          Behavior on color {
+            ColorAnimation { duration: 150 }
+          }
           
           ColumnLayout {
             id: notifContent
             anchors {
               fill: parent
-              margins: Theme.spacingM
+              rightMargin: Theme.spacingL
+              bottomMargin: Theme.spacingM
+              topMargin: Theme.spacingM
+              leftMargin: Theme.spacingL
             }
+
             spacing: Theme.spacingS
             
-            // Header row with app name and close hint
+            // Header row - compact
             RowLayout {
               Layout.fillWidth: true
-              spacing: Theme.spacingM
+              spacing: Theme.spacingS
+              
+              // App icon container - smaller
+              Rectangle {
+                Layout.preferredWidth: 28
+                Layout.preferredHeight: 28
+                radius: 14
+                color: Qt.lighter(Theme.bg2, 1.2)
+                
+                Text {
+                  anchors.centerIn: parent
+                  text: "󰵅"
+                  color: Theme.fgMuted
+                  font.pixelSize: 14
+                  font.family: Theme.fontFamily
+                }
+              }
               
               // App name
               Text {
@@ -112,83 +144,134 @@ Scope {
                 font.pixelSize: Theme.fontSizeS
                 font.family: Theme.fontFamily
                 elide: Text.ElideRight
+                opacity: 0.8
               }
               
-              // Close hint (shows on hover)
-              Text {
-                text: "✕"
-                color: background.hovered ? Theme.fg : Theme.fgMuted
-                font.pixelSize: Theme.fontSizeS
-                font.family: Theme.fontFamily
-                opacity: background.hovered ? 1.0 : 0.5
+              // Close button - minimal
+              Rectangle {
+                Layout.preferredWidth: 24
+                Layout.preferredHeight: 24
+                radius: 12
+                color: closeMouseArea.containsMouse ? Theme.bg2 : "transparent"
                 
-                Behavior on opacity {
-                  NumberAnimation {
-                    duration: 150
-                    easing.type: Easing.OutCubic
+                Behavior on color {
+                  ColorAnimation { duration: 100 }
+                }
+                
+                Text {
+                  anchors.centerIn: parent
+                  text: "✕"
+                  color: closeMouseArea.containsMouse ? Theme.fg : Theme.fgMuted
+                  font.pixelSize: 12
+                  font.family: Theme.fontFamily
+                  
+                  Behavior on color {
+                    ColorAnimation { duration: 100 }
                   }
                 }
                 
-                Behavior on color {
-                  ColorAnimation {
-                    duration: 150
-                    easing.type: Easing.OutCubic
+                MouseArea {
+                  id: closeMouseArea
+                  anchors.fill: parent
+                  hoverEnabled: true
+                  cursorShape: Qt.PointingHandCursor
+                  z: 2
+                  
+                  onClicked: {
+                    fadeOut.start()
                   }
                 }
               }
             }
             
-            // Summary (title)
-            Text {
+            // Subtle divider
+            Rectangle {
               Layout.fillWidth: true
-              text: loader.notifSummary
-              color: Theme.fg
-              font.pixelSize: Theme.fontSizeM
-              font.family: Theme.fontFamily
-              font.bold: true
-              wrapMode: Text.WordWrap
-              maximumLineCount: 2
-              elide: Text.ElideRight
+              Layout.preferredHeight: 2
+              color: Theme.borderDim
+              opacity: 0.3
             }
             
-            // Body
-            Text {
+            // Content - compact
+            ColumnLayout {
               Layout.fillWidth: true
-              text: loader.notifBody
-              color: Theme.fgMuted
-              font.pixelSize: Theme.fontSizeS
-              font.family: Theme.fontFamily
-              wrapMode: Text.WordWrap
-              maximumLineCount: 3
-              elide: Text.ElideRight
-              visible: text !== ""
+              spacing: 6
+              
+              // Summary
+              Text {
+                Layout.fillWidth: true
+                text: loader.notifSummary
+                color: Theme.fg
+                font.pixelSize: Theme.fontSizeM
+                font.family: Theme.fontFamily
+                font.weight: Font.Medium
+                wrapMode: Text.WordWrap
+                maximumLineCount: 1
+                elide: Text.ElideRight
+              }
+              
+              // Body - compact
+              Text {
+                Layout.fillWidth: true
+                text: loader.notifBody
+                color: Theme.fgMuted
+                font.pixelSize: Theme.fontSizeS
+                font.family: Theme.fontFamily
+                wrapMode: Text.WordWrap
+                maximumLineCount: 2
+                elide: Text.ElideRight
+                visible: text !== ""
+                opacity: 0.85
+              }
             }
           }
           
-          // Click to dismiss
+          // Hover area
           MouseArea {
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             z: 1
+            propagateComposedEvents: true
             
-            onEntered: background.hovered = true
-            onExited: background.hovered = false
+            onEntered: {
+              background.hovered = true
+              background.radius = 24  // More rounded on hover
+            }
             
-            onClicked: {
-              dismissTimer.stop()
-              loader.active = false
+            onExited: {
+              background.hovered = false
+              background.radius = 20  // Back to normal
+            }
+            
+            onClicked: mouse => {
+              mouse.accepted = false
             }
           }
         }
+        }  // End of wrapper Item
         
-        // Auto-dismiss timer (5 seconds)
+        // Simple fade out animation
+        NumberAnimation {
+          id: fadeOut
+          target: wrapper
+          property: "opacity"
+          to: 0
+          duration: 150
+          easing.type: Easing.InCubic
+          
+          onFinished: {
+            loader.active = false
+          }
+        }
+        
+        // Auto-dismiss timer
         Timer {
           id: dismissTimer
           interval: 5000
           running: true
           onTriggered: {
-            loader.active = false
+            fadeOut.start()
           }
         }
       }
@@ -196,10 +279,8 @@ Scope {
       // Clean up when dismissed
       onActiveChanged: {
         if (!active) {
-          // Remove from manager's queue
           Qt.callLater(function() {
             root.manager.removeFromQueue(loader.notifId)
-            // Destroy this component
             loader.destroy()
           })
         }
@@ -216,7 +297,6 @@ Scope {
       required property int index
       
       Component.onCompleted: {
-        // Create notification window
         var windowObj = notificationWindowComponent.createObject(root, {
           notifId: modelData.id,
           notifSummary: modelData.summary,
