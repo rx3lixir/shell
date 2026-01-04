@@ -32,10 +32,10 @@ Rectangle {
       Layout.alignment: Qt.AlignVCenter
       radius: 20
 
-      // Simplified border handling (like Bluetooth)
+      scale: mouseArea.pressed ? 0.9 : 1.0
+
       border.width: 0
       color: networkManager.wifiEnabled ? Qt.darker(Theme.accent, 1.6) : Qt.lighter(Theme.bg2, 1.3)
-
       Behavior on color {
         ColorAnimation { duration: 200 }
       }

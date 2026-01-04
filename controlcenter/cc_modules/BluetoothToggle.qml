@@ -35,6 +35,8 @@ Rectangle {
       Layout.alignment: Qt.AlignVCenter
       radius: 20
 
+      scale: mouseArea.pressed ? 0.9 : 1.0
+
       color: networkManager.bluetoothEnabled ? Qt.darker(Theme.accent, 1.6) : Qt.lighter(Theme.bg2, 1.3)
       Behavior on color {
         ColorAnimation { duration: 200 }
