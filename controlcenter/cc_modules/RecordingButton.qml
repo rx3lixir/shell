@@ -8,9 +8,14 @@ Rectangle {
   required property var recordingManager
   
   radius: 32
-  color: Theme.bg2
-  border.width: recordingManager.isRecording ? 2 : 1
-  border.color: recordingManager.isRecording ? Theme.error : Theme.borderDim
+
+  color: mouseArea.containsMouse ? Qt.darker(Theme.bg2, 1.1) : Theme.bg2
+  Behavior on color {
+    ColorAnimation { duration: 200 }
+  }
+
+  border.width: 1
+  border.color: Theme.borderDim
   
   Behavior on border.width {
     NumberAnimation { duration: 200 }
@@ -60,18 +65,6 @@ Rectangle {
     }
   }
   
-  // Subtle background tint when recording
-  Rectangle {
-    anchors.fill: parent
-    radius: parent.radius
-    color: Theme.error
-    opacity: recordingManager.isRecording ? 0.08 : 0
-    
-    Behavior on opacity {
-      NumberAnimation { duration: 300 }
-    }
-  }
-  
   RowLayout {
     anchors {
       fill: parent
@@ -100,7 +93,7 @@ Rectangle {
         }
       }
       
-      color: recordingManager.isRecording ? Theme.error : Qt.darker(Theme.accent, 1.6)
+      color: recordingManager.isRecording ? Theme.error : Qt.lighter(Theme.bg2, 1.3)
       
       Behavior on color {
         ColorAnimation { duration: 250 }
@@ -113,7 +106,7 @@ Rectangle {
         height: parent.height + 8
         radius: (parent.width + 8) / 2
         color: "transparent"
-        border.width: recordingManager.isRecording ? 4 : 0
+        border.width: recordingManager.isRecording ? 6 : 0
         border.color: "#25E82424"
         z: -1
         
@@ -133,7 +126,7 @@ Rectangle {
       Text {
         anchors.centerIn: parent
         text: recordingManager.isRecording ? "󰑊" : "󰻃"
-        color: recordingManager.isRecording ? Theme.fg : Theme.accent
+        color: recordingManager.isRecording ? Theme.fg : Theme.fgMuted
         font.pixelSize: 20
         font.family: Theme.fontFamily
         

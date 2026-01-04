@@ -8,7 +8,12 @@ Rectangle {
   required property var powerMenuManager
   
   radius: 32
-  color: Theme.bg2
+
+  color: mouseArea.containsMouse ? Qt.darker(Theme.bg2, 1.1) : Theme.bg2
+  Behavior on color {
+    ColorAnimation { duration: 200 }
+  }
+
   border.width: 1
   border.color: Theme.borderDim
   
@@ -73,12 +78,12 @@ Rectangle {
         }
       }
 
-      color: Qt.darker(Theme.accent, 1.6)
+      color: Qt.lighter(Theme.bg2, 1.3)
       
       Text {
         anchors.centerIn: parent
         text: "󰐥"
-        color: Theme.accent
+        color: Theme.fg
         font.pixelSize: 20
         font.family: Theme.fontFamily
       }

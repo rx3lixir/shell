@@ -7,17 +7,16 @@ Rectangle {
   required property var networkManager
 
   radius: 32
-  color: Theme.bg2
+
+  color: mouseArea.containsMouse ? Qt.darker(Theme.bg2, 1.1) : Theme.bg2
+  Behavior on color {
+    ColorAnimation { duration: 200 }
+  }
+
   border.width: 1
   border.color: Theme.borderDim
 
-  Rectangle {
-    anchors.fill: parent
-    radius: parent.radius
-    color: mouseArea.containsMouse ? Qt.darker(Theme.bg2, 1.1) : "transparent"
-  }
-
-    // Shadow layer 1 (closest)
+  // Shadow layer 1 (closest)
   Rectangle {
     anchors.fill: parent
     anchors.margins: -2

@@ -5,54 +5,109 @@ import "../../theme"
 Rectangle {
   id: root
   
-  // Changed: now receives specific sub-manager
   required property var mediaManager
   
-  radius: Theme.radiusXLarge
+  radius: 26
   color: Theme.bg2transparent
+  border.width: 2
+  border.color: Theme.borderDim
+  
+  // Shadow layer 1 (closest)
+  Rectangle {
+    anchors.fill: parent
+    anchors.margins: -2
+    radius: parent.radius + 2
+    color: "transparent"
+    border.width: 2
+    border.color: "#10000000"
+    z: -1
+  }
+  
+  // Shadow layer 2 (outer)
+  Rectangle {
+    anchors.fill: parent
+    anchors.margins: -4
+    radius: parent.radius + 4
+    color: "transparent"
+    border.width: 2
+    border.color: "#05000000"
+    z: -2
+  }
   
   ColumnLayout {
     anchors {
       fill: parent
-      margins: Theme.spacingM
+      margins: 16
     }
-    spacing: Theme.spacingS
+    spacing: 12
     
     // Header with player status
     RowLayout {
       Layout.fillWidth: true
-      spacing: Theme.spacingS
+      spacing: 10
       
-      Text {
-        text: mediaManager.playerActive ? "󰝚" : "󰝛"
-        color: mediaManager.playerActive ? Theme.accent : Theme.fgMuted
-        font.pixelSize: Theme.fontSizeL
-        font.family: Theme.fontFamily
+      // Icon container - matching your toggle style
+      Rectangle {
+        Layout.preferredWidth: 32
+        Layout.preferredHeight: 32
+        radius: 16
+        color: mediaManager.playerActive ? Qt.darker(Theme.accent, 1.6) : Qt.lighter(Theme.bg2, 1.3)
+        
+        Behavior on color {
+          ColorAnimation { duration: 200 }
+        }
+        
+        Text {
+          anchors.centerIn: parent
+          text: mediaManager.playerActive ? "󰝚" : "󰝛"
+          color: mediaManager.playerActive ? Theme.accent : Theme.fgMuted
+          font.pixelSize: 18
+          font.family: Theme.fontFamily
+          
+          Behavior on color {
+            ColorAnimation { duration: 200 }
+          }
+        }
       }
       
-      Text {
+      ColumnLayout {
         Layout.fillWidth: true
-        text: mediaManager.playerActive ? (mediaManager.playerName || "Media Player") : "No Media Playing"
-        color: Theme.fg
-        font.pixelSize: Theme.fontSizeM
-        font.family: Theme.fontFamily
-        elide: Text.ElideRight
+        spacing: 2
+        
+        Text {
+          Layout.fillWidth: true
+          text: mediaManager.playerActive ? (mediaManager.playerName || "Media Player") : "No Media Playing"
+          color: Theme.fg
+          font.pixelSize: 14
+          font.family: Theme.fontFamily
+          font.weight: Font.Medium
+          elide: Text.ElideRight
+        }
+        
+        Text {
+          Layout.fillWidth: true
+          text: mediaManager.playerActive ? "Active" : "Idle"
+          color: mediaManager.playerActive ? Theme.accent : Theme.fgMuted
+          font.pixelSize: 12
+          font.family: Theme.fontFamily
+          opacity: 0.8
+          visible: text !== ""
+        }
       }
     }
     
     // Track info (only show if active)
     ColumnLayout {
       Layout.fillWidth: true
-      spacing: 2
+      spacing: 4
       visible: mediaManager.playerActive && (mediaManager.playerTitle || mediaManager.playerArtist)
       
       Text {
         Layout.fillWidth: true
         text: mediaManager.playerTitle || "Unknown Track"
         color: Theme.fg
-        font.pixelSize: Theme.fontSizeS
+        font.pixelSize: 14
         font.family: Theme.fontFamily
-        font.bold: true
         elide: Text.ElideRight
         maximumLineCount: 1
       }
@@ -61,7 +116,7 @@ Rectangle {
         Layout.fillWidth: true
         text: mediaManager.playerArtist || ""
         color: Theme.fgMuted
-        font.pixelSize: Theme.fontSizeS
+        font.pixelSize: 12
         font.family: Theme.fontFamily
         elide: Text.ElideRight
         maximumLineCount: 1
@@ -69,16 +124,15 @@ Rectangle {
       }
     }
     
-    // Timeline with time labels
+    // Timeline with time labels - matching your slider style
     ColumnLayout {
       Layout.fillWidth: true
       spacing: 4
       visible: mediaManager.playerActive && mediaManager.playerLength > 0
       
-      // Timeline slider
       Item {
         Layout.fillWidth: true
-        Layout.preferredHeight: 20
+        Layout.preferredHeight: 14
         
         // Track background
         Rectangle {
@@ -88,11 +142,11 @@ Rectangle {
             right: parent.right
             verticalCenter: parent.verticalCenter
           }
-          height: 4
-          radius: 2
+          height: 6
+          radius: 3
           color: Theme.border
           
-          // Filled portion (progress)
+          // Filled portion
           Rectangle {
             anchors {
               left: parent.left
@@ -116,7 +170,7 @@ Rectangle {
           }
         }
         
-        // Draggable handle
+        // Draggable handle - matching slider style
         Rectangle {
           id: timelineHandle
           x: {
@@ -125,12 +179,14 @@ Rectangle {
             return Math.max(0, Math.min(parent.width - width, (parent.width - width) * progress))
           }
           anchors.verticalCenter: parent.verticalCenter
-          width: 12
-          height: 12
-          radius: 6
-          color: handleMouseArea.drag.active || handleMouseArea.containsMouse ? Theme.accent : Theme.fg
+          width: 18
+          height: 18
+          radius: 9
+          color: Theme.accent
           border.color: Theme.bg1
-          border.width: 1
+          border.width: 3
+          
+          scale: handleMouseArea.drag.active || handleMouseArea.containsMouse ? 1.2 : 1.0
           
           Behavior on x {
             enabled: !handleMouseArea.drag.active
@@ -140,8 +196,8 @@ Rectangle {
             }
           }
           
-          Behavior on color {
-            ColorAnimation {
+          Behavior on scale {
+            NumberAnimation {
               duration: 150
               easing.type: Easing.OutCubic
             }
@@ -150,7 +206,7 @@ Rectangle {
           MouseArea {
             id: handleMouseArea
             anchors.fill: parent
-            anchors.margins: -4
+            anchors.margins: -8
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             
@@ -189,7 +245,7 @@ Rectangle {
         Text {
           text: mediaManager.formatTime(mediaManager.playerPosition)
           color: Theme.fgMuted
-          font.pixelSize: Theme.fontSizeS
+          font.pixelSize: 11
           font.family: Theme.fontFamily
         }
         
@@ -198,34 +254,53 @@ Rectangle {
         Text {
           text: mediaManager.formatTime(mediaManager.playerLength)
           color: Theme.fgMuted
-          font.pixelSize: Theme.fontSizeS
+          font.pixelSize: 11
           font.family: Theme.fontFamily
         }
       }
     }
     
-    // Control buttons
+    // Control buttons - Material 3 style with proper depth
     RowLayout {
       Layout.fillWidth: true
-      Layout.preferredHeight: 40
-      spacing: Theme.spacingM
+      Layout.preferredHeight: 48
+      spacing: 12
       visible: mediaManager.playerActive
       
       Item { Layout.fillWidth: true }
       
       // Previous button
       Rectangle {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
+        Layout.preferredWidth: 40
+        Layout.preferredHeight: 40
         Layout.alignment: Qt.AlignVCenter
-        radius: Theme.radiusLarge
+        radius: 20
         color: prevMouseArea.containsMouse ? Theme.bg1 : "transparent"
+        border.width: 1
+        border.color: prevMouseArea.containsMouse ? Theme.borderDim : "transparent"
+        
+        scale: prevMouseArea.pressed ? 0.9 : 1.0
+        
+        Behavior on color {
+          ColorAnimation { duration: 150 }
+        }
+        
+        Behavior on border.color {
+          ColorAnimation { duration: 150 }
+        }
+        
+        Behavior on scale {
+          NumberAnimation { 
+            duration: 100
+            easing.type: Easing.OutCubic
+          }
+        }
         
         Text {
           anchors.centerIn: parent
           text: "󰒮"
           color: Theme.fg
-          font.pixelSize: Theme.fontSizeL
+          font.pixelSize: 20
           font.family: Theme.fontFamily
         }
         
@@ -241,13 +316,17 @@ Rectangle {
         }
       }
       
-      // Play/Pause button
+      // Play/Pause button - hero button with more presence
       Rectangle {
-        Layout.preferredWidth: 40
-        Layout.preferredHeight: 40
+        Layout.preferredWidth: 48
+        Layout.preferredHeight: 48
         Layout.alignment: Qt.AlignVCenter
-        radius: 20
+        radius: 24
         color: playMouseArea.containsMouse ? Theme.accent : Theme.accentTransparent
+        border.width: 2
+        border.color: Theme.accent
+        
+        scale: playMouseArea.pressed ? 0.92 : 1.0
         
         Behavior on color {
           ColorAnimation {
@@ -256,11 +335,35 @@ Rectangle {
           }
         }
         
+        Behavior on scale {
+          NumberAnimation { 
+            duration: 100
+            easing.type: Easing.OutCubic
+          }
+        }
+        
+        // Subtle shadow for the main button
+        Rectangle {
+          anchors.centerIn: parent
+          width: parent.width + 4
+          height: parent.height + 4
+          radius: (parent.width + 4) / 2
+          color: "transparent"
+          border.width: 2
+          border.color: "#20000000"
+          z: -1
+          opacity: playMouseArea.containsMouse ? 1 : 0.6
+          
+          Behavior on opacity {
+            NumberAnimation { duration: 150 }
+          }
+        }
+        
         Text {
           anchors.centerIn: parent
-          text: mediaManager.playerPlaying ? "󰏤" : "󰐊"
+          text: mediaManager.playerPlaying ? "󰏤" : "󰼛"
           color: Theme.fg
-          font.pixelSize: Theme.fontSizeL
+          font.pixelSize: 26
           font.family: Theme.fontFamily
         }
         
@@ -278,17 +381,36 @@ Rectangle {
       
       // Next button
       Rectangle {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
+        Layout.preferredWidth: 40
+        Layout.preferredHeight: 40
         Layout.alignment: Qt.AlignVCenter
-        radius: Theme.radiusLarge
+        radius: 20
         color: nextMouseArea.containsMouse ? Theme.bg1 : "transparent"
+        border.width: 1
+        border.color: nextMouseArea.containsMouse ? Theme.borderDim : "transparent"
+        
+        scale: nextMouseArea.pressed ? 0.9 : 1.0
+        
+        Behavior on color {
+          ColorAnimation { duration: 150 }
+        }
+        
+        Behavior on border.color {
+          ColorAnimation { duration: 150 }
+        }
+        
+        Behavior on scale {
+          NumberAnimation { 
+            duration: 100
+            easing.type: Easing.OutCubic
+          }
+        }
         
         Text {
           anchors.centerIn: parent
           text: "󰒭"
           color: Theme.fg
-          font.pixelSize: Theme.fontSizeL
+          font.pixelSize: 20
           font.family: Theme.fontFamily
         }
         
@@ -303,7 +425,7 @@ Rectangle {
           }
         }
       }
-      
+
       Item { Layout.fillWidth: true }
     }
   }

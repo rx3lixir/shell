@@ -25,7 +25,7 @@ LazyLoader {
       top: Theme.barHeight + Theme.spacingM
       left: Theme.spacingM
     }
-    
+
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
     
@@ -39,8 +39,8 @@ LazyLoader {
     
     // Dynamic height based on media player state
     implicitHeight: {
-      let baseHeight = 800 // Base height without expanded media
-      let mediaExpansion = manager.media.playerActive ? 140 : 0  // Extra height when media is active
+      let baseHeight = 668
+      let mediaExpansion = manager.media.playerActive ? 120 : 0
       return baseHeight + mediaExpansion
     }
     
@@ -69,36 +69,47 @@ LazyLoader {
       }
     }
     
-    // Shadow layer for Material 3 elevation (simple approach)
-    Rectangle {
-      anchors.fill: background
-      anchors.margins: -4
-      radius: 32
-      color: "#20000000"
-      z: -1
-    }
-    
     // Main container with Material 3 style
     Rectangle {
       id: background
       anchors.fill: parent
-      radius: 28  // Material 3 uses larger corner radius
+      radius: 28
       color: Theme.bg1transparent
+
+      // Shadow layer 1 (closest)
+      Rectangle {
+        anchors.fill: parent
+        anchors.margins: -2
+        radius: parent.radius + 2
+        color: "transparent"
+        border.width: 2
+        border.color: "#20000000"
+        z: -1
+      }
       
-      ColumnLayout {
+      // Shadow layer 2 (outer)
+      Rectangle {
+        anchors.fill: parent
+        anchors.margins: -4
+        radius: parent.radius + 4
+        color: "transparent"
+        border.width: 2
+        border.color: "#30000000"
+        z: -2
+      }
+      
+      Column {
         anchors {
           fill: parent
-          margins: 20  // Material 3 comfortable padding
-          topMargin: 24
-          bottomMargin: 24
+          margins: Theme.spacingL
         }
-        spacing: 16  // Consistent spacing throughout
+        spacing: Theme.spacingM  // Single source of truth - change this value!
         
         // ========== HEADER ==========
         RowLayout {
-          Layout.fillWidth: true
-          Layout.bottomMargin: 4
-          spacing: 12
+          width: parent.width
+          height: 40
+          spacing: 8
           
           Text {
             Layout.fillWidth: true
@@ -109,12 +120,11 @@ LazyLoader {
             font.weight: Font.Medium
           }
           
-          // Close button with Material 3 styling
           Rectangle {
             Layout.preferredWidth: 40
             Layout.preferredHeight: 40
             radius: 20
-            color: closeMouseArea.containsMouse ? Theme.bg2 : "transparent"
+            color: closeMouseArea.containsMouse ? Theme.bg2 : Theme.bg1
             
             Behavior on color {
               ColorAnimation { duration: 100 }
@@ -140,7 +150,7 @@ LazyLoader {
         
         // ========== TOGGLES GRID ==========
         GridLayout {
-          Layout.fillWidth: true
+          width: parent.width
           columns: 2
           rowSpacing: 12
           columnSpacing: 12
@@ -171,30 +181,30 @@ LazyLoader {
         }
         
         // ========== SLIDERS SECTION ==========
-        ColumnLayout {
-          Layout.fillWidth: true
+        Column {
+          width: parent.width
           spacing: 12
           
           Modules.VolumeSlider {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 98
+            width: parent.width
+            height: 98
             audioManager: loader.manager.audio
           }
           
           Modules.BrightnessSlider {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 98 
+            width: parent.width
+            height: 98
             brightnessManager: loader.manager.brightness
           }
         }
         
         // ========== MEDIA PLAYER ==========
         Modules.PlayerControl {
-          Layout.fillWidth: true
-          Layout.preferredHeight: loader.manager.media.playerActive ? 200 : 64
+          width: parent.width
+          height: loader.manager.media.playerActive ? 228 : 64
           mediaManager: loader.manager.media
           
-          Behavior on Layout.preferredHeight {
+          Behavior on height {
             NumberAnimation {
               duration: 300
               easing.type: Easing.OutCubic
@@ -204,8 +214,8 @@ LazyLoader {
         
         // ========== UTILITIES ==========
         Modules.UtilitiesGrid {
-          Layout.fillWidth: true
-          Layout.preferredHeight: 120
+          width: parent.width
+          height: 60
           utilitiesManager: loader.manager.utilities
         }
       }

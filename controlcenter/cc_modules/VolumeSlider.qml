@@ -53,12 +53,12 @@ Rectangle {
         Layout.preferredWidth: 32
         Layout.preferredHeight: 32
         radius: 16
-        color: Qt.darker(Theme.accent, 1.6)
+        color: Qt.lighter(Theme.bg2, 1.3)
         
         Text {
           anchors.centerIn: parent
-          text: "󰕾"  // Nerd Font volume icon (nf-md-volume_high)
-          color: Theme.accent
+          text: "󰕾"
+          color: Theme.fg
           font.pixelSize: 18 
           font.family: Theme.fontFamily
         }
@@ -75,7 +75,7 @@ Rectangle {
       
       Text {
         text: Math.round(audioManager.volume * 100) + "%"
-        color: Theme.accent
+        color: Theme.border
         font.pixelSize: 14
         font.family: Theme.fontFamily
         font.weight: Font.Medium

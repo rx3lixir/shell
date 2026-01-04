@@ -34,7 +34,6 @@ Rectangle {
     z: -2
   }
   
-  // Compact padding - matching volume slider
   ColumnLayout {
     anchors {
       fill: parent
@@ -53,12 +52,12 @@ Rectangle {
         Layout.preferredWidth: 32
         Layout.preferredHeight: 32
         radius: 16
-        color: Qt.darker(Theme.accent, 1.6)
+        color: Qt.lighter(Theme.bg2, 1.3)
         
         Text {
           anchors.centerIn: parent 
           text: "󰃠"
-          color: Theme.accent
+          color: Theme.fg
           font.pixelSize: 18
           font.family: Theme.fontFamily
         }
@@ -75,7 +74,7 @@ Rectangle {
       
       Text {
         text: Math.round(brightnessManager.brightness * 100) + "%"
-        color: Theme.accent
+        color: Theme.border
         font.pixelSize: 14
         font.family: Theme.fontFamily
         font.weight: Font.Medium
