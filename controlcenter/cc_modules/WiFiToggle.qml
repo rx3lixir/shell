@@ -9,10 +9,6 @@ Rectangle {
   radius: 32
   color: Theme.bg2
 
-  Behavior on color {
-    ColorAnimation { duration: 200 }
-  }
-
   Rectangle {
     anchors.fill: parent
     radius: parent.radius
