@@ -11,6 +11,28 @@ Rectangle {
   color: Theme.bg2transparent
   border.width: 2
   border.color: Theme.borderDim
+
+    // Shadow layer 1 (closest)
+  Rectangle {
+    anchors.fill: parent
+    anchors.margins: -2
+    radius: parent.radius + 2
+    color: "transparent"
+    border.width: 2
+    border.color: "#10000000"
+    z: -1
+  }
+  
+  // Shadow layer 2 (outer)
+  Rectangle {
+    anchors.fill: parent
+    anchors.margins: -4
+    radius: parent.radius + 4
+    color: "transparent"
+    border.width: 2
+    border.color: "#05000000"
+    z: -2
+  }
   
   // Compact padding for 88px total height
   ColumnLayout {

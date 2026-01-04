@@ -8,11 +8,45 @@ Rectangle {
 
   radius: 32
   color: Theme.bg2
+  border.width: 1
+  border.color: Theme.borderDim
 
   Rectangle {
     anchors.fill: parent
     radius: parent.radius
     color: mouseArea.containsMouse ? Qt.darker(Theme.bg2, 1.1) : "transparent"
+  }
+
+    // Shadow layer 1 (closest)
+  Rectangle {
+    anchors.fill: parent
+    anchors.margins: -2
+    radius: parent.radius + 2
+    color: "transparent"
+    border.width: 2
+    border.color: "#20000000"
+    z: -1
+    opacity: mouseArea.containsMouse ? 1 : 0.6
+    
+    Behavior on opacity {
+      NumberAnimation { duration: 200 }
+    }
+  }
+  
+  // Shadow layer 2 (outer)
+  Rectangle {
+    anchors.fill: parent
+    anchors.margins: -4
+    radius: parent.radius + 4
+    color: "transparent"
+    border.width: 2
+    border.color: "#15000000"
+    z: -2
+    opacity: mouseArea.containsMouse ? 0.8 : 0.4
+    
+    Behavior on opacity {
+      NumberAnimation { duration: 200 }
+    }
   }
 
   RowLayout {

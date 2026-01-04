@@ -159,13 +159,13 @@ LazyLoader {
 
           Modules.RecordingButton {
             Layout.fillWidth: true
-            Layout.preferredHeight: 72
+            Layout.preferredHeight: 64 
             recordingManager: loader.manager.recording
           }
 
           Modules.PowerButton {
             Layout.fillWidth: true
-            Layout.preferredHeight: 72
+            Layout.preferredHeight: 64 
             powerMenuManager: loader.manager.powerMenuManager
           }
         }
