@@ -5,142 +5,189 @@ import "../../theme"
 Rectangle {
   id: root
   
-  // Changed: now receives specific sub-manager
   required property var audioManager
   
-  radius: Theme.radiusXLarge
+  radius: 26
   color: Theme.bg2transparent
+  border.width: 2
+  border.color: Theme.borderDim
   
+  // Compact padding for 88px total height
   ColumnLayout {
     anchors {
       fill: parent
-      margins: Theme.spacingM
+      margins: 16  // Tighter margins
     }
-    spacing: Theme.spacingS
+
+    spacing: 10
     
     // Header row with icon, label, and percentage
     RowLayout {
       Layout.fillWidth: true
-      spacing: Theme.spacingS
+      spacing: 10
       
-      Text {
-        text: "󰕾"
-        color: Theme.fg
-        font.pixelSize: Theme.fontSizeM
-        font.family: Theme.fontFamily
+      // Icon container - slightly smaller
+      Rectangle {
+        Layout.preferredWidth: 32
+        Layout.preferredHeight: 32
+        radius: 16
+        color: Qt.darker(Theme.accent, 1.6)
+        
+        Text {
+          anchors.centerIn: parent
+          text: "󰕾"  // Nerd Font volume icon (nf-md-volume_high)
+          color: Theme.accent
+          font.pixelSize: 18 
+          font.family: Theme.fontFamily
+        }
       }
       
       Text {
         Layout.fillWidth: true
         text: "Volume"
         color: Theme.fg
-        font.pixelSize: Theme.fontSizeM
+        font.pixelSize: 14
         font.family: Theme.fontFamily
+        font.weight: Font.Medium
       }
       
       Text {
         text: Math.round(audioManager.volume * 100) + "%"
-        color: Theme.fgMuted
-        font.pixelSize: Theme.fontSizeS
+        color: Theme.accent
+        font.pixelSize: 14
         font.family: Theme.fontFamily
+        font.weight: Font.Medium
       }
     }
     
-    // Slider with draggable handle
-    Item {
+    // Slider container - compact with tick marks
+    ColumnLayout {
       Layout.fillWidth: true
-      Layout.preferredHeight: 20
+      spacing: 4  // Gap between slider and ticks
       
-      // Track background
-      Rectangle {
-        id: track
-        anchors {
-          left: parent.left
-          right: parent.right
-          verticalCenter: parent.verticalCenter
-        }
-        height: 6
-        radius: 3
-        color: Theme.border
+      Item {
+        Layout.fillWidth: true
+        Layout.preferredHeight: 14  // slider area
         
-        // Filled portion
+        // Track background
         Rectangle {
+          id: track
           anchors {
             left: parent.left
-            top: parent.top
-            bottom: parent.bottom
+            right: parent.right
+            verticalCenter: parent.verticalCenter
           }
-          width: parent.width * audioManager.volume
-          radius: parent.radius
-          color: Theme.accent
+          height: 6
+          radius: 3
+          color: Theme.border
           
-          Behavior on width {
+          // Filled portion
+          Rectangle {
+            anchors {
+              left: parent.left
+              top: parent.top
+              bottom: parent.bottom
+            }
+            width: parent.width * audioManager.volume
+            radius: parent.radius
+            color: Theme.accent
+            
+            Behavior on width {
+              NumberAnimation {
+                duration: 100
+                easing.type: Easing.OutCubic
+              }
+            }
+          }
+        }
+        
+        // Draggable handle - slightly smaller
+        Rectangle {
+          id: handle
+          x: Math.max(0, Math.min(parent.width - width, (parent.width - width) * audioManager.volume))
+          anchors.verticalCenter: parent.verticalCenter
+          width: 18
+          height: 18
+          radius: 9
+          color: Theme.accent
+          border.color: Theme.bg1
+          border.width: 3
+          
+          // Scale up on interaction
+          scale: handleMouseArea.drag.active || handleMouseArea.containsMouse ? 1.2 : 1.0
+          
+          Behavior on x {
+            enabled: !handleMouseArea.drag.active
             NumberAnimation {
               duration: 100
               easing.type: Easing.OutCubic
             }
           }
-        }
-      }
-      
-      // Draggable handle
-      Rectangle {
-        id: handle
-        x: (parent.width - width) * audioManager.volume
-        anchors.verticalCenter: parent.verticalCenter
-        width: 16
-        height: 16
-        radius: 8
-        color: handleMouseArea.drag.active || handleMouseArea.containsMouse ? Theme.accent : Theme.fg
-        border.color: Theme.bg1
-        border.width: 2
-        
-        Behavior on x {
-          enabled: !handleMouseArea.drag.active
-          NumberAnimation {
-            duration: 100
-            easing.type: Easing.OutCubic
-          }
-        }
-        
-        Behavior on color {
-          ColorAnimation {
-            duration: 150
-            easing.type: Easing.OutCubic
-          }
-        }
-        
-        MouseArea {
-          id: handleMouseArea
-          anchors.fill: parent
-          anchors.margins: -4  // Larger hit area
-          hoverEnabled: true
-          cursorShape: Qt.PointingHandCursor
           
-          drag.target: parent
-          drag.axis: Drag.XAxis
-          drag.minimumX: 0
-          drag.maximumX: track.width - handle.width
+          Behavior on scale {
+            NumberAnimation {
+              duration: 150
+              easing.type: Easing.OutCubic
+            }
+          }
           
-          onPositionChanged: {
-            if (drag.active) {
-              var newVolume = (handle.x + handle.width / 2) / track.width
-              newVolume = Math.max(0, Math.min(1, newVolume))
-              audioManager.setVolume(newVolume)
+          MouseArea {
+            id: handleMouseArea
+            anchors.fill: parent
+            anchors.margins: -8  // Good hit area
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            
+            drag.target: parent
+            drag.axis: Drag.XAxis
+            drag.minimumX: 0
+            drag.maximumX: track.width - handle.width
+            
+            onPositionChanged: {
+              if (drag.active) {
+                var newVolume = (handle.x + handle.width / 2) / track.width
+                newVolume = Math.max(0, Math.min(1, newVolume))
+                audioManager.setVolume(newVolume)
+              }
             }
           }
         }
+        
+        // Click on track to jump to position
+        MouseArea {
+          anchors.fill: track
+          z: -1
+          
+          onClicked: mouse => {
+            var newVolume = mouse.x / track.width
+            newVolume = Math.max(0, Math.min(1, newVolume))
+            audioManager.setVolume(newVolume)
+          }
+        }
       }
       
-      // Click on track to jump to position
-      MouseArea {
-        anchors.fill: track
-        z: -1
+      // Graduation tick marks - Material 3 style
+      Row {
+        Layout.fillWidth: true
+        Layout.preferredHeight: 8
+        spacing: 0
         
-        onClicked: mouse => {
-          var newVolume = mouse.x / track.width
-          newVolume = Math.max(0, Math.min(1, newVolume))
-          audioManager.setVolume(newVolume)
+        Repeater {
+          model: 11  // 0%, 10%, 20%... 100%
+          
+          Item {
+            width: parent.width / 11
+            height: 8
+            
+            Rectangle {
+              anchors.horizontalCenter: parent.horizontalCenter
+              anchors.top: parent.top
+              width: 2
+              height: index % 5 === 0 ? 6 : 4  // Longer ticks at 0%, 50%, 100%
+              color: Theme.border
+              opacity: index % 5 === 0 ? 0.8 : 0.6 // More visible at major marks
+            }
+          }
         }
       }
     }

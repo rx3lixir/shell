@@ -22,7 +22,7 @@ LazyLoader {
     }
     
     margins {
-      top: Theme.barHeight + Theme.spacingS
+      top: Theme.barHeight + Theme.spacingM
       left: Theme.spacingM
     }
     
@@ -34,8 +34,21 @@ LazyLoader {
     
     Component.onCompleted: {
       exclusiveZone = 0
-      implicitWidth = 340
-      implicitHeight = 800
+      implicitWidth = 360
+    }
+    
+    // Dynamic height based on media player state
+    implicitHeight: {
+      let baseHeight = 800 // Base height without expanded media
+      let mediaExpansion = manager.media.playerActive ? 140 : 0  // Extra height when media is active
+      return baseHeight + mediaExpansion
+    }
+    
+    Behavior on implicitHeight {
+      NumberAnimation {
+        duration: 300
+        easing.type: Easing.OutCubic
+      }
     }
     
     contentItem {
@@ -56,45 +69,62 @@ LazyLoader {
       }
     }
     
+    // Shadow layer for Material 3 elevation (simple approach)
+    Rectangle {
+      anchors.fill: background
+      anchors.margins: -4
+      radius: 32
+      color: "#20000000"
+      z: -1
+    }
+    
+    // Main container with Material 3 style
     Rectangle {
       id: background
       anchors.fill: parent
-      radius: Theme.radiusXLarge
+      radius: 28  // Material 3 uses larger corner radius
       color: Theme.bg1transparent
       
       ColumnLayout {
         anchors {
           fill: parent
-          margins: Theme.spacingM
+          margins: 20  // Material 3 comfortable padding
+          topMargin: 24
+          bottomMargin: 24
         }
-        spacing: Theme.spacingM
+        spacing: 16  // Consistent spacing throughout
         
         // ========== HEADER ==========
         RowLayout {
           Layout.fillWidth: true
-          spacing: Theme.spacingS
+          Layout.bottomMargin: 4
+          spacing: 12
           
           Text {
             Layout.fillWidth: true
             text: "Control Center"
             color: Theme.fg
-            font.pixelSize: Theme.fontSizeM
+            font.pixelSize: 18
             font.family: Theme.fontFamily
-            font.bold: true
+            font.weight: Font.Medium
           }
           
-          // Close button
+          // Close button with Material 3 styling
           Rectangle {
-            Layout.preferredWidth: 24
-            Layout.preferredHeight: 24
-            radius: Theme.radiusMedium
+            Layout.preferredWidth: 40
+            Layout.preferredHeight: 40
+            radius: 20
             color: closeMouseArea.containsMouse ? Theme.bg2 : "transparent"
+            
+            Behavior on color {
+              ColorAnimation { duration: 100 }
+            }
             
             Text {
               anchors.centerIn: parent
               text: "✕"
               color: Theme.fg
-              font.pixelSize: Theme.fontSizeS
+              font.pixelSize: 18
               font.family: Theme.fontFamily
             }
             
@@ -108,61 +138,65 @@ LazyLoader {
           }
         }
         
-        // ========== TOGGLES ==========
+        // ========== TOGGLES GRID ==========
         GridLayout {
           Layout.fillWidth: true
           columns: 2
-          rows: 2
-          rowSpacing: Theme.spacingS
-          columnSpacing: Theme.spacingS
+          rowSpacing: 12
+          columnSpacing: 12
           
           Modules.WiFiToggle {
             Layout.fillWidth: true 
-            Layout.preferredHeight: 60 
+            Layout.preferredHeight: 64
             networkManager: loader.manager.network
           }
           
           Modules.BluetoothToggle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 60
+            Layout.preferredHeight: 64
             networkManager: loader.manager.network
           }
 
           Modules.RecordingButton {
             Layout.fillWidth: true
-            Layout.preferredHeight: 60
+            Layout.preferredHeight: 72
             recordingManager: loader.manager.recording
           }
 
           Modules.PowerButton {
             Layout.fillWidth: true
-            Layout.preferredHeight: 60
+            Layout.preferredHeight: 72
             powerMenuManager: loader.manager.powerMenuManager
           }
         }
         
-        // ========== SLIDERS ==========
-        Modules.VolumeSlider {
+        // ========== SLIDERS SECTION ==========
+        ColumnLayout {
           Layout.fillWidth: true
-          Layout.preferredHeight: 70
-          audioManager: loader.manager.audio
-        }
-        
-        Modules.BrightnessSlider {
-          Layout.fillWidth: true
-          Layout.preferredHeight: 70
-          brightnessManager: loader.manager.brightness
+          spacing: 12
+          
+          Modules.VolumeSlider {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 98
+            audioManager: loader.manager.audio
+          }
+          
+          Modules.BrightnessSlider {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 98 
+            brightnessManager: loader.manager.brightness
+          }
         }
         
         // ========== MEDIA PLAYER ==========
         Modules.PlayerControl {
           Layout.fillWidth: true
-          Layout.preferredHeight: loader.manager.media.playerActive ? 180 : 60
+          Layout.preferredHeight: loader.manager.media.playerActive ? 200 : 64
           mediaManager: loader.manager.media
           
           Behavior on Layout.preferredHeight {
             NumberAnimation {
-              duration: 250
+              duration: 300
               easing.type: Easing.OutCubic
             }
           }
@@ -171,7 +205,7 @@ LazyLoader {
         // ========== UTILITIES ==========
         Modules.UtilitiesGrid {
           Layout.fillWidth: true
-          Layout.preferredHeight: 170
+          Layout.preferredHeight: 120
           utilitiesManager: loader.manager.utilities
         }
       }

@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Effects
+import QtQuick.Effects  // Import for RectangularShadow
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Wayland

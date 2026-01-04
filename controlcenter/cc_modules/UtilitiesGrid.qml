@@ -2,209 +2,331 @@ import QtQuick
 import QtQuick.Layouts
 import "../../theme"
 
-Rectangle {
+Item {
   id: root
   
   required property var utilitiesManager 
   
-  radius: Theme.radiusXLarge
-  color: Theme.bg2transparent
-  
   ColumnLayout {
-    anchors {
-      fill: parent
-      margins: Theme.spacingM
-    }
+    anchors.fill: parent
+    spacing: 16
     
     // Header
     Text {
-      text: "Utilities"
+      text: "Quick Actions"
       color: Theme.fg
-      font.pixelSize: Theme.fontSizeM
+      font.pixelSize: 15
       font.family: Theme.fontFamily
-      font.bold: true
+      font.weight: Font.Medium
+      opacity: 0.9
     }
     
-    // Buttons grid - 2 columns
+    // Buttons grid - 4 columns for more compact look
     GridLayout {
       Layout.fillWidth: true
-      columns: 2
-      rowSpacing: Theme.spacingS
-      columnSpacing: Theme.spacingS
+      Layout.fillHeight: true
+      columns: 4
+      rowSpacing: 16
+      columnSpacing: 16
       
       // Color Picker
-      Rectangle {
+      ColumnLayout {
         Layout.fillWidth: true
-        Layout.preferredHeight: 48
-        radius: Theme.radiusXLarge
-        color: pickerMouseArea.containsMouse ? Theme.bg2 : Theme.bg2transparent
+        Layout.alignment: Qt.AlignHCenter
+        spacing: 8
         
-        RowLayout {
-          anchors {
-            fill: parent
-            margins: Theme.spacingM
+        Rectangle {
+          Layout.alignment: Qt.AlignHCenter
+          Layout.preferredWidth: 56
+          Layout.preferredHeight: 56
+          radius: 28
+          color: pickerMouseArea.containsMouse ? Theme.accentTransparent : Theme.bg2transparent
+          border.width: 2
+          border.color: pickerMouseArea.containsMouse ? Theme.accent : Theme.border
+          
+          scale: pickerMouseArea.pressed ? 0.92 : 1.0
+          
+          Behavior on color {
+            ColorAnimation { duration: 200 }
           }
-
-          spacing: Theme.spacingS
+          
+          Behavior on border.color {
+            ColorAnimation { duration: 200 }
+          }
+          
+          Behavior on scale {
+            NumberAnimation { 
+              duration: 100
+              easing.type: Easing.OutCubic
+            }
+          }
           
           Text {
+            anchors.centerIn: parent
             text: "󰈊"
-            color: Theme.fg
-            font.pixelSize: Theme.fontSizeL
+            color: pickerMouseArea.containsMouse ? Theme.accent : Theme.fg
+            font.pixelSize: 24
             font.family: Theme.fontFamily
-          }
             
-          Text {
-            text: "Color Picker"
-            color: Theme.fg
-            font.pixelSize: Theme.fontSizeM
-            font.family: Theme.fontFamily
+            Behavior on color {
+              ColorAnimation { duration: 200 }
+            }
+          }
+          
+          MouseArea {
+            id: pickerMouseArea
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            
+            onClicked: {
+              utilitiesManager.launchColorPicker()
+            }
           }
         }
         
-        MouseArea {
-          id: pickerMouseArea
-          anchors.fill: parent
-          hoverEnabled: true
-          cursorShape: Qt.PointingHandCursor
+        Text {
+          Layout.alignment: Qt.AlignHCenter
+          text: "Picker"
+          color: pickerMouseArea.containsMouse ? Theme.accent : Theme.fgMuted
+          font.pixelSize: 11
+          font.family: Theme.fontFamily
           
-          onClicked: {
-            utilitiesManager.launchColorPicker()
+          Behavior on color {
+            ColorAnimation { duration: 200 }
           }
         }
       }
       
       // Screenshot
-      Rectangle {
+      ColumnLayout {
         Layout.fillWidth: true
-        Layout.preferredHeight: 48
-        radius: Theme.radiusXLarge
-        color: screenshotMouseArea.containsMouse ? Theme.bg2 : Theme.bg2transparent
+        Layout.alignment: Qt.AlignHCenter
+        spacing: 8
         
-        RowLayout {
-          anchors {
-            fill: parent
-            margins: Theme.spacingM
+        Rectangle {
+          Layout.alignment: Qt.AlignHCenter
+          Layout.preferredWidth: 56
+          Layout.preferredHeight: 56
+          radius: 28
+          color: screenshotMouseArea.containsMouse ? Theme.accentTransparent : Theme.bg2transparent
+          border.width: 2
+          border.color: screenshotMouseArea.containsMouse ? Theme.accent : Theme.border
+          
+          scale: screenshotMouseArea.pressed ? 0.92 : 1.0
+          
+          Behavior on color {
+            ColorAnimation { duration: 200 }
           }
-          spacing: Theme.spacingS
+          
+          Behavior on border.color {
+            ColorAnimation { duration: 200 }
+          }
+          
+          Behavior on scale {
+            NumberAnimation { 
+              duration: 100
+              easing.type: Easing.OutCubic
+            }
+          }
           
           Text {
+            anchors.centerIn: parent
             text: "󱣴"
-            color: Theme.fg
-            font.pixelSize: Theme.fontSizeL
+            color: screenshotMouseArea.containsMouse ? Theme.accent : Theme.fg
+            font.pixelSize: 24
             font.family: Theme.fontFamily
+            
+            Behavior on color {
+              ColorAnimation { duration: 200 }
+            }
           }
           
-          ColumnLayout {
-            Layout.fillWidth: true
-            spacing: 2
+          MouseArea {
+            id: screenshotMouseArea
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
             
-            Text {
-              text: "Screenshot"
-              color: Theme.fg
-              font.pixelSize: Theme.fontSizeM
-              font.family: Theme.fontFamily
+            onClicked: {
+              utilitiesManager.takeScreenshot()
             }
           }
         }
         
-        MouseArea {
-          id: screenshotMouseArea
-          anchors.fill: parent
-          hoverEnabled: true
-          cursorShape: Qt.PointingHandCursor
+        Text {
+          Layout.alignment: Qt.AlignHCenter
+          text: "Screenshot"
+          color: screenshotMouseArea.containsMouse ? Theme.accent : Theme.fgMuted
+          font.pixelSize: 11
+          font.family: Theme.fontFamily
           
-          onClicked: {
-            utilitiesManager.takeScreenshot()
+          Behavior on color {
+            ColorAnimation { duration: 200 }
           }
         }
       }
       
-      // Night Light toggle (special: shows active state)
-      Rectangle {
+      // Night Light toggle
+      ColumnLayout {
         Layout.fillWidth: true
-        Layout.preferredHeight: 48
-        radius: Theme.radiusXLarge
-        color: nightLightMouseArea.containsMouse ? Theme.bg2 : Theme.bg2transparent
+        Layout.alignment: Qt.AlignHCenter
+        spacing: 8
         
-        RowLayout {
-          anchors {
-            fill: parent
-            margins: Theme.spacingM
+        Rectangle {
+          Layout.alignment: Qt.AlignHCenter
+          Layout.preferredWidth: 56
+          Layout.preferredHeight: 56
+          radius: 28
+          color: {
+            if (utilitiesManager.nightLightActive) {
+              return nightLightMouseArea.containsMouse ? Theme.accent : "#90FF7E9C"
+            }
+            return nightLightMouseArea.containsMouse ? Theme.accentTransparent : Theme.bg2transparent
           }
-
-          spacing: Theme.spacingS
+          border.width: 2
+          border.color: utilitiesManager.nightLightActive ? Theme.accent : 
+            (nightLightMouseArea.containsMouse ? Theme.accent : Theme.border)
+          
+          scale: nightLightMouseArea.pressed ? 0.92 : 1.0
+          
+          Behavior on color {
+            ColorAnimation { duration: 200 }
+          }
+          
+          Behavior on border.color {
+            ColorAnimation { duration: 200 }
+          }
+          
+          Behavior on scale {
+            NumberAnimation { 
+              duration: 100
+              easing.type: Easing.OutCubic
+            }
+          }
+          
+          // Subtle glow when active
+          Rectangle {
+            anchors.centerIn: parent
+            width: parent.width + 8
+            height: parent.height + 8
+            radius: (parent.width + 8) / 2
+            color: "transparent"
+            border.width: utilitiesManager.nightLightActive ? 8 : 0
+            border.color: "#30FF7E9C"
+            opacity: utilitiesManager.nightLightActive ? 1 : 0
+            z: -1
+            
+            Behavior on opacity {
+              NumberAnimation { duration: 300 }
+            }
+          }
           
           Text {
+            anchors.centerIn: parent
             text: utilitiesManager.nightLightActive ? "󱩌" : "󰹏"
-            color: utilitiesManager.nightLightActive ? Theme.accent : Theme.fg
-            font.pixelSize: Theme.fontSizeL
+            color: utilitiesManager.nightLightActive ? 
+              (nightLightMouseArea.containsMouse ? Theme.bg1 : Theme.bg1) : 
+              (nightLightMouseArea.containsMouse ? Theme.accent : Theme.fg)
+            font.pixelSize: 24
             font.family: Theme.fontFamily
+            
+            Behavior on color {
+              ColorAnimation { duration: 200 }
+            }
           }
           
-          ColumnLayout {
-            Layout.fillWidth: true
-            spacing: 2
+          MouseArea {
+            id: nightLightMouseArea
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
             
-            Text {
-              text: "Night Light"
-              color: utilitiesManager.nightLightActive ? Theme.accent : Theme.fg
-              font.pixelSize: Theme.fontSizeM
-              font.family: Theme.fontFamily
+            onClicked: {
+              utilitiesManager.toggleNightLight()
             }
           }
         }
         
-        MouseArea {
-          id: nightLightMouseArea
-          anchors.fill: parent
-          hoverEnabled: true
-          cursorShape: Qt.PointingHandCursor
+        Text {
+          Layout.alignment: Qt.AlignHCenter
+          text: "Night Light"
+          color: utilitiesManager.nightLightActive ? Theme.accent : 
+            (nightLightMouseArea.containsMouse ? Theme.accent : Theme.fgMuted)
+          font.pixelSize: 11
+          font.family: Theme.fontFamily
           
-          onClicked: {
-            utilitiesManager.toggleNightLight()
+          Behavior on color {
+            ColorAnimation { duration: 200 }
           }
         }
       }
       
       // Clipboard Manager
-      Rectangle {
+      ColumnLayout {
         Layout.fillWidth: true
-        Layout.preferredHeight: 48
-        radius: Theme.radiusXLarge
-        color: clipboardMouseArea.containsMouse ? Theme.bg2 : Theme.bg2transparent
+        Layout.alignment: Qt.AlignHCenter
+        spacing: 8
         
-        RowLayout {
-          anchors {
-            fill: parent
-            margins: Theme.spacingM
+        Rectangle {
+          Layout.alignment: Qt.AlignHCenter
+          Layout.preferredWidth: 56
+          Layout.preferredHeight: 56
+          radius: 28
+          color: clipboardMouseArea.containsMouse ? Theme.accentTransparent : Theme.bg2transparent
+          border.width: 2
+          border.color: clipboardMouseArea.containsMouse ? Theme.accent : Theme.border
+          
+          scale: clipboardMouseArea.pressed ? 0.92 : 1.0
+          
+          Behavior on color {
+            ColorAnimation { duration: 200 }
           }
-
-          spacing: Theme.spacingS
+          
+          Behavior on border.color {
+            ColorAnimation { duration: 200 }
+          }
+          
+          Behavior on scale {
+            NumberAnimation { 
+              duration: 100
+              easing.type: Easing.OutCubic
+            }
+          }
           
           Text {
+            anchors.centerIn: parent
             text: "󰅍"
-            color: Theme.fg
-            font.pixelSize: Theme.fontSizeL
+            color: clipboardMouseArea.containsMouse ? Theme.accent : Theme.fg
+            font.pixelSize: 24
             font.family: Theme.fontFamily
+            
+            Behavior on color {
+              ColorAnimation { duration: 200 }
+            }
           }
           
-          Text {
-            text: "Clipboard"
-            color: Theme.fg
-            font.pixelSize: Theme.fontSizeM
-            font.family: Theme.fontFamily
+          MouseArea {
+            id: clipboardMouseArea
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            
+            onClicked: {
+              utilitiesManager.openClipboard()
+            }
           }
         }
         
-        MouseArea {
-          id: clipboardMouseArea
-          anchors.fill: parent
-          hoverEnabled: true
-          cursorShape: Qt.PointingHandCursor
+        Text {
+          Layout.alignment: Qt.AlignHCenter
+          text: "Clipboard"
+          color: clipboardMouseArea.containsMouse ? Theme.accent : Theme.fgMuted
+          font.pixelSize: 11
+          font.family: Theme.fontFamily
           
-          onClicked: {
-            manager.openClipboard()  // Note: this still references global 'manager' – adjust if needed
+          Behavior on color {
+            ColorAnimation { duration: 200 }
           }
         }
       }
