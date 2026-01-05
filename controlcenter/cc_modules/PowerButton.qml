@@ -1,13 +1,14 @@
 import QtQuick
 import "../../components"
 
-ToggleCard {
+IconButton {
   required property var powerMenuManager
   
   icon: "󰐥"
   title: "Power"
   subtitle: "Controls"
-  isActive: false  // Power button is never "active"
+
+  isStateful: false
   
   onClicked: powerMenuManager.visible = true
 }

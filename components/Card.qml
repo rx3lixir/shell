@@ -20,7 +20,7 @@ Rectangle {
 
   Elevation {
     target: root
-    visible: true
+    visible: true 
   }
 
   // Content area

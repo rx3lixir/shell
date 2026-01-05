@@ -2,12 +2,14 @@ import QtQuick
 import "../../components"
 import "../../theme"
 
-ToggleCard {
+IconButton {
   required property var recordingManager
   
   icon: recordingManager.isRecording ? "󰑊" : "󰻃"
   title: "Record"
   subtitle: recordingManager.isRecording ? "Recording..." : "Screen"
+
+  isStateful: true
   isActive: recordingManager.isRecording
   
   // Custom error color for recording state

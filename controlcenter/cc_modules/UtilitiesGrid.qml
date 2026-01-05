@@ -1,3 +1,4 @@
+// controlcenter/cc_modules/UtilitiesGrid.qml
 import QtQuick
 import QtQuick.Layouts
 import "../../components"
@@ -10,36 +11,32 @@ Item {
   readonly property var buttons: [
     {
       icon: "󰈊",
-      action: () => utilitiesManager.launchColorPicker(),
-      isActive: false
+      action: () => utilitiesManager.launchColorPicker()
     },
     {
       icon: "󱣴",
-      action: () => utilitiesManager.takeScreenshot(),
-      isActive: false
+      action: () => utilitiesManager.takeScreenshot()
     },
     {
       icon: utilitiesManager.nightLightActive ? "󱩌" : "󰹏",
-      action: () => utilitiesManager.toggleNightLight(),
-      isActive: utilitiesManager.nightLightActive
+      action: () => utilitiesManager.toggleNightLight()
     },
     {
       icon: "󰅍",
-      action: () => utilitiesManager.openClipboard(),
-      isActive: false
+      action: () => utilitiesManager.openClipboard()
     }
   ]
   
   Row {
     anchors.centerIn: parent
-    spacing: 24
+    spacing: 20
     
     Repeater {
       model: root.buttons
       
       RoundIconButton {
         icon: modelData.icon
-        isActive: modelData.isActive
+        size: 56  // Slightly bigger for utility buttons
         onClicked: modelData.action()
       }
     }

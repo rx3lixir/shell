@@ -1,3 +1,4 @@
+// components/RoundIconButton.qml
 import QtQuick
 import "../theme"
 
@@ -9,21 +10,32 @@ Rectangle {
   signal clicked()
   
   // Optional customization
-  property bool isActive: false
-  property color activeColor: Theme.primary
+  property bool isPrimary: false  // Set true for main action button (bigger, more prominent)
+  property int size: isPrimary ? 48 : 40
   
-  width: 56
-  height: 56
+  width: size
+  height: size
   radius: Theme.radius.full
   
-  color: mouseArea.containsMouse ? Qt.darker(Theme.surface_container_low, 1.1) : Theme.surface_container_low
-  border.width: 1
-  border.color: Theme.outline_variant
+  color: {
+    if (isPrimary) {
+      return mouseArea.pressed ? Qt.darker(Theme.primary, 1.2) : Theme.primary
+    } else {
+      return mouseArea.containsMouse ? Theme.surface_container_high : Theme.surface_container_low
+    }
+  }
   
-  scale: mouseArea.pressed ? 0.8 : 1.0
+  border.width: isPrimary ? 0 : 1
+  border.color: mouseArea.containsMouse ? Theme.outline : Theme.outline_variant
+  
+  scale: mouseArea.pressed ? 0.88 : 1.0
   
   Behavior on color {
-    ColorAnimation { duration: 200 }
+    ColorAnimation { duration: 150 }
+  }
+  
+  Behavior on border.color {
+    ColorAnimation { duration: 150 }
   }
   
   Behavior on scale {
@@ -33,32 +45,36 @@ Rectangle {
     }
   }
   
-  // Shadow layer
+  // Subtle shadow
   Rectangle {
-    anchors.fill: parent
-    anchors.margins: -2
-    radius: parent.radius + 2
+    visible: root.isPrimary
+    anchors.centerIn: parent
+    width: parent.width + 4
+    height: parent.height + 4
+    radius: (parent.width + 4) / 2
     color: "transparent"
     border.width: 2
-    border.color: "#10000000"
+    border.color: Theme.scrim_transparent
     z: -1
+    opacity: mouseArea.containsMouse ? 0.8 : 0.5
+    
+    Behavior on opacity {
+      NumberAnimation { duration: 150 }
+    }
   }
   
   Text {
     anchors.centerIn: parent
     text: root.icon
-    color: mouseArea.containsMouse ? Qt.darker(Theme.on_surface, 1.4) : Theme.on_surface
-    font.pixelSize: Theme.typography.xxl
+    color: isPrimary ? Theme.on_primary : Theme.on_surface
+    font.pixelSize: isPrimary ? Theme.typography.xxl : Theme.typography.xl
     font.family: Theme.typography.fontFamily
-    
-    Behavior on color {
-      ColorAnimation { duration: 200 }
-    }
   }
   
   MouseArea {
     id: mouseArea
     anchors.fill: parent
+    anchors.margins: -4  // Bigger hit area
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
     onClicked: root.clicked()

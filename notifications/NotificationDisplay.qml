@@ -1,9 +1,11 @@
+// NotificationDisplay.qml (Updated)
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Wayland
 import "../theme"
+import "../components"  // Import your custom components
 
 Scope {
   id: root
@@ -29,10 +31,10 @@ Scope {
       PanelWindow {
         id: notifWindow
         
-        // Calculate Y position based on stack index
+        // Calculate Y position based on stack index (more compact stacking)
         property real stackOffset: {
-          var baseOffset = Theme.barHeight + Theme.spacingM
-          var perNotifOffset = 120 // More compact
+          var baseOffset = Theme.barHeight + Theme.spacing.md
+          var perNotifOffset = 96  // Reduced for minimalism (adjust as needed)
           return baseOffset + (loader.index * perNotifOffset)
         }
         
@@ -43,7 +45,7 @@ Scope {
         
         margins {
           top: stackOffset
-          right: Theme.spacingM
+          right: Theme.spacing.md
         }
         
         WlrLayershell.layer: WlrLayer.Overlay
@@ -54,8 +56,8 @@ Scope {
         
         Component.onCompleted: {
           exclusiveZone = 0
-          implicitWidth = 300
-          implicitHeight = notifContent.implicitHeight + (Theme.spacingM * 2)
+          implicitWidth = 320  // Slightly narrower for minimalism
+          implicitHeight = notifContent.implicitHeight + (Theme.padding.sm * 2)
         }
         
         // Smooth position transitions when notifications above are removed
@@ -79,179 +81,142 @@ Scope {
             duration: 200
             easing.type: Easing.OutCubic
           }
-        
-        // Main notification container
-        Rectangle {
-          id: background
-          anchors.fill: parent
-          radius: 16 // Slightly less rounded for compact look
-          color: Theme.bg1transparent
-          border.width: 1
-          border.color: Theme.borderDim
           
-          property bool hovered: false
-          
-          // Just the rounding animation on hover
-          Behavior on radius {
-            NumberAnimation {
-              duration: 200
-              easing.type: Easing.OutCubic
-            }
-          }
-          
-          Behavior on color {
-            ColorAnimation { duration: 150 }
-          }
-          
-          ColumnLayout {
-            id: notifContent
-            anchors {
-              fill: parent
-              rightMargin: Theme.spacingL
-              bottomMargin: Theme.spacingM
-              topMargin: Theme.spacingM
-              leftMargin: Theme.spacingL
-            }
-
-            spacing: Theme.spacingS
-            
-            // Header row - compact
-            RowLayout {
-              Layout.fillWidth: true
-              spacing: Theme.spacingS
-              
-              // App icon container - smaller
-              Rectangle {
-                Layout.preferredWidth: 28
-                Layout.preferredHeight: 28
-                radius: 14
-                color: Qt.lighter(Theme.bg2, 1.2)
-                
-                Text {
-                  anchors.centerIn: parent
-                  text: "󰵅"
-                  color: Theme.fgMuted
-                  font.pixelSize: 14
-                  font.family: Theme.fontFamily
-                }
-              }
-              
-              // App name
-              Text {
-                Layout.fillWidth: true
-                text: loader.notifApp
-                color: Theme.fgMuted
-                font.pixelSize: Theme.fontSizeS
-                font.family: Theme.fontFamily
-                elide: Text.ElideRight
-                opacity: 0.8
-              }
-              
-              // Close button - minimal
-              Rectangle {
-                Layout.preferredWidth: 24
-                Layout.preferredHeight: 24
-                radius: 12
-                color: closeMouseArea.containsMouse ? Theme.bg2 : "transparent"
-                
-                Behavior on color {
-                  ColorAnimation { duration: 100 }
-                }
-                
-                Text {
-                  anchors.centerIn: parent
-                  text: "✕"
-                  color: closeMouseArea.containsMouse ? Theme.fg : Theme.fgMuted
-                  font.pixelSize: 12
-                  font.family: Theme.fontFamily
-                  
-                  Behavior on color {
-                    ColorAnimation { duration: 100 }
-                  }
-                }
-                
-                MouseArea {
-                  id: closeMouseArea
-                  anchors.fill: parent
-                  hoverEnabled: true
-                  cursorShape: Qt.PointingHandCursor
-                  z: 2
-                  
-                  onClicked: {
-                    fadeOut.start()
-                  }
-                }
-              }
-            }
-            
-            // Subtle divider
-            Rectangle {
-              Layout.fillWidth: true
-              Layout.preferredHeight: 2
-              color: Theme.borderDim
-              opacity: 0.3
-            }
-            
-            // Content - compact
-            ColumnLayout {
-              Layout.fillWidth: true
-              spacing: 6
-              
-              // Summary
-              Text {
-                Layout.fillWidth: true
-                text: loader.notifSummary
-                color: Theme.fg
-                font.pixelSize: Theme.fontSizeM
-                font.family: Theme.fontFamily
-                font.weight: Font.Medium
-                wrapMode: Text.WordWrap
-                maximumLineCount: 1
-                elide: Text.ElideRight
-              }
-              
-              // Body - compact
-              Text {
-                Layout.fillWidth: true
-                text: loader.notifBody
-                color: Theme.fgMuted
-                font.pixelSize: Theme.fontSizeS
-                font.family: Theme.fontFamily
-                wrapMode: Text.WordWrap
-                maximumLineCount: 2
-                elide: Text.ElideRight
-                visible: text !== ""
-                opacity: 0.85
-              }
-            }
-          }
-          
-          // Hover area
-          MouseArea {
+          // Main notification container
+          Card {
+            id: background
             anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            z: 1
-            propagateComposedEvents: true
+            radius: Theme.radius.lg
+            padding: Theme.padding.sm
             
-            onEntered: {
-              background.hovered = true
-              background.radius = 24  // More rounded on hover
+            property bool hovered: false
+            
+            // Hover effects similar to Control Center modules
+            color: hovered ? Qt.darker(Theme.surface_container_low, 1.05) : Theme.surface_container_low
+            
+            Behavior on color {
+              ColorAnimation { duration: 150 }
             }
             
-            onExited: {
-              background.hovered = false
-              background.radius = 20  // Back to normal
+            ColumnLayout {
+              id: notifContent
+              anchors.fill: parent
+              
+              // Header row
+              RowLayout {
+                Layout.fillWidth: true
+                Layout.topMargin: Theme.padding.sm
+                Layout.bottomMargin: Theme.padding.xs
+                Layout.leftMargin: Theme.padding.sm
+                Layout.rightMargin: Theme.padding.md
+                spacing: Theme.spacing.sm
+                
+                // App icon 
+                IconCircle {
+                  Layout.preferredWidth: 24 // Smaller for minimalism
+                  Layout.preferredHeight: 24
+                  icon: "󰂚"  // Default app icon (customize per app if possible)
+                  bgColor: Theme.surface_container_high
+                  iconColor: Theme.on_surface_variant
+                  iconSize: Theme.typography.md
+                }
+                
+                // App name - minimal text
+                Text {
+                  Layout.fillWidth: true
+                  text: loader.notifApp || "Notification"
+                  color: Theme.on_surface
+                  font.pixelSize: Theme.typography.md
+                  font.family: Theme.typography.fontFamily
+                  font.weight: Theme.typography.weightMedium
+                  elide: Text.ElideRight
+                }
+                
+                Text {
+                  text: "✕"
+                  color: Theme.on_surface_variant
+                  font.pixelSize: Theme.typography.md
+                  opacity: closeArea.containsMouse ? 0.8 : 0.5
+
+                  Behavior on opacity { NumberAnimation { duration: 150 } }
+
+                  MouseArea {
+                    id: closeArea
+                    anchors.centerIn: parent
+                    width: 28; height: 28 
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: fadeOut.start()
+                  }
+                }
+              }
+              
+              // Subtle divider (minimal opacity)
+              Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 1  // Thinner for minimalism
+                Layout.leftMargin: Theme.padding.sm
+                Layout.rightMargin: Theme.padding.sm
+                color: Theme.outline_variant
+                opacity: 0.6
+              }
+              
+              // Content - compact and minimal
+              ColumnLayout {
+                Layout.fillWidth: true
+                Layout.topMargin: Theme.padding.sm
+                Layout.bottomMargin: Theme.padding.sm
+                Layout.leftMargin: Theme.padding.md
+                Layout.rightMargin: Theme.padding.md
+                spacing: Theme.spacing.sm
+                
+                // Summary - bold and primary
+                Text {
+                  Layout.fillWidth: true
+                  text: loader.notifSummary
+                  color: Theme.on_surface
+                  font.pixelSize: Theme.typography.md
+                  font.family: Theme.typography.fontFamily
+                  font.weight: Theme.typography.weightMedium
+                  wrapMode: Text.WordWrap
+                  maximumLineCount: 1  // Limit for minimalism
+                  elide: Text.ElideRight
+                }
+                
+                // Body - muted and smaller
+                Text {
+                  Layout.fillWidth: true
+                  text: loader.notifBody
+                  color: Theme.on_surface_variant
+                  font.pixelSize: Theme.typography.sm
+                  font.family: Theme.typography.fontFamily
+                  wrapMode: Text.WordWrap
+                  maximumLineCount: 3  // Limit lines for compactness
+                  elide: Text.ElideRight
+                  visible: text !== ""
+                  opacity: 0.8
+                }
+              }
             }
             
-            onClicked: mouse => {
-              mouse.accepted = false
+            // Hover area with effects like in IconButton
+            MouseArea {
+              anchors.fill: parent
+              hoverEnabled: true
+              cursorShape: Qt.PointingHandCursor
+              propagateComposedEvents: true
+              
+              onEntered: background.hovered = true
+              onExited: background.hovered = false
+              
+              onClicked: mouse => {
+                mouse.accepted = false  // Allow clicks to pass if needed
+              }
             }
           }
         }
-        }  // End of wrapper Item
         
-        // Simple fade out animation
+        // Fade out animation
         NumberAnimation {
           id: fadeOut
           target: wrapper
@@ -265,10 +230,10 @@ Scope {
           }
         }
         
-        // Auto-dismiss timer
+        // Auto-dismiss timer (shortened for minimalism)
         Timer {
           id: dismissTimer
-          interval: 5000
+          interval: 5000  // 5 seconds - adjust as preferred
           running: true
           onTriggered: {
             fadeOut.start()
