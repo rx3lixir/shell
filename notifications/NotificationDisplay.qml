@@ -85,7 +85,7 @@ Scope {
           id: background
           anchors.fill: parent
           radius: 16 // Slightly less rounded for compact look
-          color: Theme.bg1
+          color: Theme.bg1transparent
           border.width: 1
           border.color: Theme.borderDim
           

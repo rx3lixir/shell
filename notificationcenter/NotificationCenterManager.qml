@@ -14,8 +14,8 @@ Scope {
   function addNotification(notification) {
     // Get current date/time
     var now = new Date()
-    var dateStr = String(now.getMonth() + 1).padStart(2, '0') + "/" + 
-                  String(now.getDate()).padStart(2, '0') + "/" + 
+    var dateStr = String(now.getMonth() + 1).padStart(2, '0') + "." + 
+                  String(now.getDate()).padStart(2, '0') + "." + 
                   now.getFullYear()
     var timeStr = String(now.getHours()).padStart(2, '0') + ":" + 
                   String(now.getMinutes()).padStart(2, '0')

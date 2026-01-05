@@ -39,8 +39,8 @@ LazyLoader {
     
     // Dynamic height based on media player state
     implicitHeight: {
-      let baseHeight = 640
-      let mediaExpansion = manager.media.playerActive ? 148 : 0
+      let baseHeight = 630
+      let mediaExpansion = manager.media.playerActive ? 158 : 0
       return baseHeight + mediaExpansion
     }
     
@@ -75,28 +75,8 @@ LazyLoader {
       anchors.fill: parent
       radius: 28
       color: Theme.bg1transparent
-
-      // Shadow layer 1 (closest)
-      Rectangle {
-        anchors.fill: parent
-        anchors.margins: -2
-        radius: parent.radius + 2
-        color: "transparent"
-        border.width: 2
-        border.color: "#20000000"
-        z: -1
-      }
-      
-      // Shadow layer 2 (outer)
-      Rectangle {
-        anchors.fill: parent
-        anchors.margins: -4
-        radius: parent.radius + 4
-        color: "transparent"
-        border.width: 2
-        border.color: "#30000000"
-        z: -2
-      }
+      border.width: 1
+      border.color: Qt.lighter(Theme.bg1, 1.3)
       
       Column {
         anchors {
@@ -124,10 +104,10 @@ LazyLoader {
             Layout.preferredWidth: 40
             Layout.preferredHeight: 40
             radius: 20
-            color: closeMouseArea.containsMouse ? Theme.bg2 : Theme.bg1
+            color: closeMouseArea.containsMouse ? Theme.bg2 : Theme.bg1transparent
             
             Behavior on color {
-              ColorAnimation { duration: 100 }
+              ColorAnimation { duration: 200 }
             }
             
             Text {
