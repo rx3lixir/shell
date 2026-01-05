@@ -81,9 +81,11 @@ LazyLoader {
       Column {
         anchors {
           fill: parent
-          margins: Theme.spacingL
+          margins: Theme.padding.xl
         }
-        spacing: Theme.spacingM  // Single source of truth - change this value!
+
+        // Spacing between modules
+        spacing: Theme.spacing.md
         
         // ========== HEADER ==========
         RowLayout {
@@ -167,13 +169,13 @@ LazyLoader {
           
           Modules.VolumeSlider {
             width: parent.width
-            height: 98
+            height: 108
             audioManager: loader.manager.audio
           }
           
           Modules.BrightnessSlider {
             width: parent.width
-            height: 98
+            height: 108 
             brightnessManager: loader.manager.brightness
           }
         }

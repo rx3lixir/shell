@@ -149,9 +149,9 @@ QtObject {
     readonly property QtObject spacing: QtObject {
         readonly property int xs: 4
         readonly property int sm: 8
-        readonly property int md: 16
-        readonly property int lg: 24
-        readonly property int xl: 32
+        readonly property int md: 12
+        readonly property int lg: 18
+        readonly property int xl: 26 
         readonly property int xxl: 48
     }
     
@@ -163,7 +163,7 @@ QtObject {
         readonly property int xs: 4
         readonly property int sm: 8
         readonly property int md: 12
-        readonly property int lg: 16
+        readonly property int lg: 18
         readonly property int xl: 20
     }
     
@@ -193,11 +193,11 @@ QtObject {
     
     readonly property QtObject radius: QtObject {
         readonly property int none: 0
-        readonly property int sm: 4
-        readonly property int md: 6
-        readonly property int lg: 8
-        readonly property int xl: 12
-        readonly property int xxl: 16
+        readonly property int sm: 6
+        readonly property int md: 12
+        readonly property int lg: 20
+        readonly property int xl: 32 
+        readonly property int xxl: 40
         readonly property int full: 9999
     }
     
