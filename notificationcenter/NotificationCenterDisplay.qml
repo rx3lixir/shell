@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Widgets
 import Quickshell.Wayland
 import "../theme"
+import "../components"
 
 LazyLoader {
   id: loader
@@ -21,8 +22,8 @@ LazyLoader {
     }
 
     margins {
-      top: Theme.barHeight + Theme.spacingM
-      right: Theme.spacingM
+      top: Theme.barHeight + Theme.spacing.md
+      right: Theme.spacing.md
     }
 
     WlrLayershell.layer: WlrLayer.Overlay
@@ -33,8 +34,8 @@ LazyLoader {
 
     Component.onCompleted: {
       exclusiveZone = 0
-      implicitWidth = 320
-      implicitHeight = 520
+      implicitWidth = 360
+      implicitHeight = 600
     }
 
     contentItem {
@@ -52,10 +53,11 @@ LazyLoader {
       onClicked: loader.manager.visible = false
     }
 
+    // Main container
     Rectangle {
       id: background
       anchors.fill: parent
-      radius: 20
+      radius: Theme.radius.xl
       color: Theme.bg1transparent
       border.width: 1
       border.color: Qt.lighter(Theme.bg1, 1.3)
@@ -63,48 +65,61 @@ LazyLoader {
       ColumnLayout {
         anchors {
           fill: parent
-          margins: Theme.spacingM
+          margins: Theme.padding.lg
         }
-        spacing: Theme.spacingS
+
+        spacing: Theme.spacing.md
 
         // ========== HEADER ==========
         RowLayout {
           Layout.fillWidth: true
-          Layout.preferredHeight: 36
-          spacing: Theme.spacingS
+          Layout.preferredHeight: 40
+          spacing: Theme.spacing.sm
 
           Text {
             Layout.fillWidth: true
-            Layout.alignment: Qt.AlignVCenter
+            Layout.leftMargin: Theme.padding.xs
             text: "Notifications"
-            color: Theme.fg
-            font.pixelSize: 16
-            font.family: Theme.fontFamily
-            font.weight: Font.Medium
+            color: Theme.on_surface
+            font.pixelSize: Theme.typography.lg
+            font.family: Theme.typography.fontFamily
+            font.weight: Theme.typography.weightMedium
           }
 
+          // Clear All button - only show when there are notifications
           Rectangle {
-            Layout.preferredWidth: 70
+            Layout.preferredWidth: 80
             Layout.preferredHeight: 32
-            Layout.alignment: Qt.AlignVCenter
-            radius: 16
-            color: clearMouseArea.containsMouse ? Theme.bg2 : Qt.lighter(Theme.bg2, 1.1)
-            border.width: 1
-            border.color: Theme.borderDim
+            radius: Theme.radius.full
             visible: loader.manager.notifications.length > 0
+
+            color: clearMouseArea.containsMouse 
+                   ? Theme.surface_container_high 
+                   : Theme.surface_container_low
+
+            border.width: 1
+            border.color: clearMouseArea.containsMouse 
+                          ? Theme.outline 
+                          : Theme.outline_variant
 
             scale: clearMouseArea.pressed ? 0.95 : 1.0
 
             Behavior on color { ColorAnimation { duration: 150 } }
-            Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
+            Behavior on border.color { ColorAnimation { duration: 150 } }
+            Behavior on scale { 
+              NumberAnimation { 
+                duration: 100
+                easing.type: Easing.OutCubic 
+              } 
+            }
 
             Text {
               anchors.centerIn: parent
               text: "Clear All"
-              color: Theme.fg
-              font.pixelSize: 12
-              font.family: Theme.fontFamily
-              font.weight: Font.Medium
+              color: Theme.on_surface
+              font.pixelSize: Theme.typography.sm
+              font.family: Theme.typography.fontFamily
+              font.weight: Theme.typography.weightMedium
             }
 
             MouseArea {
@@ -116,30 +131,12 @@ LazyLoader {
             }
           }
 
-          Rectangle {
-            Layout.preferredWidth: 36
-            Layout.preferredHeight: 36
-            Layout.alignment: Qt.AlignVCenter
-            radius: 18
-            color: closeMouseArea.containsMouse ? Theme.bg2 : Theme.bg1
-
-            Behavior on color { ColorAnimation { duration: 100 } }
-
-            Text {
-              anchors.centerIn: parent
-              text: "✕"
-              color: Theme.fg
-              font.pixelSize: 16
-              font.family: Theme.fontFamily
-            }
-
-            MouseArea {
-              id: closeMouseArea
-              anchors.fill: parent
-              hoverEnabled: true
-              cursorShape: Qt.PointingHandCursor
-              onClicked: loader.manager.visible = false
-            }
+          // Close button
+          RoundIconButton {
+            Layout.preferredWidth: 40
+            Layout.preferredHeight: 40
+            icon: "✕"
+            onClicked: loader.manager.visible = false
           }
         }
 
@@ -149,97 +146,106 @@ LazyLoader {
           Layout.fillWidth: true
           Layout.fillHeight: true
           clip: true
-          spacing: 10
+          spacing: Theme.spacing.md
 
           model: loader.manager.notifications
 
           Behavior on contentY {
-            NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
+            NumberAnimation { 
+              duration: 300
+              easing.type: Easing.OutCubic 
+            }
           }
 
-          delegate: Rectangle {
+          delegate: Item {
             required property var modelData
             required property int index
 
             width: notifList.width
-            height: notifContent.implicitHeight + (Theme.spacingM * 2)
-            radius: 20
-            color: Theme.bg1
-            border.width: 1
-            border.color: Theme.borderDim
+            height: notifCard.height
 
-            property bool hovered: false
+            Rectangle {
+              id: notifCard
+              anchors.left: parent.left
+              anchors.right: parent.right
+              anchors.top: parent.top
+              height: notifContent.implicitHeight + (Theme.padding.md * 2)
+              
+              radius: Theme.radius.lg
+              color: hovered 
+                     ? Qt.darker(Theme.surface_container_low, 1.05) 
+                     : Theme.surface_container_low
 
-            Behavior on radius {
-              NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
-            }
+              border.width: 1
+              border.color: Theme.outline_variant
 
-            MouseArea {
-              anchors.fill: parent
-              hoverEnabled: true
-              cursorShape: Qt.PointingHandCursor
-              z: 1
+              property bool hovered: false
 
-              onEntered: parent.hovered = true
-              onExited: parent.hovered = false
-              onClicked: mouse.accepted = false
-            }
+              Behavior on color {
+                ColorAnimation { duration: 150 }
+              }
 
-            states: State {
-              name: "hovered"
-              when: hovered
-              PropertyChanges { target: parent; radius: 24 }
-            }
+              ColumnLayout {
+                id: notifContent
+                anchors.fill: parent
+                anchors.margins: Theme.padding.lg
+                spacing: Theme.spacing.sm
 
-            transitions: Transition {
-              to: "hovered"; reversible: true
-              NumberAnimation { property: "radius"; duration: 200; easing.type: Easing.OutCubic }
-            }
-
-            ColumnLayout {
-              id: notifContent
-              anchors.fill: parent
-              anchors.margins: Theme.spacingM
-              spacing: Theme.spacingXS
-
-              // Header: app name + close button only (no icon)
+              // Header: icon + app name + close button
               RowLayout {
                 Layout.fillWidth: true
-                spacing: Theme.spacingXS
+                spacing: Theme.spacing.sm
+
+                IconCircle {
+                  Layout.preferredWidth: 28
+                  Layout.preferredHeight: 28
+                  icon: "󰂚"
+                  bgColor: Theme.surface_container_high
+                  iconColor: Theme.on_surface_variant
+                  iconSize: Theme.typography.md
+                }
 
                 Text {
                   Layout.fillWidth: true
-                  Layout.alignment: Qt.AlignVCenter
                   text: modelData.appName
-                  color: Theme.fgMuted
-                  font.pixelSize: Theme.fontSizeS
-                  font.family: Theme.fontFamily
+                  color: Theme.on_surface
+                  font.pixelSize: Theme.typography.md
+                  font.family: Theme.typography.fontFamily
+                  font.weight: Theme.typography.weightMedium
                   elide: Text.ElideRight
-                  opacity: 0.8
                 }
 
+                // Close button (minimal)
                 Rectangle {
-                  Layout.preferredWidth: 24
-                  Layout.preferredHeight: 24
-                  Layout.alignment: Qt.AlignVCenter
-                  radius: 12
-                  color: closeNotifMouseArea.containsMouse ? Theme.bg2 : "transparent"
+                  Layout.preferredWidth: 28
+                  Layout.preferredHeight: 28
+                  radius: Theme.radius.full
+                  color: closeMouseArea.containsMouse 
+                         ? Theme.surface_container_high 
+                         : "transparent"
 
-                  Behavior on color { ColorAnimation { duration: 100 } }
+                  Behavior on color { 
+                    ColorAnimation { duration: 150 } 
+                  }
 
                   Text {
                     anchors.centerIn: parent
                     text: "✕"
-                    color: closeNotifMouseArea.containsMouse ? Theme.fg : Theme.fgMuted
-                    font.pixelSize: 12
-                    font.family: Theme.fontFamily
+                    color: closeMouseArea.containsMouse 
+                           ? Theme.on_surface 
+                           : Theme.on_surface_variant
+                    font.pixelSize: Theme.typography.sm
+                    font.family: Theme.typography.fontFamily
 
-                    Behavior on color { ColorAnimation { duration: 100 } }
+                    Behavior on color { 
+                      ColorAnimation { duration: 150 } 
+                    }
                   }
 
                   MouseArea {
-                    id: closeNotifMouseArea
+                    id: closeMouseArea
                     anchors.fill: parent
+                    anchors.margins: -4
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: loader.manager.removeNotification(index)
@@ -247,64 +253,81 @@ LazyLoader {
                 }
               }
 
-              // First divider
+              // Divider
               Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 1
-                color: Theme.borderDim
-                opacity: 0.3
+                color: Theme.outline_variant
+                opacity: 0.6
               }
 
-              // Main content
+              // Content section
               ColumnLayout {
                 Layout.fillWidth: true
-                spacing: 6
+                spacing: Theme.spacing.sm
 
+                // Summary (bold)
                 Text {
                   Layout.fillWidth: true
                   text: modelData.summary
-                  color: Theme.fg
-                  font.pixelSize: Theme.fontSizeM
-                  font.family: Theme.fontFamily
-                  font.weight: Font.Medium
-                  wrapMode: Text.WordWrap
-                  maximumLineCount: 1
-                  elide: Text.ElideRight
-                }
-
-                Text {
-                  Layout.fillWidth: true
-                  text: modelData.body
-                  color: Theme.fgMuted
-                  font.pixelSize: Theme.fontSizeS
-                  font.family: Theme.fontFamily
+                  color: Theme.on_surface
+                  font.pixelSize: Theme.typography.md
+                  font.family: Theme.typography.fontFamily
+                  font.weight: Theme.typography.weightMedium
                   wrapMode: Text.WordWrap
                   maximumLineCount: 2
                   elide: Text.ElideRight
+                }
+
+                // Body (muted)
+                Text {
+                  Layout.fillWidth: true
+                  text: modelData.body
+                  color: Theme.on_surface_variant
+                  font.pixelSize: Theme.typography.sm
+                  font.family: Theme.typography.fontFamily
+                  wrapMode: Text.WordWrap
+                  maximumLineCount: 3
+                  elide: Text.ElideRight
                   visible: text !== ""
-                  opacity: 0.85
+                  opacity: 0.8
                 }
               }
 
-              // Second divider (before timestamp)
+              // Bottom divider (subtle)
               Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 1
-                color: Theme.borderDim
-                opacity: 0.2
+                color: Theme.outline_variant
+                opacity: 0.4
                 visible: modelData.date !== "" || modelData.time !== ""
               }
 
-              // Timestamp
+              // Timestamp (bottom right)
               Text {
                 Layout.fillWidth: true
-                Layout.bottomMargin: 4
+                Layout.bottomMargin: Theme.padding.md
                 text: modelData.date + (modelData.date && modelData.time ? " · " : "") + modelData.time
-                color: Theme.fgMuted
-                font.pixelSize: 10
-                font.family: Theme.fontFamily
+                color: Theme.on_surface_variant
+                font.pixelSize: Theme.typography.xs
+                font.family: Theme.typography.fontFamily
                 opacity: 0.7
                 horizontalAlignment: Text.AlignRight
+              }
+            }
+
+              // Hover detection
+              MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                propagateComposedEvents: true
+                
+                onEntered: notifCard.hovered = true
+                onExited: notifCard.hovered = false
+                
+                onClicked: mouse => {
+                  mouse.accepted = false
+                }
               }
             }
           }
@@ -313,26 +336,27 @@ LazyLoader {
           Item {
             anchors.centerIn: parent
             width: parent.width
-            height: 160
+            height: 200
             visible: notifList.count === 0
 
             ColumnLayout {
               anchors.centerIn: parent
-              spacing: 12
+              spacing: Theme.spacing.md
 
+              // Icon container
               Rectangle {
                 Layout.alignment: Qt.AlignHCenter
-                Layout.preferredWidth: 56
-                Layout.preferredHeight: 56
-                radius: 28
-                color: Qt.lighter(Theme.bg2, 1.2)
+                Layout.preferredWidth: 64
+                Layout.preferredHeight: 64
+                radius: Theme.radius.full
+                color: Theme.surface_container_high
 
                 Text {
                   anchors.centerIn: parent
                   text: "󰂚"
-                  color: Theme.fgMuted
-                  font.pixelSize: 28
-                  font.family: Theme.fontFamily
+                  color: Theme.on_surface_variant
+                  font.pixelSize: Theme.typography.xxxl
+                  font.family: Theme.typography.fontFamily
                   opacity: 0.6
                 }
               }
@@ -340,10 +364,20 @@ LazyLoader {
               Text {
                 Layout.alignment: Qt.AlignHCenter
                 text: "No notifications"
-                color: Theme.fgMuted
-                font.pixelSize: 13
-                font.family: Theme.fontFamily
+                color: Theme.on_surface
+                font.pixelSize: Theme.typography.md
+                font.family: Theme.typography.fontFamily
+                font.weight: Theme.typography.weightMedium
                 opacity: 0.8
+              }
+
+              Text {
+                Layout.alignment: Qt.AlignHCenter
+                text: "You're all caught up"
+                color: Theme.on_surface_variant
+                font.pixelSize: Theme.typography.sm
+                font.family: Theme.typography.fontFamily
+                opacity: 0.6
               }
             }
           }

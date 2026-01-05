@@ -16,7 +16,7 @@ Rectangle {
   radius: Theme.radius.xl
   color: Theme.bg2
   border.width: 1
-  border.color: Theme.borderDim
+  border.color: Qt.darker(Theme.outline_variant, 1.2)
 
   Elevation {
     target: root

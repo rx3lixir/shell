@@ -25,7 +25,7 @@ Rectangle {
   radius: Theme.radius.xxl
   color: mouseArea.containsMouse ? Qt.darker(Theme.surface_container_low, 1.1) : Theme.surface_container_low
   border.width: 1
-  border.color: Theme.outline_variant
+  border.color: Qt.darker(Theme.outline_variant, 1.2)
   
   // Elevation shadow
   Elevation {
@@ -102,8 +102,7 @@ Rectangle {
       Text {
         text: root.subtitle
 
-        // If stateful and active, show accent color. 
-        // Otherwise muted
+        // If stateful and active, show accent color. Otherwise muted
         color: root.isStateful && root.isActive 
                ? Theme.primary 
                : Theme.on_surface_variant
