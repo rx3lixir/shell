@@ -1,10 +1,11 @@
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Controls
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Wayland
 import "../theme"
+import "../components"
+import "cal_modules" as CalModules
 
 LazyLoader {
   id: loader
@@ -22,8 +23,8 @@ LazyLoader {
     }
     
     margins {
-      top: Theme.barHeight + Theme.spacingS
-      right: Theme.spacingM
+      top: Theme.component.barHeight + Theme.spacing.md
+      right: Theme.spacing.md
     }
     
     WlrLayershell.layer: WlrLayer.Overlay
@@ -34,8 +35,8 @@ LazyLoader {
     
     Component.onCompleted: {
       exclusiveZone = 0
-      implicitWidth = 340
-      implicitHeight = 460
+      implicitWidth = 360
+      implicitHeight = 520
     }
     
     contentItem {
@@ -56,311 +57,71 @@ LazyLoader {
       }
     }
     
+    // Main container with Material 3 style
     Rectangle {
       id: background
       anchors.fill: parent
-      radius: Theme.radiusXLarge
-      color: Theme.bg1transparent
+      radius: Theme.radius.xl
+      color: Theme.surface_container_transparent
+      border.width: 1
+      border.color: Qt.lighter(Theme.surface_container, 1.3)
       
       ColumnLayout {
         anchors {
           fill: parent
-          margins: Theme.spacingM
+          margins: Theme.padding.lg
         }
-        spacing: Theme.spacingM
+        spacing: Theme.spacing.md
         
         // ========== HEADER ==========
         RowLayout {
           Layout.fillWidth: true
-          spacing: Theme.spacingS
+          Layout.preferredHeight: 40
+          spacing: Theme.spacing.sm
           
           Text {
             Layout.fillWidth: true
             text: "Calendar"
-            color: Theme.fg
-            font.pixelSize: Theme.fontSizeM
-            font.family: Theme.fontFamily
-            font.bold: true
+            color: Theme.on_surface
+            font.pixelSize: Theme.typography.lg
+            font.family: Theme.typography.fontFamily
+            font.weight: Theme.typography.weightMedium
           }
           
           // Close button
-          Rectangle {
-            Layout.preferredWidth: 24
-            Layout.preferredHeight: 24
-            radius: Theme.radiusMedium
-            color: closeMouseArea.containsMouse ? Theme.bg2 : "transparent"
-            
-            Text {
-              anchors.centerIn: parent
-              text: "✕"
-              color: Theme.fg
-              font.pixelSize: Theme.fontSizeS
-              font.family: Theme.fontFamily
-            }
-            
-            MouseArea {
-              id: closeMouseArea
-              anchors.fill: parent
-              hoverEnabled: true
-              cursorShape: Qt.PointingHandCursor
-              onClicked: loader.manager.visible = false
-            }
+          RoundIconButton {
+            Layout.preferredWidth: 40
+            Layout.preferredHeight: 40
+            icon: "✕"
+            onClicked: loader.manager.visible = false
           }
         }
         
         // ========== CURRENT TIME & DATE ==========
-        Rectangle {
+        CalModules.TimeDisplay {
           Layout.fillWidth: true
-          Layout.preferredHeight: 100
-          radius: Theme.radiusXLarge
-          color: Theme.bg2transparent
-          
-          ColumnLayout {
-            anchors {
-              fill: parent
-              margins: Theme.spacingM
-            }
-            spacing: 4
-            
-            // Time (big)
-            Text {
-              Layout.fillWidth: true
-              text: loader.manager.timeString
-              color: Theme.fg
-              font.pixelSize: Theme.fontSizeXL * 1.5
-              font.family: Theme.fontFamily
-              font.bold: true
-              horizontalAlignment: Text.AlignHCenter
-            }
-            
-            // Day of week
-            Text {
-              Layout.fillWidth: true
-              text: loader.manager.dayOfWeek
-              color: Theme.fgMuted
-              font.pixelSize: Theme.fontSizeM
-              font.family: Theme.fontFamily
-              horizontalAlignment: Text.AlignHCenter
-            }
-            
-            // Date
-            Text {
-              Layout.fillWidth: true
-              text: loader.manager.dateString
-              color: Theme.fgMuted
-              font.pixelSize: Theme.fontSizeS
-              font.family: Theme.fontFamily
-              horizontalAlignment: Text.AlignHCenter
-            }
-          }
+          Layout.preferredHeight: 108
+          calendarManager: loader.manager
         }
         
         // ========== CALENDAR NAVIGATION ==========
-        RowLayout {
+        CalModules.CalendarNavigation {
           Layout.fillWidth: true
-          spacing: Theme.spacingS
-          
-          // Previous month button
-          Rectangle {
-            Layout.preferredWidth: 32
-            Layout.preferredHeight: 32
-            radius: Theme.radiusLarge
-            color: prevMouseArea.containsMouse ? Theme.bg2 : "transparent"
-            
-            Text {
-              anchors.centerIn: parent
-              text: ""
-              color: Theme.fg
-              font.pixelSize: Theme.fontSizeL
-              font.family: Theme.fontFamily
-            }
-            
-            MouseArea {
-              id: prevMouseArea
-              anchors.fill: parent
-              hoverEnabled: true
-              cursorShape: Qt.PointingHandCursor
-              
-              onClicked: {
-                loader.manager.previousMonth()
-              }
-            }
-          }
-          
-          // Month/Year display
-          Text {
-            Layout.fillWidth: true
-            text: {
-              var monthName = Qt.locale().monthName(loader.manager.displayMonth, Locale.LongFormat)
-              return monthName + " " + loader.manager.displayYear
-            }
-            color: Theme.fg
-            font.pixelSize: Theme.fontSizeM
-            font.family: Theme.fontFamily
-            font.bold: true
-            horizontalAlignment: Text.AlignHCenter
-          }
-          
-          // Next month button
-          Rectangle {
-            Layout.preferredWidth: 32
-            Layout.preferredHeight: 32
-            radius: Theme.radiusLarge
-            color: nextMouseArea.containsMouse ? Theme.bg2 : "transparent"
-            
-            Text {
-              anchors.centerIn: parent
-              text: ""
-              color: Theme.fg
-              font.pixelSize: Theme.fontSizeL
-              font.family: Theme.fontFamily
-            }
-            
-            MouseArea {
-              id: nextMouseArea
-              anchors.fill: parent
-              hoverEnabled: true
-              cursorShape: Qt.PointingHandCursor
-              
-              onClicked: {
-                loader.manager.nextMonth()
-              }
-            }
-          }
+          calendarManager: loader.manager
         }
         
         // ========== CALENDAR GRID ==========
-        Rectangle {
+        CalModules.CalendarGrid {
           Layout.fillWidth: true
           Layout.fillHeight: true
-          radius: Theme.radiusXLarge
-          color: Theme.bg2transparent
-          
-          ColumnLayout {
-            anchors {
-              fill: parent
-              margins: Theme.spacingS
-            }
-            spacing: 2
-            
-            // Day names header
-            DayOfWeekRow {
-              Layout.fillWidth: true
-              locale: Qt.locale()
-              
-              delegate: Text {
-                required property string shortName
-                
-                text: shortName
-                color: Theme.fgMuted
-                font.pixelSize: Theme.fontSizeS
-                font.family: Theme.fontFamily
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-              }
-            }
-            
-            // Calendar grid
-            MonthGrid {
-              id: monthGrid
-              Layout.fillWidth: true
-              Layout.fillHeight: true
-              
-              month: loader.manager.displayMonth
-              year: loader.manager.displayYear
-              locale: Qt.locale()
-              
-              delegate: Rectangle {
-                required property var model
-                
-                radius: height / 2
-                color: {
-                  // Today's date
-                  var now = new Date()
-                  var isToday = model.day === now.getDate() && 
-                                model.month === now.getMonth() && 
-                                model.year === now.getFullYear()
-                  
-                  if (isToday) return Theme.accent
-                  if (dateMouseArea.containsMouse) return Qt.darker(Theme.accent, 2)
-                  return "transparent"
-                }
-                
-                Behavior on color {
-                  ColorAnimation {
-                    duration: 150
-                    easing.type: Easing.OutCubic
-                  }
-                }
-                
-                Text {
-                  anchors.centerIn: parent
-                  text: model.day
-                  color: {
-                    var now = new Date()
-                    var isToday = model.day === now.getDate() && 
-                                  model.month === now.getMonth() && 
-                                  model.year === now.getFullYear()
-                    
-                    if (isToday) return Theme.bg1
-                    if (model.month !== monthGrid.month) return Theme.borderDim
-                    return Theme.fg
-                  }
-                  font.pixelSize: Theme.fontSizeM
-                  font.family: Theme.fontFamily
-                  opacity: model.month === monthGrid.month ? 1.0 : 0.8
-                  
-                  Behavior on color {
-                    ColorAnimation {
-                      duration: 150
-                      easing.type: Easing.OutCubic
-                    }
-                  }
-                }
-                
-                MouseArea {
-                  id: dateMouseArea
-                  anchors.fill: parent
-                  hoverEnabled: true
-                  cursorShape: Qt.PointingHandCursor
-                }
-              }
-            }
-          }
+          calendarManager: loader.manager
         }
         
         // ========== TODAY BUTTON ==========
-        Rectangle {
+        CalModules.TodayButton {
           Layout.fillWidth: true
-          Layout.preferredHeight: 32
-          radius: Theme.radiusLarge
-          color: todayMouseArea.containsMouse ? Theme.accent : Theme.accentTransparent
-          
-          Behavior on color {
-            ColorAnimation {
-              duration: 150
-              easing.type: Easing.OutCubic
-            }
-          }
-          
-          Text {
-            anchors.centerIn: parent
-            text: "Today"
-            color: Theme.fg
-            font.pixelSize: Theme.fontSizeS
-            font.family: Theme.fontFamily
-          }
-          
-          MouseArea {
-            id: todayMouseArea
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            
-            onClicked: {
-              loader.manager.goToToday()
-            }
-          }
+          Layout.preferredHeight: 40
+          calendarManager: loader.manager
         }
       }
     }
