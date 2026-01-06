@@ -1,21 +1,25 @@
 import QtQuick
 import QtQuick.Layouts
 import "../theme"
+import "../components"
 
 Rectangle {
   id: root
   
   required property var item
   property bool isSelected: false
+  property bool pressedByEnter: false  // New property for Enter key animation
   signal clicked()
   signal activated()
   
-  radius: Theme.radiusXLarge
+  radius: Theme.radius.xl
   color: {
-    if (isSelected) return Theme.accent
-    if (mouseArea.containsMouse) return Theme.bg2transparent
+    // Only show hover, selection is handled by the sliding highlight in the parent
+    if (mouseArea.containsMouse && !isSelected) return Theme.surface_container_high
     return "transparent"
   }
+  
+  scale: (mouseArea.pressed || pressedByEnter) ? 0.97 : 1.0
   
   Behavior on color {
     ColorAnimation {
@@ -24,39 +28,57 @@ Rectangle {
     }
   }
   
+  Behavior on scale {
+    NumberAnimation {
+      duration: 100
+      easing.type: Easing.OutCubic
+    }
+  }
+  
+  // Function to trigger Enter press animation
+  function triggerPressAnimation() {
+    pressedByEnter = true
+    pressResetTimer.start()
+  }
+  
+  Timer {
+    id: pressResetTimer
+    interval: 100
+    onTriggered: {
+      root.pressedByEnter = false
+    }
+  }
+  
   RowLayout {
     anchors {
       fill: parent
-      margins: Theme.spacingM
+      margins: Theme.padding.md
     }
-    spacing: Theme.spacingM
+    spacing: Theme.spacing.md
     
-    // Icon
-    Rectangle {
+    // Icon using IconCircle component
+    IconCircle {
       Layout.preferredWidth: 48
       Layout.preferredHeight: 48
-      radius: Theme.radiusLarge
-      color: isSelected ? Theme.fg : Theme.accentTransparent
+      Layout.alignment: Qt.AlignVCenter
       
-      Behavior on color {
+      icon: root.item.icon
+      iconSize: Theme.typography.xxl
+      
+      bgColor: isSelected ? Theme.primary : Theme.primary_container
+      iconColor: isSelected ? Theme.on_primary : Theme.primary
+      
+      Behavior on bgColor {
         ColorAnimation {
           duration: 200
           easing.type: Easing.OutCubic
         }
       }
       
-      Text {
-        anchors.centerIn: parent
-        text: root.item.icon
-        color: isSelected ? Theme.bg1 : Theme.fg
-        font.pixelSize: Theme.fontSizeXL
-        font.family: Theme.fontFamily
-        
-        Behavior on color {
-          ColorAnimation {
-            duration: 200
-            easing.type: Easing.OutCubic
-          }
+      Behavior on iconColor {
+        ColorAnimation {
+          duration: 200
+          easing.type: Easing.OutCubic
         }
       }
     }
@@ -64,15 +86,16 @@ Rectangle {
     // Text info
     ColumnLayout {
       Layout.fillWidth: true
+      Layout.alignment: Qt.AlignVCenter
       spacing: 2
       
       Text {
         Layout.fillWidth: true
         text: root.item.name
-        color: isSelected ? Theme.bg1 : Theme.fg
-        font.pixelSize: Theme.fontSizeM
-        font.family: Theme.fontFamily
-        font.bold: true
+        color: isSelected ? Theme.on_primary_container : Theme.on_surface
+        font.pixelSize: Theme.typography.md
+        font.family: Theme.typography.fontFamily
+        font.weight: Theme.typography.weightMedium
         elide: Text.ElideRight
         
         Behavior on color {
@@ -86,13 +109,21 @@ Rectangle {
       Text {
         Layout.fillWidth: true
         text: root.item.description
-        color: isSelected ? Theme.bg2 : Theme.fgMuted
-        font.pixelSize: Theme.fontSizeS
-        font.family: Theme.fontFamily
+        color: isSelected ? Theme.on_primary_container : Theme.on_surface_variant
+        font.pixelSize: Theme.typography.sm
+        font.family: Theme.typography.fontFamily
+        opacity: isSelected ? 0.9 : 0.7
         elide: Text.ElideRight
         
         Behavior on color {
           ColorAnimation {
+            duration: 200
+            easing.type: Easing.OutCubic
+          }
+        }
+        
+        Behavior on opacity {
+          NumberAnimation {
             duration: 200
             easing.type: Easing.OutCubic
           }
