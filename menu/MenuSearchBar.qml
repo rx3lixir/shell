@@ -9,15 +9,6 @@ Rectangle {
   
   radius: Theme.radius.full
   color: Theme.surface_container_high
-  //border.width: 2
-  //border.color: searchInput.activeFocus ? Theme.primary : "transparent"
-  
-  Behavior on border.color {
-    ColorAnimation {
-      duration: 200
-      easing.type: Easing.OutCubic
-    }
-  }
   
   TextInput {
     id: searchInput

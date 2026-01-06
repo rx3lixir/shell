@@ -8,29 +8,19 @@ Rectangle {
   
   required property var item
   property bool isSelected: false
-  property bool pressedByEnter: false  // New property for Enter key animation
+  property bool pressedByEnter: false
   signal clicked()
   signal activated()
   
   radius: Theme.radius.xl
-  color: {
-    // Only show hover, selection is handled by the sliding highlight in the parent
-    if (mouseArea.containsMouse && !isSelected) return Theme.surface_container_high
-    return "transparent"
-  }
+  color: "transparent"  // No hover colors
   
-  scale: (mouseArea.pressed || pressedByEnter) ? 0.97 : 1.0
-  
-  Behavior on color {
-    ColorAnimation {
-      duration: 200
-      easing.type: Easing.OutCubic
-    }
-  }
+  // Simple press feedback only
+  scale: (pressedByEnter || mouseArea.pressed) ? 0.98 : 1.0
   
   Behavior on scale {
     NumberAnimation {
-      duration: 100
+      duration: 80
       easing.type: Easing.OutCubic
     }
   }
@@ -50,6 +40,7 @@ Rectangle {
   }
   
   RowLayout {
+    id: contentLayout
     anchors {
       fill: parent
       margins: Theme.padding.md
@@ -65,19 +56,21 @@ Rectangle {
       icon: root.item.icon
       iconSize: Theme.typography.xxl
       
+      // Subtle color shift when selected, but no wild changes
       bgColor: isSelected ? Theme.primary : Theme.primary_container
       iconColor: isSelected ? Theme.on_primary : Theme.primary
       
+      // Quick color transition
       Behavior on bgColor {
         ColorAnimation {
-          duration: 200
+          duration: 180
           easing.type: Easing.OutCubic
         }
       }
       
       Behavior on iconColor {
         ColorAnimation {
-          duration: 200
+          duration: 180
           easing.type: Easing.OutCubic
         }
       }
@@ -92,15 +85,19 @@ Rectangle {
       Text {
         Layout.fillWidth: true
         text: root.item.name
-        color: isSelected ? Theme.on_primary_container : Theme.on_surface
+        // Keep text readable - only subtle changes
+        color: isSelected ? Theme.on_surface : Theme.on_surface
         font.pixelSize: Theme.typography.md
         font.family: Theme.typography.fontFamily
-        font.weight: Theme.typography.weightMedium
+        font.weight: isSelected ? Theme.typography.weightMedium : Theme.typography.weightMedium
         elide: Text.ElideRight
         
-        Behavior on color {
-          ColorAnimation {
-            duration: 200
+        // Slightly more visible when selected
+        opacity: isSelected ? 1.0 : 0.95
+        
+        Behavior on opacity {
+          NumberAnimation {
+            duration: 180
             easing.type: Easing.OutCubic
           }
         }
@@ -109,22 +106,15 @@ Rectangle {
       Text {
         Layout.fillWidth: true
         text: root.item.description
-        color: isSelected ? Theme.on_primary_container : Theme.on_surface_variant
+        color: Theme.on_surface_variant
         font.pixelSize: Theme.typography.sm
         font.family: Theme.typography.fontFamily
-        opacity: isSelected ? 0.9 : 0.7
+        opacity: isSelected ? 0.85 : 0.7
         elide: Text.ElideRight
-        
-        Behavior on color {
-          ColorAnimation {
-            duration: 200
-            easing.type: Easing.OutCubic
-          }
-        }
         
         Behavior on opacity {
           NumberAnimation {
-            duration: 200
+            duration: 180
             easing.type: Easing.OutCubic
           }
         }
@@ -135,11 +125,10 @@ Rectangle {
   MouseArea {
     id: mouseArea
     anchors.fill: parent
-    hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
     
+    // Mouse only activates items, doesn't change selection
     onClicked: {
-      root.clicked()
       root.activated()
     }
   }

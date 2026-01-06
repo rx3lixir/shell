@@ -101,7 +101,7 @@ LazyLoader {
       y: (parent.height - 520) / 2
       width: 520
       height: 520
-      radius: Theme.radius.xl
+      radius: 28
       color: Theme.surface_container
       border.width: 1
       border.color: Qt.lighter(Theme.surface_container, 1.3)
@@ -164,12 +164,12 @@ LazyLoader {
             scale: closeMouseArea.pressed ? 0.9 : 1.0
             
             Behavior on opacity {
-              NumberAnimation { duration: 200 }
+              NumberAnimation { duration: 150 }
             }
             
             Behavior on scale {
               NumberAnimation { 
-                duration: 100
+                duration: 80
                 easing.type: Easing.OutCubic
               }
             }
@@ -198,41 +198,7 @@ LazyLoader {
         Item {
           Layout.fillWidth: true
           Layout.fillHeight: true
-          clip: true  // Clip the highlight so it doesn't go outside bounds
-          
-          // Selection highlight - slides between items
-          Rectangle {
-            id: selectionHighlight
-            width: menuList.width
-            height: 72
-            radius: Theme.radius.xl
-            color: Theme.primary_container
-            visible: menuList.count > 0 && menuList.currentIndex >= 0 && menuList.currentIndex < menuList.count
-            
-            y: {
-              if (!visible) return 0
-              
-              // Calculate position relative to contentY (scroll position)
-              const itemY = menuList.currentIndex * (72 + Theme.spacing.xs)
-              return itemY - menuList.contentY
-            }
-            
-            // Smooth transitions
-            Behavior on y {
-              enabled: selectionHighlight.visible
-              NumberAnimation {
-                duration: 200
-                easing.type: Easing.OutCubic
-              }
-            }
-            
-            Behavior on opacity {
-              NumberAnimation {
-                duration: 150
-                easing.type: Easing.OutCubic
-              }
-            }
-          }
+          clip: true
           
           ListView {
             id: menuList
@@ -245,6 +211,20 @@ LazyLoader {
             // Smooth scrolling
             maximumFlickVelocity: 2500
             flickDeceleration: 1500
+            
+            // Selection highlight - inside ListView so it scrolls properly
+            highlight: Rectangle {
+              width: menuList.width
+              height: 72
+              radius: Theme.radius.xl
+              color: Theme.primary_container
+              opacity: 0.5
+              z: -1  // Behind the items
+            }
+            
+            highlightFollowsCurrentItem: true
+            highlightMoveDuration: 180  // Smooth glide animation
+            highlightMoveVelocity: -1  // Disable velocity-based movement
           
           // Filtered model based on search
           model: ScriptModel {
@@ -267,10 +247,15 @@ LazyLoader {
           }
           
           onCountChanged: {
-            // Reset to first item when results change
-            if (count > 0 && currentIndex >= count) {
-              currentIndex = 0
-            } else if (count === 0) {
+            // Properly reset index when results change
+            if (count > 0) {
+              // Keep index in bounds
+              if (currentIndex >= count) {
+                currentIndex = count - 1
+              } else if (currentIndex < 0) {
+                currentIndex = 0
+              }
+            } else {
               currentIndex = -1
             }
           }
@@ -285,29 +270,23 @@ LazyLoader {
             return model.values
           }
           
-          // Staggered entrance animation
+          // Subtle entrance animation
           add: Transition {
             NumberAnimation {
               properties: "opacity"
               from: 0
               to: 1
-              duration: 200
-              easing.type: Easing.OutCubic
-            }
-            NumberAnimation {
-              properties: "x"
-              from: -20
-              duration: 250
+              duration: 150
               easing.type: Easing.OutCubic
             }
           }
           
-          // Smooth removal
+          // Quick removal
           remove: Transition {
             NumberAnimation {
               properties: "opacity"
               to: 0
-              duration: 150
+              duration: 100
               easing.type: Easing.InCubic
             }
           }
@@ -316,7 +295,7 @@ LazyLoader {
           move: Transition {
             NumberAnimation {
               properties: "y"
-              duration: 200
+              duration: 180
               easing.type: Easing.OutCubic
             }
           }
@@ -350,7 +329,7 @@ LazyLoader {
             
             Behavior on opacity {
               NumberAnimation {
-                duration: 200
+                duration: 150
                 easing.type: Easing.OutCubic
               }
             }
