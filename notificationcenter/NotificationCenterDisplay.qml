@@ -58,7 +58,7 @@ LazyLoader {
       id: background
       anchors.fill: parent
       radius: Theme.radius.xl
-      color: Theme.bg1transparent
+      color: Theme.surface_container
       border.width: 1
       border.color: Qt.lighter(Theme.bg1, 1.3)
 
@@ -81,7 +81,7 @@ LazyLoader {
             Layout.leftMargin: Theme.padding.xs
             text: "Notifications"
             color: Theme.on_surface
-            font.pixelSize: Theme.typography.lg
+            font.pixelSize: Theme.typography.xl
             font.family: Theme.typography.fontFamily
             font.weight: Theme.typography.weightMedium
           }
@@ -132,11 +132,25 @@ LazyLoader {
           }
 
           // Close button
-          RoundIconButton {
-            Layout.preferredWidth: 40
-            Layout.preferredHeight: 40
-            icon: "✕"
-            onClicked: loader.manager.visible = false
+          Text {
+            Layout.rightMargin: Theme.padding.sm
+            text: "✕"
+            color: Theme.fg
+            font.pixelSize: Theme.typography.lg
+            font.family: Theme.fontFamily
+            opacity: closeMouseArea.containsMouse ? 0.7 : 1
+
+            Behavior on opacity {
+              NumberAnimation { duration: 200 }
+            }
+
+            MouseArea {
+              id: closeMouseArea
+              anchors.fill: parent
+              hoverEnabled: true
+              cursorShape: Qt.PointingHandCursor
+              onClicked: loader.manager.visible = false
+            }
           }
         }
 
@@ -215,37 +229,21 @@ LazyLoader {
                   elide: Text.ElideRight
                 }
 
-                // Close button (minimal)
-                Rectangle {
-                  Layout.preferredWidth: 28
-                  Layout.preferredHeight: 28
-                  radius: Theme.radius.full
-                  color: closeMouseArea.containsMouse 
-                         ? Theme.surface_container_high 
-                         : "transparent"
+                Text {
+                  Layout.rightMargin: Theme.padding.sm
+                  text: "✕"
+                  color: Theme.fg
+                  font.pixelSize: Theme.typography.lg
+                  font.family: Theme.fontFamily
+                  opacity: closeMouseArea.containsMouse ? 0.7 : 1
 
-                  Behavior on color { 
-                    ColorAnimation { duration: 150 } 
-                  }
-
-                  Text {
-                    anchors.centerIn: parent
-                    text: "✕"
-                    color: closeMouseArea.containsMouse 
-                           ? Theme.on_surface 
-                           : Theme.on_surface_variant
-                    font.pixelSize: Theme.typography.sm
-                    font.family: Theme.typography.fontFamily
-
-                    Behavior on color { 
-                      ColorAnimation { duration: 150 } 
-                    }
+                  Behavior on opacity {
+                    NumberAnimation { duration: 200 }
                   }
 
                   MouseArea {
                     id: closeMouseArea
                     anchors.fill: parent
-                    anchors.margins: -4
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: loader.manager.removeNotification(index)

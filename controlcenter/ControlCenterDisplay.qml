@@ -74,7 +74,7 @@ LazyLoader {
       id: background
       anchors.fill: parent
       radius: 28
-      color: Theme.bg1transparent
+      color: Theme.surface_container
       border.width: 1
       border.color: Qt.lighter(Theme.bg1, 1.3)
       
@@ -95,31 +95,26 @@ LazyLoader {
           
           Text {
             Layout.fillWidth: true
+            Layout.leftMargin: Theme.padding.sm
             text: "Control Center"
-            color: Theme.fg
-            font.pixelSize: 18
-            font.family: Theme.fontFamily
-            font.weight: Font.Medium
+            color: Theme.on_surface
+            font.pixelSize: Theme.typography.xl
+            font.family: Theme.typography.fontFamily
+            font.weight: Theme.typography.weightMedium
           }
           
-          Rectangle {
-            Layout.preferredWidth: 40
-            Layout.preferredHeight: 40
-            radius: 20
-            color: closeMouseArea.containsMouse ? Theme.bg2 : Theme.bg1transparent
-            
-            Behavior on color {
-              ColorAnimation { duration: 200 }
+          Text {
+            Layout.rightMargin: Theme.padding.sm
+            text: "✕"
+            color: Theme.fg
+            font.pixelSize: Theme.typography.lg
+            font.family: Theme.fontFamily
+            opacity: closeMouseArea.containsMouse ? 0.7 : 1
+
+            Behavior on opacity {
+              NumberAnimation { duration: 200 }
             }
-            
-            Text {
-              anchors.centerIn: parent
-              text: "✕"
-              color: Theme.fg
-              font.pixelSize: 18
-              font.family: Theme.fontFamily
-            }
-            
+
             MouseArea {
               id: closeMouseArea
               anchors.fill: parent

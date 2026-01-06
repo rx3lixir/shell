@@ -31,7 +31,6 @@ LazyLoader {
     mask: null
     
     Component.onCompleted: {
-      console.log("=== MENU WINDOW LOADED ===")
       exclusiveZone = 0
     }
     
@@ -82,7 +81,7 @@ LazyLoader {
       width: 500
       height: 480
       radius: Theme.radiusXLarge
-      color: Theme.bg1transparentLauncher
+      color: Theme.surface_container
       
       // Prevent clicks on menu from closing it
       MouseArea {
@@ -92,9 +91,10 @@ LazyLoader {
       ColumnLayout {
         anchors {
           fill: parent
-          margins: Theme.spacingL
+          margins: Theme.padding.lg
         }
-        spacing: Theme.spacingM
+
+        spacing: Theme.spacing.md
         
         // Search bar
         MenuSearchBar {
@@ -112,7 +112,7 @@ LazyLoader {
           Layout.fillWidth: true
           Layout.fillHeight: true
           clip: true
-          spacing: Theme.spacingS
+          spacing: Theme.spacing.sm
           
           currentIndex: 0
           
@@ -170,8 +170,8 @@ LazyLoader {
             anchors.centerIn: parent
             text: loader.manager.searchText ? "No items found" : "No menu items available"
             color: Theme.fgMuted
-            font.pixelSize: Theme.fontSizeM
-            font.family: Theme.fontFamily
+            font.pixelSize: Theme.typography.lg
+            font.family: Theme.typography.fontFamily
             visible: menuList.count === 0
           }
         }
@@ -179,10 +179,10 @@ LazyLoader {
         // Footer with hint
         Text {
           Layout.fillWidth: true
-          text: " Navigate • Enter Select • Esc Close"
+          text: "Arrows to Navigate • Enter to Select • Esc to Close"
           color: Theme.fgMuted
-          font.pixelSize: Theme.fontSizeS
-          font.family: Theme.fontFamily
+          font.pixelSize: Theme.typography.sm
+          font.family: Theme.typography.fontFamily
           horizontalAlignment: Text.AlignHCenter
         }
       }

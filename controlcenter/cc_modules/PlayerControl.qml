@@ -21,6 +21,8 @@ Card {
       // Status icon
       IconCircle {
         icon: mediaManager.playerActive ? "󰝚" : "󰝛"
+        //iconSize: mediaManager.playerActive ? 32 : 28
+
         bgColor: mediaManager.playerActive 
                  ? Theme.primary_container 
                  : Theme.surface_container_high

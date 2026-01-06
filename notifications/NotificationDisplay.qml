@@ -1,11 +1,10 @@
-// NotificationDisplay.qml (Updated)
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Wayland
 import "../theme"
-import "../components"  // Import your custom components
+import "../components"
 
 Scope {
   id: root
@@ -56,7 +55,7 @@ Scope {
         
         Component.onCompleted: {
           exclusiveZone = 0
-          implicitWidth = 320  // Slightly narrower for minimalism
+          implicitWidth = 320
           implicitHeight = notifContent.implicitHeight + (Theme.padding.sm * 2)
         }
         
@@ -136,9 +135,9 @@ Scope {
                   text: "✕"
                   color: Theme.on_surface_variant
                   font.pixelSize: Theme.typography.md
-                  opacity: closeArea.containsMouse ? 0.8 : 0.5
+                  opacity: closeArea.containsMouse ? 0.7 : 1
 
-                  Behavior on opacity { NumberAnimation { duration: 150 } }
+                  Behavior on opacity { NumberAnimation { duration: 200 } }
 
                   MouseArea {
                     id: closeArea

@@ -1,4 +1,3 @@
-// components/RoundIconButton.qml
 import QtQuick
 import "../theme"
 

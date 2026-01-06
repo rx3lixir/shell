@@ -12,7 +12,7 @@ Scope {
   
   // Formatted strings for display
   readonly property string dayOfWeek: Qt.locale().dayName(currentDate.getDay(), Locale.LongFormat)
-  readonly property string dateString: Qt.formatDate(currentDate, "dd/MM/yyyy")
+  readonly property string dateString: Qt.formatDate(currentDate, "dd.MM.yyyy")
   readonly property string timeString: Qt.formatTime(currentDate, "hh:mm:ss")
   
   // Calendar navigation - defaults to current month/year

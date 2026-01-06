@@ -9,7 +9,7 @@ Card {
   
   required property var calendarManager
   
-  padding: Theme.padding.sm
+  padding: Theme.padding.lg
   
   ColumnLayout {
     anchors.fill: parent
@@ -78,7 +78,7 @@ Card {
                           model.year === now.getFullYear()
             
             if (isToday) return Theme.on_primary
-            if (model.month !== monthGrid.month) return Theme.outline_variant
+            if (model.month !== monthGrid.month) return Theme.on_surface_variant
             return Theme.on_surface
           }
           font.pixelSize: Theme.typography.md
@@ -90,7 +90,7 @@ Card {
                           model.year === now.getFullYear()
             return isToday ? Theme.typography.weightMedium : Theme.typography.weightNormal
           }
-          opacity: model.month === monthGrid.month ? 1.0 : 0.5
+          opacity: model.month === monthGrid.month ? 1.0 : 0.3
           
           Behavior on color {
             ColorAnimation {

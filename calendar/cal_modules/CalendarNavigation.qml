@@ -14,7 +14,7 @@ RowLayout {
   RoundIconButton {
     Layout.preferredWidth: 40
     Layout.preferredHeight: 40
-    icon: ""
+    icon: ""
     onClicked: root.calendarManager.previousMonth()
   }
   
@@ -36,7 +36,7 @@ RowLayout {
   RoundIconButton {
     Layout.preferredWidth: 40
     Layout.preferredHeight: 40
-    icon: ""
+    icon: ""
     onClicked: root.calendarManager.nextMonth()
   }
 }

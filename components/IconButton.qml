@@ -23,14 +23,14 @@ Rectangle {
   
   // ========== APPEARANCE ==========
   radius: Theme.radius.xxl
-  color: mouseArea.containsMouse ? Qt.darker(Theme.surface_container_low, 1.1) : Theme.surface_container_low
+  color: mouseArea.containsMouse ? Qt.lighter(Theme.surface_container_low, 1.1) : Theme.surface_container_low
   border.width: 1
-  border.color: Qt.darker(Theme.outline_variant, 1.2)
+  border.color: Qt.darker(Theme.outline_variant, 1.0)
   
   // Elevation shadow
   Elevation {
     target: root
-    enabled: true
+    enabled: true 
   }
   
   // ========== ANIMATIONS ==========

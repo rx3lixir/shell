@@ -1,7 +1,7 @@
-// controlcenter/cc_modules/UtilitiesGrid.qml
 import QtQuick
 import QtQuick.Layouts
 import "../../components"
+import "../../theme"
 
 Item {
   id: root
@@ -29,14 +29,14 @@ Item {
   
   Row {
     anchors.centerIn: parent
-    spacing: 20
+    spacing: Theme.spacing.xl
     
     Repeater {
       model: root.buttons
       
       RoundIconButton {
         icon: modelData.icon
-        size: 56  // Slightly bigger for utility buttons
+        size: 56
         onClicked: modelData.action()
       }
     }
