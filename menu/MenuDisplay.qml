@@ -56,73 +56,36 @@ LazyLoader {
           const filteredItems = menuList.getFilteredItems()
           if (menuList.currentIndex >= 0 && menuList.currentIndex < filteredItems.length) {
             const selectedItem = filteredItems[menuList.currentIndex]
-            
-            // Trigger press animation on current item
-            const currentItem = menuList.itemAtIndex(menuList.currentIndex)
-            if (currentItem) {
-              currentItem.triggerPressAnimation()
-            }
-            
-            // Small delay before executing to show the animation
-            Qt.callLater(() => {
-              loader.manager.executeItem(selectedItem)
-            })
+            loader.manager.executeItem(selectedItem)
           }
           event.accepted = true
         }
       }
     }
     
-    // Background overlay with fade
+    // Background overlay
     Rectangle {
       anchors.fill: parent
       color: Theme.scrim
-      opacity: loader.manager.visible ? 0.4 : 0
-      
-      Behavior on opacity {
-        NumberAnimation {
-          duration: 200
-          easing.type: Easing.OutCubic
-        }
-      }
+      opacity: 0.2
       
       MouseArea {
         anchors.fill: parent
-        onClicked: {
-          loader.manager.visible = false
-        }
+        onClicked: loader.manager.visible = false
       }
     }
     
-    // Main container with Material 3 style
+    // Main container
     Rectangle {
       id: menuBox
-      x: (parent.width - 520) / 2
+      x: (parent.width - 460) / 2
       y: (parent.height - 520) / 2
-      width: 520
+      width: 460
       height: 520
       radius: 28
       color: Theme.surface_container
       border.width: 1
       border.color: Qt.lighter(Theme.surface_container, 1.3)
-      
-      // Entrance animation
-      scale: loader.manager.visible ? 1.0 : 0.92
-      opacity: loader.manager.visible ? 1.0 : 0
-      
-      Behavior on scale {
-        NumberAnimation {
-          duration: 250
-          easing.type: Easing.OutCubic
-        }
-      }
-      
-      Behavior on opacity {
-        NumberAnimation {
-          duration: 200
-          easing.type: Easing.OutCubic
-        }
-      }
       
       // Prevent clicks on menu from closing it
       MouseArea {
@@ -159,20 +122,6 @@ LazyLoader {
             color: Theme.on_surface
             font.pixelSize: Theme.typography.lg
             font.family: Theme.typography.fontFamily
-            opacity: closeMouseArea.containsMouse ? 0.7 : 1
-            
-            scale: closeMouseArea.pressed ? 0.9 : 1.0
-            
-            Behavior on opacity {
-              NumberAnimation { duration: 150 }
-            }
-            
-            Behavior on scale {
-              NumberAnimation { 
-                duration: 80
-                easing.type: Easing.OutCubic
-              }
-            }
 
             MouseArea {
               id: closeMouseArea
@@ -208,134 +157,90 @@ LazyLoader {
             
             currentIndex: 0
             
-            // Smooth scrolling
-            maximumFlickVelocity: 2500
-            flickDeceleration: 1500
-            
-            // Selection highlight - inside ListView so it scrolls properly
+            // Simple highlight
             highlight: Rectangle {
               width: menuList.width
               height: 72
               radius: Theme.radius.xl
               color: Theme.primary_container
+              border.width: 1
+              border.color : Theme.primary
               opacity: 0.5
-              z: -1  // Behind the items
             }
             
             highlightFollowsCurrentItem: true
-            highlightMoveDuration: 180  // Smooth glide animation
-            highlightMoveVelocity: -1  // Disable velocity-based movement
           
-          // Filtered model based on search
-          model: ScriptModel {
-            values: {
-              const search = loader.manager.searchText.toLowerCase()
-              const allItems = loader.manager.menuItems
+            // Filtered model based on search
+            model: ScriptModel {
+              values: {
+                const search = loader.manager.searchText.toLowerCase()
+                const allItems = loader.manager.menuItems
+                
+                if (!search) {
+                  return allItems
+                }
+                
+                const filtered = allItems.filter(item => {
+                  const name = (item.name || "").toLowerCase()
+                  const description = (item.description || "").toLowerCase()
+                  return name.includes(search) || description.includes(search)
+                })
+                
+                return filtered
+              }
+            }
+            
+            onCountChanged: {
+              if (count > 0) {
+                if (currentIndex >= count) {
+                  currentIndex = count - 1
+                } else if (currentIndex < 0) {
+                  currentIndex = 0
+                }
+              } else {
+                currentIndex = -1
+              }
+            }
+            
+            onCurrentIndexChanged: {
+              if (currentIndex >= 0 && currentIndex < count) {
+                positionViewAtIndex(currentIndex, ListView.Contain)
+              }
+            }
+            
+            function getFilteredItems() {
+              return model.values
+            }
+            
+            delegate: MenuItem {
+              required property var modelData
+              required property int index
               
-              if (!search) {
-                return allItems
+              width: menuList.width
+              height: 72
+              item: modelData
+              isSelected: index === menuList.currentIndex
+              
+              onClicked: {
+                menuList.currentIndex = index
               }
               
-              const filtered = allItems.filter(item => {
-                const name = (item.name || "").toLowerCase()
-                const description = (item.description || "").toLowerCase()
-                return name.includes(search) || description.includes(search)
-              })
-              
-              return filtered
-            }
-          }
-          
-          onCountChanged: {
-            // Properly reset index when results change
-            if (count > 0) {
-              // Keep index in bounds
-              if (currentIndex >= count) {
-                currentIndex = count - 1
-              } else if (currentIndex < 0) {
-                currentIndex = 0
+              onActivated: {
+                loader.manager.executeItem(modelData)
               }
-            } else {
-              currentIndex = -1
-            }
-          }
-          
-          onCurrentIndexChanged: {
-            if (currentIndex >= 0 && currentIndex < count) {
-              positionViewAtIndex(currentIndex, ListView.Contain)
-            }
-          }
-          
-          function getFilteredItems() {
-            return model.values
-          }
-          
-          // Subtle entrance animation
-          add: Transition {
-            NumberAnimation {
-              properties: "opacity"
-              from: 0
-              to: 1
-              duration: 150
-              easing.type: Easing.OutCubic
-            }
-          }
-          
-          // Quick removal
-          remove: Transition {
-            NumberAnimation {
-              properties: "opacity"
-              to: 0
-              duration: 100
-              easing.type: Easing.InCubic
-            }
-          }
-          
-          // Smooth move when filtering
-          move: Transition {
-            NumberAnimation {
-              properties: "y"
-              duration: 180
-              easing.type: Easing.OutCubic
-            }
-          }
-          
-          delegate: MenuItem {
-            required property var modelData
-            required property int index
-            
-            width: menuList.width
-            height: 72
-            item: modelData
-            isSelected: index === menuList.currentIndex
-            
-            onClicked: {
-              menuList.currentIndex = index
             }
             
-            onActivated: {
-              loader.manager.executeItem(modelData)
-            }
-          }
-          
-          // Empty state
-          Text {
-            anchors.centerIn: parent
-            text: loader.manager.searchText ? "No items found" : "No menu items available"
-            color: Theme.on_surface_variant
-            font.pixelSize: Theme.typography.md
-            font.family: Theme.typography.fontFamily
-            opacity: menuList.count === 0 ? 0.7 : 0
-            
-            Behavior on opacity {
-              NumberAnimation {
-                duration: 150
-                easing.type: Easing.OutCubic
-              }
+            // Empty state
+            Text {
+              anchors.centerIn: parent
+              text: loader.manager.searchText ? "No items found" : "No menu items available"
+              color: Theme.on_surface_variant
+              font.pixelSize: Theme.typography.md
+              font.family: Theme.typography.fontFamily
+              opacity: menuList.count === 0 ? 0.7 : 0
             }
           }
         }
-      }
         
         // ========== FOOTER WITH HINT ==========
         Text {

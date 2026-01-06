@@ -9,6 +9,9 @@ Rectangle {
   
   radius: Theme.radius.full
   color: Theme.surface_container_high
+
+  border.width: 1
+  border.color: Qt.lighter(Theme.surface_container_high, 1.5)
   
   TextInput {
     id: searchInput
@@ -17,6 +20,7 @@ Rectangle {
       leftMargin: Theme.padding.lg
       rightMargin: Theme.padding.lg
     }
+
     verticalAlignment: TextInput.AlignVCenter
     color: Theme.on_surface
     font.pixelSize: Theme.typography.md
