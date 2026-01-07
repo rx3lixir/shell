@@ -26,11 +26,11 @@ Item {
   Rectangle {
     visible: root.enabled
     anchors.fill: parent  // Fill the Elevation item itself
-    anchors.margins: -4
-    radius: root.target.radius + 4  // Get radius from target, not parent
+    anchors.margins: -3
+    radius: root.target.radius + 3  // Get radius from target, not parent
     color: "transparent"
     border.width: 2
-    border.color: "#20000000"
+    border.color: "#10000000"
     z: -2
     opacity: 0.4
   }

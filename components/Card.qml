@@ -14,9 +14,10 @@ Rectangle {
   default property alias contentItem: content.data
 
   radius: Theme.radius.xl
-  color: Theme.bg2
-  border.width: 1
-  border.color: Qt.darker(Theme.outline_variant, 1.0)
+  color: Theme.surface_container
+
+  border.width: 2
+  border.color: Theme.surface_container_high
 
   Elevation {
     target: root

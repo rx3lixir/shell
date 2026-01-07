@@ -32,7 +32,7 @@ Rectangle {
       icon: root.item.icon
       iconSize: Theme.typography.xxl
       bgColor: isSelected ? Theme.primary : Theme.primary_container
-      iconColor: isSelected ? Qt.darker(Theme.primary, 1.8) : Theme.primary
+      iconColor: isSelected ? Theme.on_primary : Theme.primary
     }
     
     // Text info

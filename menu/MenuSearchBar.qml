@@ -1,5 +1,6 @@
 import QtQuick
 import "../theme"
+import "../components"
 
 Rectangle {
   id: root
@@ -8,10 +9,14 @@ Rectangle {
   signal searchChanged(string text)
   
   radius: Theme.radius.full
-  color: Theme.surface_container_high
+  color: Theme.surface_container
 
-  border.width: 1
-  border.color: Qt.lighter(Theme.surface_container_high, 1.5)
+  border.width: 2
+  border.color: Theme.surface_container_high
+
+  Elevation {
+    visible: true
+  }
   
   TextInput {
     id: searchInput
@@ -23,7 +28,7 @@ Rectangle {
 
     verticalAlignment: TextInput.AlignVCenter
     color: Theme.on_surface
-    font.pixelSize: Theme.typography.md
+    font.pixelSize: Theme.typography.lg
     font.family: Theme.typography.fontFamily
     
     // Placeholder text

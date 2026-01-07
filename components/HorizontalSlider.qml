@@ -57,10 +57,10 @@ ColumnLayout {
       height: 18
       radius: Theme.radius.full
       color: Theme.primary
-      border.color: Theme.surface
+      border.color: Theme.surface_container_low
       border.width: 3
 
-      scale: handleMouseArea.drag.active || handleMouseArea.containsMouse ? 1.2 : 1.0
+      scale: handleMouseArea.drag.active || handleMouseArea.containsMouse ? 1.3 : 1.0
 
       Behavior on x {
         enabled: !handleMouseArea.drag.active

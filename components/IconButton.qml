@@ -23,9 +23,10 @@ Rectangle {
   
   // ========== APPEARANCE ==========
   radius: Theme.radius.xxl
-  color: mouseArea.containsMouse ? Qt.lighter(Theme.surface_container_low, 1.1) : Theme.surface_container_low
-  border.width: 1
-  border.color: Qt.darker(Theme.outline_variant, 1.0)
+  color: Theme.surface_container
+
+  border.width: 2
+  border.color: Theme.surface_container_high
   
   // Elevation shadow
   Elevation {
@@ -69,7 +70,7 @@ Rectangle {
                  ? root.activeIconColor 
                  : root.inactiveIconColor
       
-      scale: mouseArea.pressed ? 0.9 : 1.0
+      scale: mouseArea.pressed ? 0.88 : 1.0
       
       Behavior on scale {
         NumberAnimation { 

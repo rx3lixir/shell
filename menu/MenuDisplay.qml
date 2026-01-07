@@ -157,15 +157,14 @@ LazyLoader {
             
             currentIndex: 0
             
-            // Simple highlight
+            // Highlight
             highlight: Rectangle {
               width: menuList.width
               height: 72
               radius: Theme.radius.xl
               color: Theme.primary_container
-              border.width: 1
+              border.width: 0
               border.color : Theme.primary
-              opacity: 0.5
             }
             
             highlightFollowsCurrentItem: true

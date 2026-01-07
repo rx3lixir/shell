@@ -20,12 +20,12 @@ Rectangle {
     if (isPrimary) {
       return mouseArea.pressed ? Qt.darker(Theme.primary, 1.2) : Theme.primary
     } else {
-      return mouseArea.containsMouse ? Theme.surface_container_high : Theme.surface_container_low
+      return mouseArea.containsMouse ? Theme.surface_container_high : Theme.surface_container
     }
   }
   
-  border.width: isPrimary ? 0 : 1
-  border.color: mouseArea.containsMouse ? Theme.outline : Theme.outline_variant
+  border.width: isPrimary ? 0 : 2
+  border.color: Theme.surface_container_high
   
   scale: mouseArea.pressed ? 0.88 : 1.0
   
