@@ -27,7 +27,7 @@ Scope {
   // Hide timer - stops when user is interacting
   Timer {
     id: hideTimer
-    interval: 1500
+    interval: 2000  // Increased to 2 seconds for better UX
     running: false
     repeat: false
     
@@ -82,7 +82,8 @@ Scope {
   function getVolumeIcon(volume, muted) {
     if (muted) return "󰖁"
     if (volume == 0) return "󰕿"
-    if (volume < 0.62) return "󰖀"
+    if (volume < 0.33) return "󰕿"
+    if (volume < 0.66) return "󰖀"
     return "󰕾"
   }
 

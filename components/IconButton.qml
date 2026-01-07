@@ -25,7 +25,7 @@ Rectangle {
   radius: Theme.radius.xxl
   color: Theme.surface_container
 
-  border.width: 2
+  border.width: 1
   border.color: Theme.surface_container_high
   
   // Elevation shadow

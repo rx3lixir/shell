@@ -1,10 +1,10 @@
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Effects  // Import for RectangularShadow
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Wayland
 import "../theme"
+import "../components"
 import "osd_components" as Components
 
 LazyLoader {
@@ -16,103 +16,64 @@ LazyLoader {
   
   PanelWindow {
     anchors {
-      top: true
       right: true
+      top: true
     }
     
     margins {
-      top: Theme.barHeight + Theme.spacingS
-      right: Theme.spacingM
+      right: Theme.spacing.xl
+      top: 300
     }
     
     exclusiveZone: 0
-    implicitWidth: 300
-    implicitHeight: 100
+    implicitWidth: 60
+    implicitHeight: 220
     
     color: "transparent"
     mask: null
     
+    WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     
-    // Container for card and shadow
-    Item {
+    Rectangle {
       anchors.fill: parent
+      color: Theme.surface_container
+      radius: Theme.radius.xl
+      border.width: 2
+      border.color: Theme.surface_container_high
       
-      Rectangle {
-        id: card
-        anchors.fill: parent
-        radius: Theme.radiusXLarge
-        color: Theme.bg0transparent
-        
-        // Track if user is interacting - BOTH hover AND dragging
-        property bool userInteracting: cardMouseArea.containsMouse || osdSlider.isDragging
-        
-        // Notify manager about interaction state
-        onUserInteractingChanged: {
-          loader.manager.userInteracting = userInteracting
-        }
-        
-        opacity: loader.active ? 1.0 : 0.0
-        
-        Behavior on opacity {
-          NumberAnimation {
-            duration: 200
-            easing.type: Easing.OutCubic
-          }
+      property bool userInteracting: osdSlider.isDragging
+      
+      onUserInteractingChanged: {
+        loader.manager.userInteracting = userInteracting
+      }
+      
+      // Wrapper with padding
+      Item {
+        anchors {
+          fill: parent
+          margins: Theme.padding.sm
         }
         
         ColumnLayout {
-          anchors {
-            fill: parent
-            margins: Theme.spacingM
-          }
-          spacing: Theme.spacingM
+          anchors.centerIn: parent
+          spacing: Theme.spacing.md
           
-          // Header row
-          RowLayout {
-            Layout.fillWidth: true
-            spacing: Theme.spacingS
-            
-            Text {
-              text: loader.manager.currentIcon
-              font.family: Theme.fontFamily
-              font.pixelSize: 20
-              color: Theme.fg
-            }
-            
-            Text {
-              Layout.fillWidth: true
-              text: {
-                if (loader.manager.currentType === loader.manager.typeVolume) {
-                  return loader.manager.currentMuted ? "Volume (Muted)" : "Volume"
-                } else if (loader.manager.currentType === loader.manager.typeMic) {
-                  return loader.manager.currentMuted ? "Microphone (Muted)" : "Microphone"
-                } else if (loader.manager.currentType === loader.manager.typeBrightness) {
-                  return "Brightness"
-                }
-                return ""
-              }
-              color: Theme.fg
-              font.pixelSize: Theme.fontSizeM
-              font.family: Theme.fontFamily
-              font.bold: true
-            }
-            
-            Text {
-              text: Math.round(loader.manager.currentValue * 100) + "%"
-              color: Theme.fgMuted
-              font.pixelSize: Theme.fontSizeS
-              font.family: Theme.fontFamily
-            }
+          IconCircle {
+            Layout.alignment: Qt.AlignHCenter
+
+            icon: loader.manager.currentIcon
+            iconSize: Theme.typography.lg
+            iconColor: Theme.primary
+
+            bgColor: Theme.primary_container
           }
           
-          // Slider component
-          Components.OsdSlider {
+          Components.VerticalOsdSlider {
             id: osdSlider
-            Layout.fillWidth: true
-            Layout.preferredHeight: 50
-            
+            Layout.alignment: Qt.AlignHCenter
             value: loader.manager.currentValue
+            isMuted: loader.manager.currentMuted
             
             onSliderMoved: newValue => {
               if (loader.manager.currentType === loader.manager.typeVolume && loader.manager.audioSink) {
@@ -122,14 +83,15 @@ LazyLoader {
               }
             }
           }
-        }
-        
-        // Main mouse area to detect hover
-        MouseArea {
-          id: cardMouseArea
-          anchors.fill: parent
-          z: -1
-          hoverEnabled: true
+          
+          Text {
+            Layout.alignment: Qt.AlignHCenter
+            text: Math.round(loader.manager.currentValue * 100)
+            color: Theme.on_surface
+            font.pixelSize: Theme.typography.md
+            font.family: Theme.typography.fontFamily
+            font.weight: Theme.typography.weightMedium
+          }
         }
       }
     }

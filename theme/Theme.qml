@@ -92,12 +92,6 @@ QtObject {
     readonly property color scrim: "#000000"
     readonly property color shadow: "#000000"
     
-    // --- Transparent variants (useful for overlays and effects) ---
-    readonly property color primary_transparent: Qt.rgba(Qt.colorEqual(primary, "").r, Qt.colorEqual(primary, "").g, Qt.colorEqual(primary, "").b, 0.12)
-    readonly property color surface_transparent: Qt.rgba(Qt.colorEqual(surface, "").r, Qt.colorEqual(surface, "").g, Qt.colorEqual(surface, "").b, 0.12)
-    readonly property color surface_container_transparent: Qt.rgba(Qt.colorEqual(surface_container, "").r, Qt.colorEqual(surface_container, "").g, Qt.colorEqual(surface_container, "").b, 0.12)
-    readonly property color scrim_transparent: Qt.rgba(Qt.colorEqual(scrim, "").r, Qt.colorEqual(scrim, "").g, Qt.colorEqual(scrim, "").b, 0.32)
-    
     // ============================================================================
     // SPACING SYSTEM
     // ============================================================================
@@ -174,10 +168,8 @@ QtObject {
     // These allow your existing code to work without changes
     
     readonly property color accent: primary
-    readonly property color accentTransparent: primary_transparent
     readonly property color accentFixed: primary_fixed
     readonly property color bg0: surface
-    readonly property color bg0transparent: surface_transparent
     readonly property color bg1: surface_container
     readonly property color bg1transparent: surface_container_transparent
     readonly property color bg2: surface_container_low
@@ -189,7 +181,6 @@ QtObject {
     readonly property color border: outline
     readonly property color borderStrong: primary
     readonly property color borderDim: outline_variant
-    readonly property color backgroundTransparent: surface_transparent
     
     // Spacing aliases
     readonly property int spacingXSmall: spacing.xs
