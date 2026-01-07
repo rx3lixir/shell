@@ -5,46 +5,16 @@ SliderCard {
   id: root
   
   required property var audioManager
-  required property var systemState  // ← NEW: Need this to set userInteracting
+  required property var systemState
   
   icon: "󰕾"
   label: "Volume"
   value: audioManager.volume
   
-  // ============================================================================
-  // USER INTERACTION TRACKING
-  // ============================================================================
-  
-  property bool isDragging: false
-  
-  // When dragging state changes, notify system state
-  onIsDraggingChanged: {
-    systemState.userInteracting = isDragging
-  }
-  
-  // Timer to detect when dragging session ends
-  Timer {
-    id: dragDetectionTimer
-    interval: 150  // If no movement for 150ms, dragging ended
-    onTriggered: {
-      root.isDragging = false
-    }
-  }
-  
-  // ============================================================================
-  // SLIDER INTERACTION
-  // ============================================================================
-  
-  onMoved: newValue => {
-    // User is moving the slider - mark as dragging
-    if (!isDragging) {
-      isDragging = true
-    }
-    
-    // Keep timer alive while moving
-    dragDetectionTimer.restart()
-    
-    // Actually set the volume
+  onMoved: function(newValue) {
+    // Set volume through the adapter which calls systemState.volume.setVolume()
+    // The Volume module's setVolume() sets changingVolume = true internally
+    // which prevents OSD from appearing
     audioManager.setVolume(newValue)
   }
 }

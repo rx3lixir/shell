@@ -12,8 +12,8 @@ Scope {
   // DEPENDENCIES
   // ============================================================================
   
-  //Set by parent when user is interacting with controls
-  //Prevents external change signals during user interaction
+  // Set by parent when user is interacting with controls
+  // Prevents external change signals during user interaction
   property bool userInteracting: false
   
   // ============================================================================
@@ -78,7 +78,6 @@ Scope {
     
     stderr: SplitParser {
       onRead: data => {
-        console.error("[Brightness] brightnessctl max error:", data)
         brightnessMaxGetter.running = false
       }
     }
@@ -96,7 +95,7 @@ Scope {
         if (!isNaN(currentVal) && module.brightnessMax > 0) {
           var newBrightness = currentVal / module.brightnessMax
           
-          // Update property
+          // Check if value actually changed significantly
           var oldBrightness = module.brightness
           module.brightness = newBrightness
           
@@ -117,7 +116,6 @@ Scope {
     
     stderr: SplitParser {
       onRead: data => {
-        console.error("[Brightness] brightnessctl get error:", data)
         brightnessCurrentGetter.running = false
       }
     }
@@ -165,18 +163,19 @@ Scope {
   // PUBLIC FUNCTIONS
   // ============================================================================
   
-  // Read current brightness from system
-  // Internal function
+  // Read current brightness from system (internal)
   function readCurrentBrightness() {
-    // Get max first, which will chain to getting current
-    brightnessMaxGetter.running = true
+    if (!brightnessMaxGetter.running) {
+      brightnessMaxGetter.running = true
+    }
   }
   
   // Sets brightness level
   // @param newBrightness - value between 0.01 and 1.0
   function setBrightness(newBrightness) {
-    // Mark that we're changing brightness (prevents readback loops)
+    // Mark that we're changing brightness (prevents OSD and readback loops)
     changingBrightness = true
+    brightnessChangeResetTimer.restart()
     
     // Clamp between 0.01 and 1 (prevent completely dark screen)
     newBrightness = Math.max(0.01, Math.min(1, newBrightness))
@@ -196,11 +195,20 @@ Scope {
   }
   
   // ============================================================================
+  // UTILITY FUNCTIONS
+  // ============================================================================
+  
+  function getBrightnessIcon(brightness) {
+    if (brightness < 0.33) return "󰃞"
+    if (brightness < 0.66) return "󰃟"
+    return "󰃠"
+  }
+  
+  // ============================================================================
   // INITIALIZATION
   // ============================================================================
   
   Component.onCompleted: {
-    // Read initial brightness
     readCurrentBrightness()
   }
 }

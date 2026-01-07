@@ -17,6 +17,14 @@ Scope {
   property bool userInteracting: false
   
   // ============================================================================
+  // INTERNAL STATE - Track if WE are making the change
+  // ============================================================================
+  
+  // This prevents our own changes from triggering OSD
+  property bool changingVolume: false
+  property bool changingMic: false
+  
+  // ============================================================================
   // PIPEWIRE INTEGRATION
   // ============================================================================
   
@@ -54,9 +62,25 @@ Scope {
   
   // Emitted when volume changes from an EXTERNAL source
   // (e.g., media keys, other applications)
-  // NOT emitted during user interaction
+  // NOT emitted during user interaction OR our own programmatic changes
   signal volumeChangedExternally(real volume, bool muted)
   signal micChangedExternally(real volume, bool muted)
+  
+  // ============================================================================
+  // TIMERS - Reset internal change flags
+  // ============================================================================
+  
+  Timer {
+    id: volumeChangeResetTimer
+    interval: 200
+    onTriggered: module.changingVolume = false
+  }
+  
+  Timer {
+    id: micChangeResetTimer
+    interval: 200
+    onTriggered: module.changingMic = false
+  }
   
   // ============================================================================
   // VOLUME MONITORING
@@ -70,8 +94,10 @@ Scope {
     function onVolumeChanged() {
       if (!module.audioSink) return
       
-      // Only emit signal if user is NOT interacting
-      if (!module.userInteracting) {
+      // Only emit signal if:
+      // 1. User is NOT interacting with UI controls
+      // 2. WE are not the ones making the change
+      if (!module.userInteracting && !module.changingVolume) {
         module.volumeChangedExternally(
           module.audioSink.volume,
           module.audioSink.muted
@@ -82,8 +108,7 @@ Scope {
     function onMutedChanged() {
       if (!module.audioSink) return
       
-      // Only emit signal if user is NOT interacting
-      if (!module.userInteracting) {
+      if (!module.userInteracting && !module.changingVolume) {
         module.volumeChangedExternally(
           module.audioSink.volume,
           module.audioSink.muted
@@ -100,7 +125,7 @@ Scope {
     function onVolumeChanged() {
       if (!module.audioSource) return
       
-      if (!module.userInteracting) {
+      if (!module.userInteracting && !module.changingMic) {
         module.micChangedExternally(
           module.audioSource.volume,
           module.audioSource.muted
@@ -111,7 +136,7 @@ Scope {
     function onMutedChanged() {
       if (!module.audioSource) return
       
-      if (!module.userInteracting) {
+      if (!module.userInteracting && !module.changingMic) {
         module.micChangedExternally(
           module.audioSource.volume,
           module.audioSource.muted
@@ -132,6 +157,10 @@ Scope {
       return
     }
     
+    // Mark that WE are changing volume (prevents OSD)
+    changingVolume = true
+    volumeChangeResetTimer.restart()
+    
     // Clamp between 0 and 1
     newVolume = Math.max(0, Math.min(1, newVolume))
     audioSink.volume = newVolume
@@ -143,6 +172,10 @@ Scope {
       console.error("[Volume] No audio sink available!")
       return
     }
+    
+    changingVolume = true
+    volumeChangeResetTimer.restart()
+    
     audioSink.muted = !audioSink.muted
   }
   
@@ -153,6 +186,10 @@ Scope {
       console.error("[Volume] No audio sink available!")
       return
     }
+    
+    changingVolume = true
+    volumeChangeResetTimer.restart()
+    
     audioSink.muted = muted
   }
   
@@ -168,6 +205,9 @@ Scope {
       return
     }
     
+    changingMic = true
+    micChangeResetTimer.restart()
+    
     newVolume = Math.max(0, Math.min(1, newVolume))
     audioSource.volume = newVolume
   }
@@ -178,6 +218,10 @@ Scope {
       console.error("[Volume] No audio source available!")
       return
     }
+    
+    changingMic = true
+    micChangeResetTimer.restart()
+    
     audioSource.muted = !audioSource.muted
   }
   
@@ -188,6 +232,10 @@ Scope {
       console.error("[Volume] No audio source available!")
       return
     }
+    
+    changingMic = true
+    micChangeResetTimer.restart()
+    
     audioSource.muted = muted
   }
   
@@ -196,9 +244,6 @@ Scope {
   // ============================================================================
   
   // Get appropriate volume icon based on level and mute state
-  // @param volume - volume level (0.0 to 1.0)
-  // @param muted - whether audio is muted
-  // @returns icon string
   function getVolumeIcon(volume, muted) {
     if (muted) return "󰖁"
     if (volume == 0) return "󰕿"
@@ -207,10 +252,7 @@ Scope {
     return "󰕾"
   }
   
-  
   // Get microphone icon based on mute state
-  // @param muted - whether microphone is muted
-  // @returns icon string
   function getMicIcon(muted) {
     return muted ? "󰍭" : "󰍬"
   }

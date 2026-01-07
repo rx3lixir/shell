@@ -53,7 +53,7 @@ Rectangle {
     radius: (parent.width + 4) / 2
     color: "transparent"
     border.width: 2
-    border.color: Theme.scrim_transparent
+    border.color: Theme.surface_container_low
     z: -1
     opacity: mouseArea.containsMouse ? 0.8 : 0.5
     

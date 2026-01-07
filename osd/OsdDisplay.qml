@@ -12,9 +12,15 @@ LazyLoader {
   
   required property var manager
   
-  active: manager.currentType !== manager.typeNone
+  // Track if user is interacting with OSD
+  property bool userInteracting: false
+  
+  // Don't deactivate while user is interacting!
+  active: manager.currentType !== manager.typeNone || userInteracting
   
   PanelWindow {
+    id: osdWindow
+    
     anchors {
       right: true
       top: true
@@ -42,13 +48,23 @@ LazyLoader {
       border.width: 2
       border.color: Theme.surface_container_high
       
-      property bool userInteracting: osdSlider.isDragging
-      
-      onUserInteractingChanged: {
-        loader.manager.userInteracting = userInteracting
+      // Hover detection for the whole OSD
+      MouseArea {
+        id: osdHoverArea
+        anchors.fill: parent
+        hoverEnabled: true
+        propagateComposedEvents: true
+        
+        // Update interaction state
+        onContainsMouseChanged: {
+          loader.userInteracting = containsMouse || osdSlider.isDragging
+        }
+        
+        // Let clicks pass through to children
+        onPressed: function(mouse) { mouse.accepted = false }
+        onReleased: function(mouse) { mouse.accepted = false }
       }
       
-      // Wrapper with padding
       Item {
         anchors {
           fill: parent
@@ -61,55 +77,41 @@ LazyLoader {
           
           IconCircle {
             Layout.alignment: Qt.AlignHCenter
-
             icon: loader.manager.currentIcon
             iconSize: Theme.typography.lg
             iconColor: Theme.primary
-
             bgColor: Theme.primary_container
           }
           
           Components.VerticalOsdSlider {
-  id: osdSlider
-  Layout.alignment: Qt.AlignHCenter
-  value: loader.manager.currentValue
-  isMuted: loader.manager.currentMuted
-  
-  // Track if user is interacting with OSD slider
-  property bool isDragging: false
-  
-  onIsDraggingChanged: {
-    // Notify system state when user drags OSD slider
-    loader.manager.systemState.userInteracting = isDragging
-  }
-  
-  onSliderMoved: newValue => {
-    // Mark as dragging
-    if (!osdSlider.isDragging) {
-      osdSlider.isDragging = true
-    }
-    
-    // Write directly to system state volume module
-    if (loader.manager.currentType === loader.manager.typeVolume) {
-      loader.manager.systemState.volume.setVolume(newValue)
-    } else if (loader.manager.currentType === loader.manager.typeBrightness) {
-      // OLD: Still using old brightness manager for now
-      loader.manager.brightnessManager.setBrightness(newValue)
-    }
-    
-    // Reset dragging after a delay
-    osdDragTimer.restart()
-  }
-}
-
-// Timer to reset OSD dragging state
-Timer {
-  id: osdDragTimer
-  interval: 150
-  onTriggered: {
-    osdSlider.isDragging = false
-  }
-}
+            id: osdSlider
+            Layout.alignment: Qt.AlignHCenter
+            
+            value: loader.manager.currentValue
+            isMuted: loader.manager.currentMuted
+            
+            onSliderMoved: function(newValue) {
+              // Update the manager's current value for display
+              loader.manager.updateCurrentValue(newValue)
+              
+              // Apply the change to the appropriate module
+              if (loader.manager.currentType === loader.manager.typeVolume) {
+                loader.manager.systemState.volume.setVolume(newValue)
+              } else if (loader.manager.currentType === loader.manager.typeBrightness) {
+                loader.manager.systemState.brightness.setBrightness(newValue)
+              }
+            }
+            
+            onIsDraggingChanged: {
+              // Update loader's interaction state
+              loader.userInteracting = isDragging || osdHoverArea.containsMouse
+              
+              // Also update system state
+              if (loader.manager.systemState) {
+                loader.manager.systemState.userInteracting = isDragging
+              }
+            }
+          }
           
           Text {
             Layout.alignment: Qt.AlignHCenter

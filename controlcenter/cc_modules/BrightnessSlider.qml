@@ -12,27 +12,10 @@ SliderCard {
   value: brightnessManager.brightness
   minimumValue: 0.01
   
-  // Track dragging
-  property bool isDragging: false
-  
-  onIsDraggingChanged: {
-    systemState.userInteracting = isDragging
-  }
-  
-  Timer {
-    id: dragDetectionTimer
-    interval: 150
-    onTriggered: {
-      root.isDragging = false
-    }
-  }
-  
-  onMoved: newValue => {
-    if (!isDragging) {
-      isDragging = true
-    }
-    
-    dragDetectionTimer.restart()
+  onMoved: function(newValue) {
+    // Set brightness through the adapter which calls systemState.brightness.setBrightness()
+    // The Brightness module's setBrightness() sets changingBrightness = true internally
+    // which prevents OSD from appearing
     brightnessManager.setBrightness(newValue)
   }
 }

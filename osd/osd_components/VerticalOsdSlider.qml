@@ -7,6 +7,7 @@ Item {
   property real value: 0.5
   property bool isMuted: false
   property bool isDragging: false
+  
   signal sliderMoved(real newValue)
   
   implicitWidth: 40
@@ -27,6 +28,7 @@ Item {
         model: 11
         
         Item {
+          required property int index
           width: parent.width
           height: parent.height / 11
           
@@ -35,7 +37,7 @@ Item {
               right: parent.right
               verticalCenter: parent.verticalCenter
             }
-            width: index % 5 === 0 ? 6 : 4
+            width: parent.parent.parent.children[0].children[index] && index % 5 === 0 ? 6 : 4
             height: 2
             radius: 1
             color: Theme.outline_variant
@@ -79,7 +81,7 @@ Item {
       // Draggable handle
       Rectangle {
         id: handle
-        y: track.height - (track.height * root.value) - height / 2
+        y: Math.max(0, Math.min(track.height - height, track.height - (track.height * root.value) - height / 2))
         anchors.horizontalCenter: track.horizontalCenter
         width: 16
         height: 16
@@ -88,7 +90,7 @@ Item {
         border.color: Theme.surface_container_low
         border.width: 2
         
-        scale: handleArea.drag.active || handleArea.containsMouse ? 1.2 : 1.0
+        scale: handleArea.pressed || handleArea.containsMouse ? 1.2 : 1.0
         
         Behavior on color {
           ColorAnimation { duration: 200 }
@@ -113,14 +115,18 @@ Item {
           drag.minimumY: -handle.height / 2
           drag.maximumY: track.height - handle.height / 2
           
-          onPressed: root.isDragging = true
-          onReleased: root.isDragging = false
+          onPressed: {
+            root.isDragging = true
+          }
+          
+          onReleased: {
+            root.isDragging = false
+          }
           
           onPositionChanged: {
             if (drag.active) {
               var newValue = 1.0 - ((handle.y + handle.height / 2) / track.height)
               newValue = Math.max(0, Math.min(1, newValue))
-              root.value = newValue
               root.sliderMoved(newValue)
             }
           }

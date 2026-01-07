@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 
 // OsdManager - Manages on-screen display popups
-// Reads from SystemStateManager's Volume module
+// Listens to SystemStateManager's modules for external changes
 Scope {
   id: manager
   
@@ -35,11 +35,17 @@ Scope {
 
   // Helper to show OSD
   function showOsd(type, value, muted, icon) {
-    manager.currentType = type
-    manager.currentValue = value
-    manager.currentMuted = muted
-    manager.currentIcon = icon
+    currentType = type
+    currentValue = value
+    currentMuted = muted
+    currentIcon = icon
     
+    hideTimer.restart()
+  }
+  
+  // Helper to update current OSD value (for slider dragging)
+  function updateCurrentValue(value) {
+    currentValue = value
     hideTimer.restart()
   }
 
@@ -48,26 +54,17 @@ Scope {
   // ============================================================================
   
   Connections {
-    target: manager.systemState.volume
+    target: manager.systemState ? manager.systemState.volume : null
+    enabled: manager.systemState && manager.systemState.volume
     
-    // Volume changed externally (e.g., media keys)
     function onVolumeChangedExternally(volume, muted) {
-      manager.showOsd(
-        manager.typeVolume,
-        volume,
-        muted,
-        manager.systemState.volume.getVolumeIcon(volume, muted)
-      )
+      var icon = manager.systemState.volume.getVolumeIcon(volume, muted)
+      manager.showOsd(manager.typeVolume, volume, muted, icon)
     }
     
-    // Mic changed externally
     function onMicChangedExternally(volume, muted) {
-      manager.showOsd(
-        manager.typeMic,
-        volume,
-        muted,
-        manager.systemState.volume.getMicIcon(muted)
-      )
+      var icon = manager.systemState.volume.getMicIcon(muted)
+      manager.showOsd(manager.typeMic, volume, muted, icon)
     }
   }
   
@@ -76,21 +73,12 @@ Scope {
   // ============================================================================
   
   Connections {
-    target: manager.systemState.brightness
+    target: manager.systemState ? manager.systemState.brightness : null
+    enabled: manager.systemState && manager.systemState.brightness
     
     function onBrightnessChangedExternally(brightness) {
-      manager.showOsd(
-        manager.typeBrightness,
-        brightness,
-        false,
-        getBrightnessIcon(brightness)
-      )
+      var icon = manager.systemState.brightness.getBrightnessIcon(brightness)
+      manager.showOsd(manager.typeBrightness, brightness, false, icon)
     }
-  }
-  
-  function getBrightnessIcon(brightness) {
-    if (brightness < 0.33) return "󰃞"
-    if (brightness < 0.66) return "󰃟"
-    return "󰃠"
   }
 }
