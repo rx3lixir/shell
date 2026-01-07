@@ -70,19 +70,46 @@ LazyLoader {
           }
           
           Components.VerticalOsdSlider {
-            id: osdSlider
-            Layout.alignment: Qt.AlignHCenter
-            value: loader.manager.currentValue
-            isMuted: loader.manager.currentMuted
-            
-            onSliderMoved: newValue => {
-              if (loader.manager.currentType === loader.manager.typeVolume && loader.manager.audioSink) {
-                loader.manager.audioSink.volume = newValue
-              } else if (loader.manager.currentType === loader.manager.typeBrightness) {
-                loader.manager.brightnessManager.setBrightness(newValue)
-              }
-            }
-          }
+  id: osdSlider
+  Layout.alignment: Qt.AlignHCenter
+  value: loader.manager.currentValue
+  isMuted: loader.manager.currentMuted
+  
+  // Track if user is interacting with OSD slider
+  property bool isDragging: false
+  
+  onIsDraggingChanged: {
+    // Notify system state when user drags OSD slider
+    loader.manager.systemState.userInteracting = isDragging
+  }
+  
+  onSliderMoved: newValue => {
+    // Mark as dragging
+    if (!osdSlider.isDragging) {
+      osdSlider.isDragging = true
+    }
+    
+    // Write directly to system state volume module
+    if (loader.manager.currentType === loader.manager.typeVolume) {
+      loader.manager.systemState.volume.setVolume(newValue)
+    } else if (loader.manager.currentType === loader.manager.typeBrightness) {
+      // OLD: Still using old brightness manager for now
+      loader.manager.brightnessManager.setBrightness(newValue)
+    }
+    
+    // Reset dragging after a delay
+    osdDragTimer.restart()
+  }
+}
+
+// Timer to reset OSD dragging state
+Timer {
+  id: osdDragTimer
+  interval: 150
+  onTriggered: {
+    osdSlider.isDragging = false
+  }
+}
           
           Text {
             Layout.alignment: Qt.AlignHCenter

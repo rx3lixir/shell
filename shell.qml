@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import "core" as Core
 import "osd"
 import "bar"
 import "notifications"
@@ -11,10 +12,21 @@ import "calendar"
 import "wallpaper"
 import "powermenu"
 import "emoji"
-import "theme-switcher"  // NEW: Add themes import
+import "theme-switcher"
 
 ShellRoot {
-  // Load the power menu system first (needed by control center)
+  // ============================================================================
+  // SYSTEM STATE - Single Source of Truth
+  // ============================================================================
+  
+  Core.SystemStateManager {
+    id: systemStateManager
+  }
+  
+  // ============================================================================
+  // POWER MENU
+  // ============================================================================
+  
   PowerMenuManager {
     id: powerMenuManager
   }
@@ -23,9 +35,13 @@ ShellRoot {
     manager: powerMenuManager
   }
   
-  // Load the control center system (brightness monitoring happens here)
+  // ============================================================================
+  // CONTROL CENTER
+  // ============================================================================
+  
   ControlCenterManager {
     id: controlCenterManager
+    systemState: systemStateManager
     powerMenuManager: powerMenuManager
   }
   
@@ -33,18 +49,23 @@ ShellRoot {
     manager: controlCenterManager
   }
   
-  // Load the OSD manager (depends on control center for brightness)
+  // ============================================================================
+  // OSD SYSTEM
+  // ============================================================================
+  
   OsdManager {
     id: osdManager
-    brightnessManager: controlCenterManager.brightness
+    systemState: systemStateManager
   }
   
-  // Load the OSD display (the visuals)
   OsdDisplay {
     manager: osdManager
   }
   
-  // Load the notification center system
+  // ============================================================================
+  // NOTIFICATION SYSTEM
+  // ============================================================================
+  
   NotificationCenterManager {
     id: notificationCenterManager
   }
@@ -53,7 +74,6 @@ ShellRoot {
     manager: notificationCenterManager
   }
   
-  // Update NotificationManager
   NotificationManager {
     id: notificationManager
     notificationCenterManager: notificationCenterManager
@@ -63,7 +83,10 @@ ShellRoot {
     manager: notificationManager
   }
   
-  // Load the launcher system
+  // ============================================================================
+  // LAUNCHER
+  // ============================================================================
+  
   LauncherManager {
     id: launcherManager
   }
@@ -72,7 +95,10 @@ ShellRoot {
     manager: launcherManager
   }
   
-  // Load the wallpaper system
+  // ============================================================================
+  // WALLPAPER
+  // ============================================================================
+  
   WallpaperManager {
     id: wallpaperManager
   }
@@ -81,7 +107,10 @@ ShellRoot {
     manager: wallpaperManager
   }
   
-  // Load the emoji picker system
+  // ============================================================================
+  // EMOJI PICKER
+  // ============================================================================
+  
   EmojiManager {
     id: emojiManager
   }
@@ -90,7 +119,10 @@ ShellRoot {
     manager: emojiManager
   }
   
-  // NEW: Load the theme switcher system
+  // ============================================================================
+  // THEME SWITCHER
+  // ============================================================================
+  
   ThemeManager {
     id: themeManager
   }
@@ -99,21 +131,27 @@ ShellRoot {
     manager: themeManager
   }
   
-  // Load the menu system (needs launcher, wallpaper, power menu, emoji, and theme references)
+  // ============================================================================
+  // MENU
+  // ============================================================================
+  
   MenuManager {
     id: menuManager
     launcherManager: launcherManager
     wallpaperManager: wallpaperManager
     powerMenuManager: powerMenuManager
     emojiManager: emojiManager
-    themeManager: themeManager  // NEW: Add theme manager reference
+    themeManager: themeManager
   }
   
   MenuDisplay {
     manager: menuManager
   }
   
-  // Load the calendar system
+  // ============================================================================
+  // CALENDAR
+  // ============================================================================
+  
   CalendarManager {
     id: calendarManager
   }
@@ -122,7 +160,10 @@ ShellRoot {
     manager: calendarManager
   }
 
-  // Load the Bar component and pass references
+  // ============================================================================
+  // BAR
+  // ============================================================================
+  
   Bar {
     id: bar
     controlCenterManager: controlCenterManager

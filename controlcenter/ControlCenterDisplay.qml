@@ -10,6 +10,7 @@ LazyLoader {
   id: loader
   
   required property var manager
+  required property var systemState
   
   active: manager.visible
   
@@ -166,6 +167,7 @@ LazyLoader {
             width: parent.width
             height: 108
             audioManager: loader.manager.audio
+            systemState: loader.systemState
           }
           
           Modules.BrightnessSlider {

@@ -1,67 +1,35 @@
 import QtQuick
 import Quickshell
-import Quickshell.Services.Pipewire
 
+// OsdManager - Manages on-screen display popups
+// Reads from SystemStateManager's Volume module
 Scope {
   id: manager
   
-  required property var brightnessManager
+  // Reference to system state (single source of truth)
+  required property var systemState
 
-  PwObjectTracker {
-    objects: [ Pipewire.defaultAudioSink, Pipewire.defaultAudioSource ]
-  }
-
+  // OSD type constants
   readonly property string typeNone: "none"
   readonly property string typeVolume: "volume"
   readonly property string typeMic: "mic"
   readonly property string typeBrightness: "brightness"
 
+  // Current OSD display state
   property string currentType: typeNone
   property real currentValue: 0.0
   property bool currentMuted: false
   property string currentIcon: ""
-  
-  // Track if user is interacting with OSD
-  property bool userInteracting: false
 
-  // Hide timer - stops when user is interacting
+  // Hide timer
   Timer {
     id: hideTimer
-    interval: 2000  // Increased to 2 seconds for better UX
+    interval: 2000
     running: false
     repeat: false
     
     onTriggered: {
       manager.currentType = manager.typeNone
-    }
-  }
-  
-  // Watch for interaction changes
-  onUserInteractingChanged: {
-    if (userInteracting) {
-      // User started interacting - stop the timer
-      if (hideTimer.running) {
-        hideTimer.stop()
-      }
-    } else {
-      // User stopped interacting - restart the timer
-      if (manager.currentType !== manager.typeNone) {
-        hideTimer.restart()
-      }
-    }
-  }
-
-  // Debounce timer for brightness OSD
-  Timer {
-    id: brightnessDebounceTimer
-    interval: 150
-    onTriggered: {
-      manager.showOsd(
-        manager.typeBrightness,
-        manager.brightnessManager.brightness,
-        false,
-        manager.getBrightnessIcon(manager.brightnessManager.brightness)
-      )
     }
   }
 
@@ -72,104 +40,57 @@ Scope {
     manager.currentMuted = muted
     manager.currentIcon = icon
     
-    // Only start timer if user is NOT currently interacting
-    if (!manager.userInteracting) {
-      hideTimer.restart()
+    hideTimer.restart()
+  }
+
+  // ============================================================================
+  // VOLUME MODULE - Listen for external changes
+  // ============================================================================
+  
+  Connections {
+    target: manager.systemState.volume
+    
+    // Volume changed externally (e.g., media keys)
+    function onVolumeChangedExternally(volume, muted) {
+      manager.showOsd(
+        manager.typeVolume,
+        volume,
+        muted,
+        manager.systemState.volume.getVolumeIcon(volume, muted)
+      )
+    }
+    
+    // Mic changed externally
+    function onMicChangedExternally(volume, muted) {
+      manager.showOsd(
+        manager.typeMic,
+        volume,
+        muted,
+        manager.systemState.volume.getMicIcon(muted)
+      )
     }
   }
-
-  // Volume icon logic
-  function getVolumeIcon(volume, muted) {
-    if (muted) return "󰖁"
-    if (volume == 0) return "󰕿"
-    if (volume < 0.33) return "󰕿"
-    if (volume < 0.66) return "󰖀"
-    return "󰕾"
+  
+  // ============================================================================
+  // BRIGHTNESS MODULE - Listen for external changes
+  // ============================================================================
+  
+  Connections {
+    target: manager.systemState.brightness
+    
+    function onBrightnessChangedExternally(brightness) {
+      manager.showOsd(
+        manager.typeBrightness,
+        brightness,
+        false,
+        getBrightnessIcon(brightness)
+      )
+    }
   }
-
-  // Brightness icon logic
+  
   function getBrightnessIcon(brightness) {
     if (brightness < 0.33) return "󰃞"
     if (brightness < 0.66) return "󰃟"
     return "󰃠"
-  }
-
-  // PipeWire: Speaker/Volume
-  property var audioSinkNode: Pipewire.defaultAudioSink
-  property var audioSink: audioSinkNode?.audio ?? null
-  
-  Connections {
-    target: manager.audioSink
-    enabled: manager.audioSink !== null
-    
-    function onVolumeChanged() {
-      if (!manager.audioSink) return
-      const vol = manager.audioSink.volume
-      const muted = manager.audioSink.muted
-      manager.showOsd(
-        manager.typeVolume,
-        vol,
-        muted,
-        manager.getVolumeIcon(vol, muted)
-      )
-    }
-    
-    function onMutedChanged() {
-      if (!manager.audioSink) return
-      const vol = manager.audioSink.volume
-      const muted = manager.audioSink.muted
-      manager.showOsd(
-        manager.typeVolume,
-        vol,
-        muted,
-        manager.getVolumeIcon(vol, muted)
-      )
-    }
-  }
-
-  // PipeWire: Microphone
-  property var audioSourceNode: Pipewire.defaultAudioSource
-  property var audioSource: audioSourceNode?.audio ?? null
-  
-  Connections {
-    target: manager.audioSource
-    enabled: manager.audioSource !== null
-    
-    function onVolumeChanged() {
-      if (!manager.audioSource) return
-      const vol = manager.audioSource.volume
-      const muted = manager.audioSource.muted
-      manager.showOsd(
-        manager.typeMic,
-        vol,
-        muted,
-        muted ? "󰍭" : "󰍬"
-      )
-    }
-    
-    function onMutedChanged() {
-      if (!manager.audioSource) return
-      const vol = manager.audioSource.volume
-      const muted = manager.audioSource.muted
-      manager.showOsd(
-        manager.typeMic,
-        vol,
-        muted,
-        muted ? "󰍭" : "󰍬"
-      )
-    }
-  }
-
-  // Watch brightness changes from BrightnessManager
-  Connections {
-    target: manager.brightnessManager
-    
-    function onBrightnessChanged() {
-      if (manager.brightnessManager.brightnessUserChange) {
-        return
-      }
-      
-      brightnessDebounceTimer.restart()
-    }
   }
 }
