@@ -1,11 +1,13 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Io
 import "../../theme"
 
 Item {
   id: root
+  
+  // Reference to system state
+  required property var systemState
 
   property string icon: "󰂑"
   property string percentage: "N/A"
@@ -73,30 +75,47 @@ Item {
       })
     }
   }
-
-  Process {
-    id: batProc
-    command: ["sh", "-c", "battery-state"]
-
-    stdout: SplitParser {
-      onRead: data => {
-        if (!data) return
-        var line = data.trim()
-        var parts = line.split("|")
-        if (parts.length === 2) {
-          root.icon = parts[0]
-          root.percentage = parts[1]
-        }
-      }
+  
+  // ============================================================================
+  // BATTERY STATE MONITORING (using SystemStateManager)
+  // ============================================================================
+  
+  Connections {
+    target: root.systemState.battery
+    enabled: root.systemState && root.systemState.battery
+    
+    function onPercentageChanged() {
+      updateBatteryDisplay()
+    }
+    
+    function onIsChargingChanged() {
+      updateBatteryDisplay()
+    }
+    
+    function onReadyChanged() {
+      updateBatteryDisplay()
     }
   }
-
-  Timer {
-    interval: 2000
-    running: true
-    repeat: true
-    onTriggered: if (!batProc.running) batProc.running = true
+  
+  // Update battery display
+  function updateBatteryDisplay() {
+    var battery = root.systemState.battery
+    
+    if (!battery || !battery.ready || !battery.isLaptopBattery) {
+      root.icon = "󰂑"  // Default battery icon
+      root.percentage = "N/A"
+      return
+    }
+    
+    // Get icon based on percentage and charging state
+    root.icon = battery.getBatteryIcon(battery.percentage, battery.isCharging)
+    
+    // Format percentage
+    root.percentage = Math.round(battery.percentage * 100) + "%"
   }
-
-  Component.onCompleted: batProc.running = true
+  
+  // Initial update
+  Component.onCompleted: {
+    updateBatteryDisplay()
+  }
 }

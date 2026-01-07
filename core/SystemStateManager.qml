@@ -24,10 +24,16 @@ Scope {
     userInteracting: manager.userInteracting
   }
 
+  State.Battery{
+    id: batteryModule 
+    userInteracting: manager.userInteracting
+  }
+
   // ============================================================================
   // EXPOSED MODULES (Public API)
   // ============================================================================
   
   readonly property var brightness: brightnessModule
   readonly property var volume: volumeModule
+  readonly property var battery: batteryModule 
 }

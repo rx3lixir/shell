@@ -12,6 +12,7 @@ PanelWindow {
   required property var controlCenterManager 
   required property var notificationCenterManager
   required property var calendarManager
+  required property var systemState 
   
   anchors.top: true
   anchors.left: true
@@ -55,7 +56,9 @@ PanelWindow {
         Layout.alignment: Qt.AlignRight
         spacing: Theme.spacingL
 
-        Modules.Battery {}
+        Modules.Battery {
+          systemState: barWindow.systemState
+        }
 
         Modules.Bluetooth{}
 

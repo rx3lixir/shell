@@ -169,5 +169,6 @@ ShellRoot {
     controlCenterManager: controlCenterManager
     notificationCenterManager: notificationCenterManager
     calendarManager: calendarManager
+    systemState: systemStateManager
   }
 }
