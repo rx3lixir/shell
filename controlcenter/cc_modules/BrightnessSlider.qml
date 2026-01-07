@@ -5,7 +5,7 @@ SliderCard {
   id: root
   
   required property var brightnessManager
-  required property var systemState  // ← ADD THIS
+  required property var systemState
   
   icon: "󰃠"
   label: "Brightness"

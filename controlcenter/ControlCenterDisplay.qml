@@ -174,6 +174,7 @@ LazyLoader {
             width: parent.width
             height: 108 
             brightnessManager: loader.manager.brightness
+            systemState: loader.systemState
           }
         }
         
