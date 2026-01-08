@@ -12,8 +12,6 @@ import "calendar"
 import "wallpaper"
 import "powermenu"
 import "emoji"
-import "theme-switcher"
-import "lockscreen"
 
 ShellRoot {
   // ============================================================================
