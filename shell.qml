@@ -13,6 +13,7 @@ import "wallpaper"
 import "powermenu"
 import "emoji"
 import "theme-switcher"
+import "lockscreen"
 
 ShellRoot {
   // ============================================================================
@@ -117,18 +118,6 @@ ShellRoot {
   
   EmojiDisplay {
     manager: emojiManager
-  }
-  
-  // ============================================================================
-  // THEME SWITCHER
-  // ============================================================================
-  
-  ThemeManager {
-    id: themeManager
-  }
-  
-  ThemeDisplay {
-    manager: themeManager
   }
   
   // ============================================================================

@@ -17,7 +17,7 @@ Item {
     id: layoutText
     anchors.centerIn: parent
     text: " " + root.layout
-    color: "#a9b1d6"
+    color: Theme.on_surface
     font.pixelSize: Theme.fontSizeS
     font.family: "Ubuntu Nerd Font"
     verticalAlignment: Text.AlignVCenter
