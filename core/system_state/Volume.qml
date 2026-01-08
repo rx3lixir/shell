@@ -1,10 +1,12 @@
 import QtQuick
 import Quickshell
 import Quickshell.Services.Pipewire
+import Quickshell.Io
 
-// Volume State Module
+// Volume State Module - Enhanced with Device Detection
 // Manages audio volume state (speakers and microphone) via PipeWire.
 // Monitors both programmatic and external changes (e.g., media keys).
+// Now includes device type detection (headphones vs speakers).
 Scope {
   id: module
   
@@ -23,6 +25,16 @@ Scope {
   // This prevents our own changes from triggering OSD
   property bool changingVolume: false
   property bool changingMic: false
+  
+  // ============================================================================
+  // DEVICE DETECTION STATE
+  // ============================================================================
+  
+  property string deviceName: "Unknown"
+  property string deviceType: "speaker"  // "speaker", "headphones", or "unknown"
+  property bool isHeadphones: false
+  property string activeSinkName: ""
+  property string activePort: ""
   
   // ============================================================================
   // PIPEWIRE INTEGRATION
@@ -52,8 +64,8 @@ Scope {
   readonly property real micVolume: audioSource?.volume ?? 0.5
   readonly property bool micMuted: audioSource?.muted ?? false
   
-  // Device information
-  readonly property string outputDevice: audioSink?.description ?? "Unknown"
+  // Device information (enhanced)
+  readonly property string outputDevice: deviceName
   readonly property string inputDevice: audioSource?.description ?? "Unknown"
   
   // ============================================================================
@@ -65,6 +77,161 @@ Scope {
   // NOT emitted during user interaction OR our own programmatic changes
   signal volumeChangedExternally(real volume, bool muted)
   signal micChangedExternally(real volume, bool muted)
+  
+  // ============================================================================
+  // DEVICE DETECTION - Get default sink name
+  // ============================================================================
+  
+  Process {
+    id: sinkNameProcess
+    command: ["pactl", "get-default-sink"]
+    
+    stdout: SplitParser {
+      onRead: data => {
+        if (!data) return
+        
+        var sinkName = data.trim()
+        module.activeSinkName = sinkName
+        
+        // Chain to get active port
+        activePortProcess.running = true
+        
+        // Chain to get device description
+        deviceDescriptionProcess.running = true
+      }
+    }
+    
+    stderr: SplitParser {
+      onRead: data => {
+        if (data && data.trim()) {
+          console.error("[Volume] Error getting sink name:", data.trim())
+        }
+      }
+    }
+  }
+  
+  // ============================================================================
+  // DEVICE DETECTION - Get active port
+  // ============================================================================
+  
+  Process {
+    id: activePortProcess
+    command: ["sh", "-c", "pactl list sinks | awk -v sink=\"" + module.activeSinkName + "\" '$1 == \"Sink\" && $2 == \"#\" sink {found=1} found && /Active Port:/ {print $3; exit}'"]
+    
+    stdout: SplitParser {
+      onRead: data => {
+        if (!data) return
+        
+        module.activePort = data.trim()
+        updateDeviceType()
+      }
+    }
+    
+    stderr: SplitParser {
+      onRead: data => {
+        // Ignore stderr from awk
+      }
+    }
+  }
+  
+  // ============================================================================
+  // DEVICE DETECTION - Get device description
+  // ============================================================================
+  
+  Process {
+    id: deviceDescriptionProcess
+    command: ["sh", "-c", "pactl list sinks | awk -v sink=\"" + module.activeSinkName + "\" 'BEGIN{found=0} $0 ~ \"Name: \" sink {found=1} found && /device.description =/ {gsub(/\"/,\"\"); print $3; exit}'"]
+    
+    stdout: SplitParser {
+      onRead: data => {
+        if (!data) return
+        
+        var rawName = data.trim()
+        
+        // Clean up the device name (same as your script)
+        var cleanName = rawName
+          .replace(/ Analog Stereo$/, "")
+          .replace(/ Digital Stereo$/, "")
+          .replace(/^.*HD Audio Controller /, "")
+          .replace(/^Ryzen /, "")
+        
+        module.deviceName = cleanName || "Unknown"
+        updateDeviceType()
+      }
+    }
+    
+    stderr: SplitParser {
+      onRead: data => {
+        // Ignore stderr
+      }
+    }
+  }
+  
+  // ============================================================================
+  // DEVICE TYPE DETECTION LOGIC
+  // ============================================================================
+  
+  function updateDeviceType() {
+    // Check active port first
+    if (module.activePort.toLowerCase().indexOf("headphones") !== -1) {
+      module.isHeadphones = true
+      module.deviceType = "headphones"
+      return
+    }
+    
+    // Fallback to sink name check
+    var sinkLower = module.activeSinkName.toLowerCase()
+    if (sinkLower.indexOf("headphone") !== -1) {
+      module.isHeadphones = true
+      module.deviceType = "headphones"
+      return
+    }
+    
+    // USB devices without "speaker" are likely headphones
+    if (sinkLower.indexOf("usb") !== -1 && sinkLower.indexOf("speaker") === -1) {
+      module.isHeadphones = true
+      module.deviceType = "headphones"
+      return
+    }
+    
+    // Default to speakers
+    module.isHeadphones = false
+    module.deviceType = "speaker"
+  }
+  
+  // ============================================================================
+  // POLLING TIMER - Update device info periodically
+  // ============================================================================
+  
+  Timer {
+    interval: 3000  // Check every 3 seconds
+    running: true
+    repeat: true
+    onTriggered: {
+      if (!sinkNameProcess.running) {
+        sinkNameProcess.running = true
+      }
+    }
+  }
+  
+  // ============================================================================
+  // DEVICE CHANGE DETECTION
+  // ============================================================================
+  
+  // Watch for audio sink changes (device switches)
+  Connections {
+    target: module.audioSinkNode
+    enabled: module.audioSinkNode !== null
+    
+    function onDescriptionChanged() {
+      // Device changed - refresh device info
+      Qt.callLater(() => {
+        if (!sinkNameProcess.running) {
+          sinkNameProcess.running = true
+        }
+      })
+    }
+  }
   
   // ============================================================================
   // TIMERS - Reset internal change flags
@@ -240,12 +407,20 @@ Scope {
   }
   
   // ============================================================================
-  // UTILITY FUNCTIONS
+  // UTILITY FUNCTIONS - Enhanced with device-aware icons
   // ============================================================================
   
-  // Get appropriate volume icon based on level and mute state
+  // Get appropriate volume icon based on level, mute state, and device type
   function getVolumeIcon(volume, muted) {
+    // Muted state
     if (muted) return "󰖁"
+    
+    // Headphones - use headphone icon
+    if (module.isHeadphones) {
+      return "󰋋"  // Headphones icon
+    }
+    
+    // Speakers - use volume-based icons
     if (volume == 0) return "󰕿"
     if (volume < 0.33) return "󰕿"
     if (volume < 0.66) return "󰖀"
@@ -255,5 +430,36 @@ Scope {
   // Get microphone icon based on mute state
   function getMicIcon(muted) {
     return muted ? "󰍭" : "󰍬"
+  }
+  
+  // Get status text for display (e.g., "Headphones 75%")
+  function getStatusText() {
+    var percentage = Math.round(module.volume * 100) + "%"
+    
+    if (module.volumeMuted) {
+      return "Muted"
+    }
+    
+    return percentage
+  }
+  
+  // Get detailed status (device name + volume)
+  function getDetailedStatus() {
+    var percentage = Math.round(module.volume * 100) + "%"
+    
+    if (module.volumeMuted) {
+      return module.deviceName + " (Muted)"
+    }
+    
+    return module.deviceName + " " + percentage
+  }
+  
+  // ============================================================================
+  // INITIALIZATION
+  // ============================================================================
+  
+  Component.onCompleted: {
+    // Get initial device info
+    sinkNameProcess.running = true
   }
 }

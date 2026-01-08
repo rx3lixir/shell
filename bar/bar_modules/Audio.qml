@@ -1,11 +1,13 @@
 import QtQuick
 import Quickshell
 import QtQuick.Layouts
-import Quickshell.Io
 import "../../theme"
 
 Item {
   id: root
+
+  // Reference to system state
+  required property var systemState
 
   property string icon: "󰖁"
   property string volume: "N/A"
@@ -72,30 +74,62 @@ Item {
     }
   }
 
-  Process {
-    id: audioProc
-    command: ["sh", "-c", "audio-state"]
-
-    stdout: SplitParser {
-      onRead: data => {
-        if (!data) return
-        var line = data.trim()
-        var parts = line.split("|")
-        if (parts.length >= 2) {
-          root.icon = parts[0]
-          root.volume = parts[1]
-          root.device = parts.length === 3 ? parts[2] : "Unknown"
-        }
-      }
+  // ============================================================================
+  // VOLUME STATE MONITORING (using SystemStateManager)
+  // ============================================================================
+  
+  Connections {
+    target: root.systemState.volume
+    enabled: root.systemState && root.systemState.volume
+    
+    function onVolumeChanged() {
+      updateAudioDisplay()
+    }
+    
+    function onVolumeMutedChanged() {
+      updateAudioDisplay()
+    }
+    
+    function onDeviceNameChanged() {
+      updateAudioDisplay()
+    }
+    
+    function onDeviceTypeChanged() {
+      updateAudioDisplay()
+    }
+    
+    function onIsHeadphonesChanged() {
+      updateAudioDisplay()
     }
   }
-
-  Timer {
-    interval: 2000
-    running: true
-    repeat: true
-    onTriggered: if (!audioProc.running) audioProc.running = true
+  
+  // Update audio display
+  function updateAudioDisplay() {
+    var volumeModule = root.systemState.volume
+    
+    if (!volumeModule) {
+      root.icon = "󰖁"
+      root.volume = "N/A"
+      root.device = "Unknown"
+      return
+    }
+    
+    // Get icon from volume module (handles mute, device type, and volume level)
+    root.icon = volumeModule.getVolumeIcon(volumeModule.volume, volumeModule.volumeMuted)
+    
+    // Format volume percentage
+    if (volumeModule.volumeMuted) {
+      root.volume = "Muted"
+    } else {
+      root.volume = Math.round(volumeModule.volume * 100) + "%"
+    }
+    
+    // Get device name
+    root.device = volumeModule.deviceName || "Unknown"
   }
-
-  Component.onCompleted: audioProc.running = true
+  
+  // Initial update
+  Component.onCompleted: {
+    updateAudioDisplay()
+  }
 }

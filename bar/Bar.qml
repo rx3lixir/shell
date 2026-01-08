@@ -64,7 +64,9 @@ PanelWindow {
           systemState: barWindow.systemState
         }
 
-        Modules.Audio {}
+        Modules.Audio {
+          systemState: barWindow.systemState
+        }
 
         Modules.Network {
           systemState: barWindow.systemState
