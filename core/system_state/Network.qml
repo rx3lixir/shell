@@ -2,8 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// Network State Module - FIXED with proper loopback filtering
-// Uses the same approach as the working bash script
+// Network State Module - loopback filtering
 Scope {
   id: module
   
@@ -79,7 +78,7 @@ Scope {
   }
   
   // ============================================================================
-  // ACTIVE CONNECTION CHECKER - FIXED with grep to filter loopback
+  // ACTIVE CONNECTION CHECKER - with grep to filter loopback
   // ============================================================================
   
   Process {
@@ -183,27 +182,30 @@ Scope {
   // ============================================================================
   
   Process {
-    id: signalProcess
-    command: ["sh", "-c", "nmcli -t -f IN-USE,SIGNAL dev wifi 2>/dev/null | grep '^\\*:'"]
-    
-    stdout: SplitParser {
-      onRead: data => {
-        if (!data || !data.trim()) return
-        
-        // Format: *:SIGNAL
-        var parts = data.trim().split(":")
-        if (parts.length >= 2) {
-          module.wifiSignalStrength = parseInt(parts[1]) || 0
-        }
+  id: signalProcess
+  command: ["sh", "-c", "nmcli -t -f ACTIVE,SIGNAL dev wifi 2>/dev/null | awk -F: '/^yes/{print $2}'"]
+  
+  stdout: SplitParser {
+    onRead: data => {
+      if (!data || !data.trim()) {
+        return
       }
-    }
-    
-    stderr: SplitParser {
-      onRead: data => {
-        // Silently ignore
+      
+      var strength = parseInt(data.trim())
+      if (!isNaN(strength) && strength >= 0 && strength <= 100) {
+        module.wifiSignalStrength = strength
       }
     }
   }
+  
+  stderr: SplitParser {
+    onRead: data => {
+      if (data && data.trim()) {
+        console.error("[Network.Signal] Error:", data.trim())
+      }
+    }
+  }
+}
   
   // ============================================================================
   // POLLING TIMER

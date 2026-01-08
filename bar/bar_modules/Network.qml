@@ -87,6 +87,10 @@ Item {
     target: root.systemState.network
     enabled: root.systemState && root.systemState.network
     
+    function onWifiSignalStrengthChanged() {
+      updateNetworkDisplay()
+    }
+    
     function onInterfaceNameChanged() {
       updateNetworkDisplay()
     }
@@ -124,7 +128,6 @@ Item {
     
     // Get icon from network module
     root.icon = network.getNetworkIcon()
-    console.log("[Bar.Network] Icon set to:", root.icon)
     
     // Get interface name or status
     if (network.connectionType === "wifi" && network.wifiConnected) {
