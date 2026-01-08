@@ -1,17 +1,19 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Io
 import "../../theme"
 
 Item {
   id: root
 
+  // Reference to system state
+  required property var systemState
+
   property string icon: "󰂲"
   property string status: "Off"
   property bool hovered: false
 
-  // Width expands when hovered to show the percentage
+  // Width expands when hovered to show the status
   implicitWidth: hovered ? rowLayout.implicitWidth : iconText.implicitWidth
   implicitHeight: Theme.barHeight
 
@@ -66,35 +68,54 @@ Item {
     cursorShape: Qt.PointingHandCursor
 
     onClicked: {
-      Quickshell.execDetached({
-        command: ["sh", "-c", "kitty --class floating_term_s -e bluetui"]
-      })
+      root.systemState.bluetooth.openManager()
     }
   }
 
-  Process {
-    id: btProc
-    command: ["sh", "-c", "bluetooth-state"]
-
-    stdout: SplitParser {
-      onRead: data => {
-        if (!data) return
-        var line = data.trim()
-        var parts = line.split("|")
-        if (parts.length === 2) {
-          root.icon = parts[0]
-          root.status = parts[1]
-        }
-      }
+  // ============================================================================
+  // BLUETOOTH STATE MONITORING (using SystemStateManager)
+  // ============================================================================
+  
+  Connections {
+    target: root.systemState.bluetooth
+    enabled: root.systemState && root.systemState.bluetooth
+    
+    function onPoweredChanged() {
+      updateBluetoothDisplay()
+    }
+    
+    function onHasConnectedDeviceChanged() {
+      updateBluetoothDisplay()
+    }
+    
+    function onConnectedDeviceNameChanged() {
+      updateBluetoothDisplay()
+    }
+    
+    function onReadyChanged() {
+      updateBluetoothDisplay()
     }
   }
-
-  Timer {
-    interval: 2000
-    running: true
-    repeat: true
-    onTriggered: if (!btProc.running) btProc.running = true
+  
+  // Update bluetooth display
+  function updateBluetoothDisplay() {
+    var bt = root.systemState.bluetooth
+    
+    if (!bt || !bt.ready) {
+      root.icon = "󰂲"
+      root.status = "N/A"
+      return
+    }
+    
+    // Get icon based on power and connection state
+    root.icon = bt.getBluetoothIcon(bt.powered, bt.hasConnectedDevice)
+    
+    // Get status text
+    root.status = bt.getStatusText()
   }
-
-  Component.onCompleted: btProc.running = true
+  
+  // Initial update
+  Component.onCompleted: {
+    updateBluetoothDisplay()
+  }
 }

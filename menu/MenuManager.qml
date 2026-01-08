@@ -98,8 +98,6 @@ Scope {
   
   // Execute a menu item's command
   function executeItem(item) {
-    console.log("[MenuManager] Executing item:", item.name, "command:", item.command)
-    
     // Special case: Applications opens the launcher
     if (item.command === "launcher") {
       manager.visible = false
@@ -109,7 +107,6 @@ Scope {
     
     // Special case: Emoji Picker opens the emoji picker
     if (item.command === "emoji") {
-      console.log("[MenuManager] Opening emoji picker")
       manager.visible = false
       emojiManager.visible = true
       return
@@ -117,7 +114,6 @@ Scope {
     
     // Special case: Wallpapers opens the wallpaper picker
     if (item.command === "wallpapers") {
-      console.log("[MenuManager] Opening wallpaper picker")
       manager.visible = false
       wallpaperManager.visible = true
       return
@@ -125,7 +121,6 @@ Scope {
     
     // Special case: Themes opens the theme switcher - NEW
     if (item.command === "themes") {
-      console.log("[MenuManager] Opening theme switcher")
       manager.visible = false
       themeManager.visible = true
       return
@@ -133,7 +128,6 @@ Scope {
     
     // Special case: Power opens the power menu
     if (item.command === "power") {
-      console.log("[MenuManager] Opening power menu")
       manager.visible = false
       powerMenuManager.visible = true
       return

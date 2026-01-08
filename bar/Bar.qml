@@ -60,7 +60,9 @@ PanelWindow {
           systemState: barWindow.systemState
         }
 
-        Modules.Bluetooth{}
+        Modules.Bluetooth{
+          systemState: barWindow.systemState
+        }
 
         Modules.Audio {}
 
