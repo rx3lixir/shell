@@ -1,16 +1,16 @@
 import QtQuick
+import QtQuick.Layouts
 import Quickshell
 import "../theme"
 
-Rectangle {
+Item {
   id: root
   
   property string searchTerm: ""
   property int currentIndex: 0
   signal appLaunched()
   
-  radius: Theme.radiusXLarge
-  color: "transparent"
+  clip: true
   
   // Reset index when search changes
   onSearchTermChanged: {
@@ -21,10 +21,30 @@ Rectangle {
     id: appList
     anchors.fill: parent
     clip: true
-    spacing: Theme.spacingS
+    spacing: Theme.spacing.xs
     
     // Bind current index for keyboard navigation
     currentIndex: root.currentIndex
+    
+    // Material 3 style highlight
+    highlight: Rectangle {
+      width: appList.width
+      height: 72
+      radius: Theme.radius.xl
+      color: Theme.secondary_container
+      border.width: 0
+      border.color: Theme.secondary
+      
+      // Smooth transition when highlight moves
+      Behavior on y {
+        NumberAnimation {
+          duration: 150
+          easing.type: Easing.OutCubic
+        }
+      }
+    }
+    
+    highlightFollowsCurrentItem: true
     
     // Keep current item visible
     onCurrentIndexChanged: {
@@ -52,12 +72,24 @@ Rectangle {
       }
     }
     
+    onCountChanged: {
+      if (count > 0) {
+        if (currentIndex >= count) {
+          currentIndex = count - 1
+        } else if (currentIndex < 0) {
+          currentIndex = 0
+        }
+      } else {
+        currentIndex = -1
+      }
+    }
+    
     delegate: LauncherAppItem {
       required property var modelData
       required property int index
       
       width: appList.width
-      height: 50
+      height: 72
       app: modelData
       isSelected: index === root.currentIndex
       
@@ -70,14 +102,54 @@ Rectangle {
       }
     }
     
-    // Empty state
-    Text {
+    // Empty state - Material 3 style
+    Item {
       anchors.centerIn: parent
-      text: root.searchTerm ? "No apps found" : "No applications available"
-      color: Theme.fgMuted
-      font.pixelSize: Theme.fontSizeM
-      font.family: Theme.fontFamily
+      width: parent.width
+      height: 200
       visible: appList.count === 0
+      
+      ColumnLayout {
+        anchors.centerIn: parent
+        spacing: Theme.spacing.md
+        
+        // Icon container
+        Rectangle {
+          Layout.alignment: Qt.AlignHCenter
+          Layout.preferredWidth: 64
+          Layout.preferredHeight: 64
+          radius: Theme.radius.full
+          color: Theme.surface_container_high
+          
+          Text {
+            anchors.centerIn: parent
+            text: "󰀻"
+            color: Theme.on_surface_variant
+            font.pixelSize: Theme.typography.xxxl
+            font.family: Theme.typography.fontFamily
+            opacity: 0.6
+          }
+        }
+        
+        Text {
+          Layout.alignment: Qt.AlignHCenter
+          text: root.searchTerm ? "No apps found" : "No applications available"
+          color: Theme.on_surface
+          font.pixelSize: Theme.typography.md
+          font.family: Theme.typography.fontFamily
+          font.weight: Theme.typography.weightMedium
+          opacity: 0.8
+        }
+        
+        Text {
+          Layout.alignment: Qt.AlignHCenter
+          text: root.searchTerm ? "Try a different search term" : "Install some applications"
+          color: Theme.on_surface_variant
+          font.pixelSize: Theme.typography.sm
+          font.family: Theme.typography.fontFamily
+          opacity: 0.6
+        }
+      }
     }
   }
   

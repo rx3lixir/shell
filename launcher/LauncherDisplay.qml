@@ -43,11 +43,11 @@ LazyLoader {
           loader.manager.visible = false
           event.accepted = true
         } 
-        else if (event.key === Qt.Key_Up) {
+        else if (event.key === Qt.Key_Up || (event.key === Qt.Key_P && (event.modifiers & Qt.ControlModifier))) {
           appListComponent.moveUp()
           event.accepted = true
         }
-        else if (event.key === Qt.Key_Down) {
+        else if (event.key === Qt.Key_Down || (event.key === Qt.Key_N && (event.modifiers & Qt.ControlModifier))) {
           appListComponent.moveDown()
           event.accepted = true
         }
@@ -76,14 +76,29 @@ LazyLoader {
       }
     }
     
+    // Background overlay (same as menu)
+    Rectangle {
+      anchors.fill: parent
+      color: Theme.scrim
+      opacity: 0.2
+      
+      MouseArea {
+        anchors.fill: parent
+        onClicked: loader.manager.visible = false
+      }
+    }
+    
+    // Main container - Material 3 style
     Rectangle {
       id: background
-      x: (parent.width - 600) / 2
-      y: (parent.height - 400) / 2
-      width: 600
-      height: 400
-      radius: Theme.radiusXLarge
-      color: Theme.bg1transparentLauncher
+      x: (parent.width - 540) / 2
+      y: (parent.height - 600) / 2
+      width: 540
+      height: 600
+      radius: 28
+      color: Theme.surface_container
+      border.width: 1
+      border.color: Qt.lighter(Theme.surface_container, 1.3)
       
       // Catch clicks on the launcher itself to prevent closing
       MouseArea {
@@ -93,21 +108,55 @@ LazyLoader {
       ColumnLayout {
         anchors {
           fill: parent
-          margins: Theme.spacingL
+          margins: Theme.padding.xl
         }
-        spacing: Theme.spacingM
+        spacing: Theme.spacing.md
         
-        // Search bar
-        LauncherSearchBar {
+        // ========== HEADER ==========
+        RowLayout {
           Layout.fillWidth: true
           Layout.preferredHeight: 40
+          spacing: Theme.spacing.sm
+          
+          Text {
+            Layout.fillWidth: true
+            Layout.leftMargin: Theme.padding.xs
+            text: "Applications"
+            color: Theme.on_surface
+            font.pixelSize: Theme.typography.xl
+            font.family: Theme.typography.fontFamily
+            font.weight: Theme.typography.weightMedium
+          }
+          
+          // Close button
+          Text {
+            Layout.rightMargin: Theme.padding.sm
+            text: "✕"
+            color: Theme.on_surface
+            font.pixelSize: Theme.typography.lg
+            font.family: Theme.typography.fontFamily
+
+            MouseArea {
+              id: closeMouseArea
+              anchors.fill: parent
+              hoverEnabled: true
+              cursorShape: Qt.PointingHandCursor
+              onClicked: loader.manager.visible = false
+            }
+          }
+        }
+        
+        // ========== SEARCH BAR ==========
+        LauncherSearchBar {
+          Layout.fillWidth: true
+          Layout.preferredHeight: 48
           
           onSearchChanged: text => {
             loader.manager.searchText = text
           }
         }
         
-        // App list
+        // ========== APP LIST ==========
         LauncherAppList {
           id: appListComponent
           Layout.fillWidth: true
@@ -120,23 +169,15 @@ LazyLoader {
           }
         }
         
-        // Footer with hint
+        // ========== FOOTER WITH HINT ==========
         Text {
           Layout.fillWidth: true
-          text: "↑↓ Navigate • Enter Launch • Esc Close"
-          color: Theme.fgMuted
-          font.pixelSize: Theme.fontSizeS
-          font.family: Theme.fontFamily
+          text: "↑↓ / Ctrl+P/N Navigate • Enter Launch • Esc Close"
+          color: Theme.on_surface_variant
+          font.pixelSize: Theme.typography.sm
+          font.family: Theme.typography.fontFamily
           horizontalAlignment: Text.AlignHCenter
-        }
-      }
-      
-      // Click outside to close
-      MouseArea {
-        anchors.fill: parent
-        z: -1
-        onClicked: {
-          loader.manager.visible = false
+          opacity: 0.7
         }
       }
     }

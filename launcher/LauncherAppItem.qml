@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import "../theme"
+import "../components"
 
 Rectangle {
   id: root
@@ -11,88 +12,62 @@ Rectangle {
   signal launched()
   signal clicked()
   
-  radius: Theme.radiusXLarge
-  color: {
-    if (isSelected) return Theme.accent
-    if (appMouseArea.containsMouse) return Theme.bg2transparent
-    return "transparent"
-  }
+  radius: Theme.radius.xl
+  color: "transparent"
   
   RowLayout {
+    id: contentLayout
     anchors {
       fill: parent
-      margins: Theme.spacingS
+      margins: Theme.padding.md
     }
-    spacing: Theme.spacingM
+    spacing: Theme.spacing.md
     
-    // Icon placeholder - using first letter for now
-    Rectangle {
-      Layout.preferredWidth: 32
-      Layout.preferredHeight: 32
-      radius: Theme.radiusLarge
-      color: isSelected ? Theme.fg : Theme.accentTransparent
+    // Icon using IconCircle component
+    IconCircle {
+      Layout.preferredWidth: 48
+      Layout.preferredHeight: 48
+      Layout.alignment: Qt.AlignVCenter
       
-      Text {
-        anchors.centerIn: parent
-        text: root.app.name ? root.app.name.charAt(0).toUpperCase() : "?"
-        color: isSelected ? Theme.bg1 : Theme.fg
-        font.pixelSize: Theme.fontSizeL
-        font.family: Theme.fontFamily
-        font.bold: true
-        
-        Behavior on color {
-          ColorAnimation {
-            duration: 600
-            easing.type: Easing.OutCubic
-          }
-        }
-      }
+      // Use first letter of app name as icon
+      icon: root.app.name ? root.app.name.charAt(0).toUpperCase() : "?"
+      iconSize: Theme.typography.xxl
+      bgColor: isSelected ? Theme.secondary : Theme.secondary_container
+      iconColor: isSelected ? Theme.on_secondary : Theme.secondary
     }
     
-    // App info
+    // Text info
     ColumnLayout {
       Layout.fillWidth: true
+      Layout.alignment: Qt.AlignVCenter
       spacing: 2
       
       Text {
         Layout.fillWidth: true
         text: root.app.name || "Unknown"
-        color: isSelected ? Theme.bg1 : Theme.fg
-        font.pixelSize: Theme.fontSizeM
-        font.family: Theme.fontFamily
+        color: Theme.on_surface
+        font.pixelSize: Theme.typography.md
+        font.family: Theme.typography.fontFamily
+        font.weight: Theme.typography.weightMedium
         elide: Text.ElideRight
-        
-        Behavior on color {
-          ColorAnimation {
-            duration: 200
-            easing.type: Easing.OutCubic
-          }
-        }
       }
       
       Text {
         Layout.fillWidth: true
         text: root.app.comment || ""
-        color: isSelected ? Theme.bg2 : Theme.fgMuted
-        font.pixelSize: Theme.fontSizeS
-        font.family: Theme.fontFamily
+        color: Theme.on_surface_variant
+        font.pixelSize: Theme.typography.sm
+        font.family: Theme.typography.fontFamily
+        opacity: 0.7
         elide: Text.ElideRight
         visible: text !== ""
-        
-        Behavior on color {
-          ColorAnimation {
-            duration: 200
-            easing.type: Easing.OutCubic
-          }
-        }
       }
     }
   }
   
   MouseArea {
-    id: appMouseArea
+    id: mouseArea
     anchors.fill: parent
-    hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
     
     onClicked: {

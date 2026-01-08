@@ -1,5 +1,6 @@
 import QtQuick
 import "../theme"
+import "../components"
 
 Rectangle {
   id: root
@@ -7,31 +8,38 @@ Rectangle {
   property alias text: searchInput.text
   signal searchChanged(string text)
   
-  //radius: Theme.radiusXLarge
-  color: "transparent"
-  border.color: searchInput.activeFocus ? Theme.accent : "transparent"
-  border.width: 0
+  radius: Theme.radius.full
+  color: Theme.surface_container
+
+  border.width: 2
+  border.color: Theme.surface_container_high
+
+  Elevation {
+    visible: true
+  }
   
   TextInput {
     id: searchInput
     anchors {
       fill: parent
-      leftMargin: Theme.spacingM
-      rightMargin: Theme.spacingM
+      leftMargin: Theme.padding.lg
+      rightMargin: Theme.padding.lg
     }
+
     verticalAlignment: TextInput.AlignVCenter
-    color: Theme.fg
-    font.pixelSize: Theme.fontSizeM
-    font.family: Theme.fontFamily
+    color: Theme.on_surface
+    font.pixelSize: Theme.typography.lg
+    font.family: Theme.typography.fontFamily
     
     // Placeholder text
     Text {
       anchors.fill: parent
-      text: "  Search applications..."
-      color: Theme.fgMuted
+      text: "Search applications..."
+      color: Theme.on_surface_variant
       font: parent.font
       verticalAlignment: Text.AlignVCenter
       visible: !parent.text
+      opacity: 0.6
     }
     
     onTextChanged: {
