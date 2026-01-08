@@ -24,10 +24,15 @@ Rectangle {
     }
   }
   
-  border.width: isPrimary ? 0 : 2
+  border.width: isPrimary ? 0 : 1
   border.color: Theme.surface_container_high
   
   scale: mouseArea.pressed ? 0.88 : 1.0
+
+  Elevation {
+    target: root
+    enabled: true
+  }
   
   Behavior on color {
     ColorAnimation { duration: 150 }

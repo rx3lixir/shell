@@ -2,14 +2,14 @@ import QtQuick
 import "../../components"
 
 IconButton {
-  required property var networkManager
+  required property var systemState
   
-  icon: networkManager.wifiEnabled ? "󰤥" : "󰤭"
+  icon: systemState.network.getNetworkIcon()
   title: "WI-FI"
-  subtitle: networkManager.wifiEnabled ? "Connected" : "Disconnected"
+  subtitle: systemState.network.getStatusText()
   
   isStateful: true
-  isActive: networkManager.wifiEnabled
+  isActive: systemState.network.wifiEnabled && systemState.network.wifiConnected
   
-  onClicked: networkManager.toggleWifi()
+  onClicked: systemState.network.toggleWifi()
 }

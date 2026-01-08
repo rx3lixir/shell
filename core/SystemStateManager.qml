@@ -34,6 +34,11 @@ Scope {
     userInteracting: manager.userInteracting
   }
 
+  State.Network {
+    id: networkModule
+    userInteracting: manager.userInteracting
+  }
+
   // ============================================================================
   // EXPOSED MODULES (Public API)
   // ============================================================================
@@ -41,5 +46,6 @@ Scope {
   readonly property var brightness: brightnessModule
   readonly property var volume: volumeModule
   readonly property var battery: batteryModule 
-  readonly property var bluetooth: bluetoothModule 
+  readonly property var bluetooth: bluetoothModule
+  readonly property var network: networkModule
 }

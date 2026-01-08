@@ -136,7 +136,7 @@ LazyLoader {
           Modules.WiFiToggle {
             Layout.fillWidth: true 
             Layout.preferredHeight: 64
-            networkManager: loader.manager.network
+            systemState: loader.systemState
           }
           
           Modules.BluetoothToggle {

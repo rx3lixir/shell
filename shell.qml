@@ -46,6 +46,7 @@ ShellRoot {
   
   ControlCenterDisplay {
     manager: controlCenterManager
+    systemState: systemStateManager
   }
   
   // ============================================================================

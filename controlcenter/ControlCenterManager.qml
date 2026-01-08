@@ -3,7 +3,7 @@ import Quickshell
 import "managers" as Managers
 
 // ControlCenterManager
-// Now uses SystemStateManager's Volume module instead of AudioManager.
+// Now uses SystemStateManager's Network module instead of NetworkManager.
 Scope {
   id: manager
   
@@ -17,12 +17,8 @@ Scope {
   required property var powerMenuManager
   
   // ============================================================================
-  // SUB-MANAGERS (Non-volume/brightness ones stay the same)
+  // SUB-MANAGERS (Non-network/volume/brightness/bluetooth ones)
   // ============================================================================
-  
-  Managers.NetworkManager {
-    id: networkManager
-  }
   
   Managers.MediaManager {
     id: mediaManager
@@ -40,7 +36,6 @@ Scope {
   // EXPOSE MANAGERS
   // ============================================================================
   
-  readonly property var network: networkManager
   readonly property var media: mediaManager
   readonly property var recording: recordingManager
   readonly property var utilities: utilitiesManager
@@ -77,4 +72,3 @@ Scope {
     }
   }
 }
-

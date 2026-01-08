@@ -33,8 +33,10 @@ Item {
     
     Repeater {
       model: root.buttons
-      
-      RoundIconButton {
+  
+      delegate: RoundIconButton {
+        required property var modelData
+    
         icon: modelData.icon
         size: 56
         onClicked: modelData.action()

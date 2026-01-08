@@ -1,11 +1,13 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Io
 import "../../theme"
 
 Item {
   id: root
+
+  // Reference to system state
+  required property var systemState
 
   property string ifname: "—"
   property string icon: "󰖪"
@@ -69,35 +71,66 @@ Item {
     cursorShape: Qt.PointingHandCursor
 
     onClicked: {
-      Quickshell.execDetached({
-        command: ["sh", "-c", "kitty --class floating_term_m -e impala"]
-      })
+      root.systemState.network.openNetworkManager()
     }
   }
 
-  Process {
-    id: netProc
-    command: ["sh", "-c", "network-state"]
-
-    stdout: SplitParser {
-      onRead: data => {
-        if (!data) return
-        var line = data.trim()
-        var parts = line.split("|")
-        if (parts.length === 2) {
-          root.ifname = parts[0]
-          root.icon = parts[1]
-        }
-      }
+  // ============================================================================
+  // NETWORK STATE MONITORING (using SystemStateManager)
+  // ============================================================================
+  
+  Connections {
+    target: root.systemState.network
+    enabled: root.systemState && root.systemState.network
+    
+    function onInterfaceNameChanged() {
+      updateNetworkDisplay()
+    }
+    
+    function onWifiEnabledChanged() {
+      updateNetworkDisplay()
+    }
+    
+    function onWifiConnectedChanged() {
+      updateNetworkDisplay()
+    }
+    
+    function onConnectionTypeChanged() {
+      updateNetworkDisplay()
+    }
+    
+    function onReadyChanged() {
+      updateNetworkDisplay()
     }
   }
-
-  Timer {
-    interval: 2000
-    running: true
-    repeat: true
-    onTriggered: if (!netProc.running) netProc.running = true
+  
+  // Update network display
+  function updateNetworkDisplay() {
+    var network = root.systemState.network
+    
+    if (!network || !network.ready) {
+      root.icon = "󰖪"
+      root.ifname = "—"
+      return
+    }
+    
+    // Get icon from network module
+    root.icon = network.getNetworkIcon()
+    
+    // Get interface name or status
+    if (network.connectionType === "wifi" && network.wifiConnected) {
+      root.ifname = network.wifiSsid || network.interfaceName
+    } else if (network.connectionType === "ethernet") {
+      root.ifname = "Ethernet"
+    } else if (!network.wifiEnabled) {
+      root.ifname = "Disabled"
+    } else {
+      root.ifname = "Disconnected"
+    }
   }
-
-  Component.onCompleted: netProc.running = true
+  
+  // Initial update
+  Component.onCompleted: {
+    updateNetworkDisplay()
+  }
 }

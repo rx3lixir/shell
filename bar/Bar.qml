@@ -66,7 +66,9 @@ PanelWindow {
 
         Modules.Audio {}
 
-        Modules.Network {}
+        Modules.Network {
+          systemState: barWindow.systemState
+        }
         
         Modules.NotificationCenterButton {
           notificationCenterManager: barWindow.notificationCenterManager

@@ -40,7 +40,7 @@ Item {
             width: parent.parent.parent.children[0].children[index] && index % 5 === 0 ? 6 : 4
             height: 2
             radius: 1
-            color: Theme.outline_variant
+            color: Theme.outline
             opacity: index % 5 === 0 ? 0.8 : 0.6
           }
         }

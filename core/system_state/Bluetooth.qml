@@ -42,19 +42,15 @@ Scope {
     stdout: SplitParser {
       onRead: data => {
         if (!data) {
-          console.log("[Bluetooth] No output from bluetoothctl")
           return
         }
         
         var line = data.trim().toLowerCase()
-        console.log("[Bluetooth] Powered state raw:", data.trim())
         
         var wasPowered = module.powered
         
         // Check if powered (handles both "yes" and "on")
         module.powered = (line === "yes" || line === "on")
-        
-        console.log("[Bluetooth] Bluetooth powered:", module.powered)
         
         // If powered, check devices
         if (module.powered) {
@@ -70,7 +66,6 @@ Scope {
         
         // Emit change if needed
         if (!module.changingState && !module.userInteracting && wasPowered !== module.powered) {
-          console.log("[Bluetooth] Power state changed externally")
           module.bluetoothChangedExternally(module.powered, module.hasConnectedDevice, module.connectedDeviceName)
         }
       }
@@ -93,7 +88,6 @@ Scope {
     stdout: SplitParser {
       onRead: data => {
         if (!data || !data.trim()) {
-          console.log("[Bluetooth] No devices connected")
           module.hasConnectedDevice = false
           module.connectedDeviceCount = 0
           module.connectedDeviceName = ""
@@ -102,8 +96,6 @@ Scope {
         }
         
         var lines = data.trim().split('\n').filter(line => line.includes('Device'))
-        
-        console.log("[Bluetooth] Found", lines.length, "connected device(s)")
         
         module.connectedDeviceCount = lines.length
         module.hasConnectedDevice = lines.length > 0
@@ -114,7 +106,6 @@ Scope {
           var parts = firstLine.split(' ')
           if (parts.length >= 3) {
             module.connectedDeviceName = parts.slice(2).join(' ')
-            console.log("[Bluetooth] First device:", module.connectedDeviceName)
           }
           
           // Build array
@@ -180,7 +171,6 @@ Scope {
     )
     
     proc.exited.connect(function(code) {
-      console.log("[Bluetooth] Power command finished, code:", code)
       proc.destroy()
       Qt.callLater(function() {
         if (!bluetoothStateProcess.running) {
@@ -276,7 +266,6 @@ Scope {
   // ============================================================================
   
   Component.onCompleted: {
-    console.log("[Bluetooth] Module initialized")
     bluetoothStateProcess.running = true
   }
 }
