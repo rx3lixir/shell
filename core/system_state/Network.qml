@@ -47,8 +47,6 @@ Scope {
         var state = data.trim().toLowerCase()
         var wasEnabled = module.wifiEnabled
         
-        console.log("[Network] WiFi radio state:", state)
-        
         module.wifiEnabled = (state === "enabled")
         
         // If WiFi is enabled, check connections
@@ -66,7 +64,6 @@ Scope {
         
         // Emit change if needed
         if (!module.changingState && !module.userInteracting && wasEnabled !== module.wifiEnabled) {
-          console.log("[Network] WiFi state changed externally")
           module.networkChangedExternally(module.wifiEnabled, module.wifiConnected, module.wifiSsid)
         }
       }
@@ -93,7 +90,6 @@ Scope {
     stdout: SplitParser {
       onRead: data => {
         if (!data || !data.trim()) {
-          console.log("[Network] No active connections (excluding loopback)")
           module.wifiConnected = false
           module.connectionType = "none"
           module.interfaceName = ""
@@ -108,13 +104,10 @@ Scope {
           var device = parts[0]
           var type = parts[1]
           
-          console.log("[Network] Primary connection:", device, "type:", type)
-          
           if (type === "802-11-wireless" || type === "wifi") {
             module.connectionType = "wifi"
             module.interfaceName = device
             module.wifiConnected = true
-            console.log("[Network] ✓ WiFi connection detected on", device)
             // Get WiFi details
             wifiDetailsProcess.running = true
           } else if (type === "802-3-ethernet" || type === "ethernet") {
@@ -123,14 +116,12 @@ Scope {
             module.wifiConnected = false
             module.wifiSsid = ""
             module.wifiSignalStrength = 0
-            console.log("[Network] ✓ Ethernet connection detected on", device)
           } else {
             module.connectionType = "unknown"
             module.interfaceName = device
             module.wifiConnected = false
             module.wifiSsid = ""
             module.wifiSignalStrength = 0
-            console.log("[Network] Unknown connection type:", type)
           }
         }
       }
@@ -156,7 +147,6 @@ Scope {
     stdout: SplitParser {
       onRead: data => {
         if (!data || !data.trim()) {
-          console.log("[Network] No active WiFi in dev wifi list")
           return
         }
         
@@ -170,8 +160,6 @@ Scope {
           
           // Get signal separately
           signalProcess.running = true
-          
-          console.log("[Network] ✓ WiFi SSID:", module.wifiSsid)
           
           // Emit change if SSID changed
           if (!module.changingState && !module.userInteracting && oldSsid !== module.wifiSsid && oldSsid !== "") {
@@ -206,7 +194,6 @@ Scope {
         var parts = data.trim().split(":")
         if (parts.length >= 2) {
           module.wifiSignalStrength = parseInt(parts[1]) || 0
-          console.log("[Network] ✓ WiFi signal:", module.wifiSignalStrength + "%")
         }
       }
     }
@@ -275,7 +262,6 @@ Scope {
     )
     
     proc.exited.connect(function(code) {
-      console.log("[Network] WiFi toggle finished, code:", code)
       proc.destroy()
       
       // Force state refresh after a short delay
@@ -300,7 +286,7 @@ Scope {
   
   function openNetworkManager() {
     var proc = Qt.createQmlObject(
-      'import Quickshell.Io; Process { command: ["kitty", "--class", "floating_term_m", "-e", "nmtui"] }',
+      'import Quickshell.Io; Process { command: ["kitty", "--class", "floating_term_m", "-e", "impala"] }',
       module
     )
     proc.startDetached()
@@ -352,7 +338,6 @@ Scope {
   // ============================================================================
   
   Component.onCompleted: {
-    console.log("[Network] Module initialized")
     wifiRadioProcess.running = true
   }
 }

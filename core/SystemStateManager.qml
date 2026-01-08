@@ -47,5 +47,5 @@ Scope {
   readonly property var volume: volumeModule
   readonly property var battery: batteryModule 
   readonly property var bluetooth: bluetoothModule
-  //readonly property var network: networkModule
+  readonly property var network: networkModule
 }
