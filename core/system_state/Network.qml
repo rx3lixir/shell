@@ -2,9 +2,8 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// Network State Module - Following Bluetooth Pattern
-// Manages WiFi and network connection state using direct nmcli commands.
-// Monitors both programmatic and external changes.
+// Network State Module - FIXED with proper loopback filtering
+// Uses the same approach as the working bash script
 Scope {
   id: module
   
@@ -43,19 +42,14 @@ Scope {
     
     stdout: SplitParser {
       onRead: data => {
-        if (!data) {
-          console.log("[Network] No output from nmcli radio")
-          return
-        }
+        if (!data) return
         
         var state = data.trim().toLowerCase()
         var wasEnabled = module.wifiEnabled
         
-        console.log("[Network] WiFi radio state raw:", data.trim())
+        console.log("[Network] WiFi radio state:", state)
         
         module.wifiEnabled = (state === "enabled")
-        
-        console.log("[Network] WiFi enabled:", module.wifiEnabled)
         
         // If WiFi is enabled, check connections
         if (module.wifiEnabled) {
@@ -88,17 +82,18 @@ Scope {
   }
   
   // ============================================================================
-  // ACTIVE CONNECTION CHECKER
+  // ACTIVE CONNECTION CHECKER - FIXED with grep to filter loopback
   // ============================================================================
   
   Process {
     id: activeConnectionProcess
-    command: ["sh", "-c", "nmcli -t -f TYPE,STATE,DEVICE connection show --active 2>/dev/null"]
+    // Filter loopback in the command itself, just like the bash script!
+    command: ["sh", "-c", "nmcli -g DEVICE,TYPE connection show --active 2>/dev/null | grep -v '^lo:' | head -n1"]
     
     stdout: SplitParser {
       onRead: data => {
         if (!data || !data.trim()) {
-          console.log("[Network] No active connections")
+          console.log("[Network] No active connections (excluding loopback)")
           module.wifiConnected = false
           module.connectionType = "none"
           module.interfaceName = ""
@@ -107,47 +102,36 @@ Scope {
           return
         }
         
-        var lines = data.trim().split('\n')
-        var foundWifi = false
-        var foundEthernet = false
-        
-        console.log("[Network] Active connections:", lines.length)
-        
-        for (var i = 0; i < lines.length; i++) {
-          var parts = lines[i].split(':')
-          if (parts.length >= 3) {
-            var type = parts[0]
-            var state = parts[1]
-            var device = parts[2]
-            
-            console.log("[Network] Connection:", type, state, device)
-            
-            if (state === "activated") {
-              if (type === "802-11-wireless" || type === "wifi") {
-                foundWifi = true
-                module.connectionType = "wifi"
-                module.interfaceName = device
-                module.wifiConnected = true
-                // Get WiFi details
-                wifiDetailsProcess.running = true
-              } else if (type === "802-3-ethernet" || type === "ethernet") {
-                foundEthernet = true
-                if (!foundWifi) {  // Prefer showing WiFi if both are active
-                  module.connectionType = "ethernet"
-                  module.interfaceName = device
-                  module.wifiConnected = false
-                }
-              }
-            }
+        // Format: DEVICE:TYPE (e.g., "wlan0:802-11-wireless")
+        var parts = data.trim().split(':')
+        if (parts.length >= 2) {
+          var device = parts[0]
+          var type = parts[1]
+          
+          console.log("[Network] Primary connection:", device, "type:", type)
+          
+          if (type === "802-11-wireless" || type === "wifi") {
+            module.connectionType = "wifi"
+            module.interfaceName = device
+            module.wifiConnected = true
+            console.log("[Network] ✓ WiFi connection detected on", device)
+            // Get WiFi details
+            wifiDetailsProcess.running = true
+          } else if (type === "802-3-ethernet" || type === "ethernet") {
+            module.connectionType = "ethernet"
+            module.interfaceName = device
+            module.wifiConnected = false
+            module.wifiSsid = ""
+            module.wifiSignalStrength = 0
+            console.log("[Network] ✓ Ethernet connection detected on", device)
+          } else {
+            module.connectionType = "unknown"
+            module.interfaceName = device
+            module.wifiConnected = false
+            module.wifiSsid = ""
+            module.wifiSignalStrength = 0
+            console.log("[Network] Unknown connection type:", type)
           }
-        }
-        
-        if (!foundWifi && !foundEthernet) {
-          module.wifiConnected = false
-          module.connectionType = "none"
-          module.interfaceName = ""
-          module.wifiSsid = ""
-          module.wifiSignalStrength = 0
         }
       }
     }
@@ -167,26 +151,27 @@ Scope {
   
   Process {
     id: wifiDetailsProcess
-    command: ["sh", "-c", "nmcli -t -f ACTIVE,SSID,SIGNAL dev wifi 2>/dev/null | grep '^yes'"]
+    command: ["sh", "-c", "nmcli -t -f ACTIVE,SSID dev wifi 2>/dev/null | grep '^yes'"]
     
     stdout: SplitParser {
       onRead: data => {
         if (!data || !data.trim()) {
-          console.log("[Network] No active WiFi found")
+          console.log("[Network] No active WiFi in dev wifi list")
           return
         }
         
         var line = data.trim()
         var parts = line.split(":")
         
-        if (parts.length >= 3) {
-          // Format: yes:SSID:SIGNAL
+        if (parts.length >= 2) {
+          // Format: yes:SSID
           var oldSsid = module.wifiSsid
-          
           module.wifiSsid = parts[1]
-          module.wifiSignalStrength = parseInt(parts[2]) || 0
           
-          console.log("[Network] WiFi SSID:", module.wifiSsid, "Signal:", module.wifiSignalStrength + "%")
+          // Get signal separately
+          signalProcess.running = true
+          
+          console.log("[Network] ✓ WiFi SSID:", module.wifiSsid)
           
           // Emit change if SSID changed
           if (!module.changingState && !module.userInteracting && oldSsid !== module.wifiSsid && oldSsid !== "") {
@@ -199,8 +184,36 @@ Scope {
     stderr: SplitParser {
       onRead: data => {
         if (data && data.trim()) {
-          console.error("[Network] Error getting WiFi details:", data.trim())
+          console.error("[Network] Error getting WiFi SSID:", data.trim())
         }
+      }
+    }
+  }
+  
+  // ============================================================================
+  // SIGNAL STRENGTH READER
+  // ============================================================================
+  
+  Process {
+    id: signalProcess
+    command: ["sh", "-c", "nmcli -t -f IN-USE,SIGNAL dev wifi 2>/dev/null | grep '^\\*:'"]
+    
+    stdout: SplitParser {
+      onRead: data => {
+        if (!data || !data.trim()) return
+        
+        // Format: *:SIGNAL
+        var parts = data.trim().split(":")
+        if (parts.length >= 2) {
+          module.wifiSignalStrength = parseInt(parts[1]) || 0
+          console.log("[Network] ✓ WiFi signal:", module.wifiSignalStrength + "%")
+        }
+      }
+    }
+    
+    stderr: SplitParser {
+      onRead: data => {
+        // Silently ignore
       }
     }
   }
@@ -245,7 +258,6 @@ Scope {
     stateChangeResetTimer.restart()
     
     // Update state optimistically
-    var oldEnabled = wifiEnabled
     wifiEnabled = enabled
     if (!enabled) {
       wifiConnected = false
@@ -266,20 +278,29 @@ Scope {
       console.log("[Network] WiFi toggle finished, code:", code)
       proc.destroy()
       
-      // Force state refresh
+      // Force state refresh after a short delay
       Qt.callLater(function() {
-        if (!wifiRadioProcess.running) {
-          wifiRadioProcess.running = true
-        }
+        refreshTimer.start()
       })
     })
     
     proc.running = true
   }
   
+  // Refresh timer to avoid race conditions after toggle
+  Timer {
+    id: refreshTimer
+    interval: 500
+    onTriggered: {
+      if (!wifiRadioProcess.running) {
+        wifiRadioProcess.running = true
+      }
+    }
+  }
+  
   function openNetworkManager() {
     var proc = Qt.createQmlObject(
-      'import Quickshell.Io; Process { command: ["kitty", "--class", "floating_term_m", "-e", "impala"] }',
+      'import Quickshell.Io; Process { command: ["kitty", "--class", "floating_term_m", "-e", "nmtui"] }',
       module
     )
     proc.startDetached()
