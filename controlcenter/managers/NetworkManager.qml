@@ -9,10 +9,6 @@ Scope {
   property bool wifiEnabled: true
   property string wifiStatus: "Unknown"
   
-  // ========== BLUETOOTH STATE ==========
-  property bool bluetoothEnabled: false
-  property string bluetoothStatus: "Off"
-  
   // ========== WIFI CONTROL ==========
   Process {
     id: wifiToggleProcess
@@ -26,20 +22,5 @@ Scope {
     
     wifiToggleProcess.command = ["sh", "-c", cmd]
     wifiToggleProcess.running = true
-  }
-  
-  // ========== BLUETOOTH CONTROL ==========
-  Process {
-    id: bluetoothToggleProcess
-    command: ["sh", "-c", ""]
-  }
-  
-  function toggleBluetooth() {
-    bluetoothEnabled = !bluetoothEnabled
-
-    var cmd = bluetoothEnabled ? "bluetoothctl power on" : "bluetoothctl power off"
-    
-    bluetoothToggleProcess.command = ["sh", "-c", cmd]
-    bluetoothToggleProcess.running = true
   }
 }

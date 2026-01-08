@@ -2,9 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// Bluetooth State Module
-// Manages Bluetooth state using bluetoothctl.
-// Monitors power state, connected devices, and provides control functions.
+// Bluetooth State Module - SIMPLIFIED VERSION
 Scope {
   id: module
   
@@ -12,111 +10,121 @@ Scope {
   // DEPENDENCIES
   // ============================================================================
   
-  // Set by parent when user is interacting with controls
-  // Prevents external change signals during user interaction
   property bool userInteracting: false
   
   // ============================================================================
   // STATE PROPERTIES
   // ============================================================================
   
-  // Whether Bluetooth is powered on
   property bool powered: false
-  
-  // Whether any device is connected
   property bool hasConnectedDevice: false
-  
-  // Name of the first connected device (or empty string)
   property string connectedDeviceName: ""
-  
-  // Number of connected devices
   property int connectedDeviceCount: 0
-  
-  // List of all connected devices (array of {name, address, icon})
   property var connectedDevices: []
-  
-  // Whether the module is ready (initial state loaded)
   property bool ready: false
-  
-  // Track if we're changing state programmatically
   property bool changingState: false
   
   // ============================================================================
-  // EXTERNAL CHANGE SIGNAL (for OSD)
+  // EXTERNAL CHANGE SIGNAL
   // ============================================================================
   
-  // Emitted when Bluetooth state changes from an EXTERNAL source
-  // (e.g., hardware button, other application)
-  // NOT emitted during user interaction or programmatic changes
   signal bluetoothChangedExternally(bool powered, bool hasDevice, string deviceName)
   
   // ============================================================================
-  // BLUETOOTH STATE READER
+  // BLUETOOTH STATE READER 
   // ============================================================================
   
   Process {
     id: bluetoothStateProcess
-    command: ["sh", "-c", `
-      # Get bluetooth power state
-      POWERED=$(bluetoothctl show 2>/dev/null | grep 'Powered:' | awk '{print $2}')
-      
-      # If not powered, return early
-      if [ "$POWERED" != "yes" ]; then
-        echo "OFF|0|"
-        exit 0
-      fi
-      
-      # Get connected devices
-      CONNECTED=$(bluetoothctl devices Connected 2>/dev/null)
-      
-      # Count connected devices
-      COUNT=$(echo "$CONNECTED" | grep -c "Device" || echo "0")
-      
-      # Get device names (one per line)
-      NAMES=""
-      if [ ! -z "$CONNECTED" ]; then
-        NAMES=$(echo "$CONNECTED" | cut -d' ' -f3- | tr '\n' '|')
-      fi
-      
-      echo "ON|$COUNT|$NAMES"
-    `]
+    // Use simple grep + awk that definitely works
+    command: ["sh", "-c", "bluetoothctl show 2>/dev/null | grep -i powered | awk '{print $NF}'"]
     
     stdout: SplitParser {
       onRead: data => {
-        if (!data) return
+        if (!data) {
+          console.log("[Bluetooth] No output from bluetoothctl")
+          return
+        }
         
-        var line = data.trim()
-        var parts = line.split("|")
-        
-        if (parts.length < 2) return
+        var line = data.trim().toLowerCase()
+        console.log("[Bluetooth] Powered state raw:", data.trim())
         
         var wasPowered = module.powered
-        var hadDevice = module.hasConnectedDevice
-        var oldDeviceName = module.connectedDeviceName
         
-        // Parse power state
-        module.powered = (parts[0] === "ON")
+        // Check if powered (handles both "yes" and "on")
+        module.powered = (line === "yes" || line === "on")
         
-        // Parse device count
-        var deviceCount = parseInt(parts[1]) || 0
-        module.connectedDeviceCount = deviceCount
-        module.hasConnectedDevice = deviceCount > 0
+        console.log("[Bluetooth] Bluetooth powered:", module.powered)
         
-        // Parse device names
-        if (parts.length > 2 && parts[2]) {
-          var names = parts[2].split("|").filter(function(name) {
-            return name.trim().length > 0
-          })
+        // If powered, check devices
+        if (module.powered) {
+          connectedDevicesProcess.running = true
+        } else {
+          module.hasConnectedDevice = false
+          module.connectedDeviceCount = 0
+          module.connectedDeviceName = ""
+          module.connectedDevices = []
+        }
+        
+        module.ready = true
+        
+        // Emit change if needed
+        if (!module.changingState && !module.userInteracting && wasPowered !== module.powered) {
+          console.log("[Bluetooth] Power state changed externally")
+          module.bluetoothChangedExternally(module.powered, module.hasConnectedDevice, module.connectedDeviceName)
+        }
+      }
+    }
+    
+    stderr: SplitParser {
+      onRead: data => {
+        if (data && data.trim()) {
+          console.error("[Bluetooth] Error:", data.trim())
+        }
+      }
+    }
+  }
+  
+  // Check connected devices
+  Process {
+    id: connectedDevicesProcess
+    command: ["bluetoothctl", "devices", "Connected"]
+    
+    stdout: SplitParser {
+      onRead: data => {
+        if (!data || !data.trim()) {
+          console.log("[Bluetooth] No devices connected")
+          module.hasConnectedDevice = false
+          module.connectedDeviceCount = 0
+          module.connectedDeviceName = ""
+          module.connectedDevices = []
+          return
+        }
+        
+        var lines = data.trim().split('\n').filter(line => line.includes('Device'))
+        
+        console.log("[Bluetooth] Found", lines.length, "connected device(s)")
+        
+        module.connectedDeviceCount = lines.length
+        module.hasConnectedDevice = lines.length > 0
+        
+        if (lines.length > 0) {
+          // Parse: "Device AA:BB:CC:DD:EE:FF Name Here"
+          var firstLine = lines[0]
+          var parts = firstLine.split(' ')
+          if (parts.length >= 3) {
+            module.connectedDeviceName = parts.slice(2).join(' ')
+            console.log("[Bluetooth] First device:", module.connectedDeviceName)
+          }
           
-          module.connectedDeviceName = names.length > 0 ? names[0] : ""
-          
-          // Build connected devices array
+          // Build array
           var devices = []
-          for (var i = 0; i < names.length; i++) {
-            if (names[i].trim()) {
+          for (var i = 0; i < lines.length; i++) {
+            var lineParts = lines[i].split(' ')
+            if (lineParts.length >= 3) {
               devices.push({
-                name: names[i].trim(),
-                address: "",  // We don't parse address in the simple script
+                name: lineParts.slice(2).join(' '),
+                address: lineParts[1],
                 icon: "󰂯"
               })
             }
@@ -126,43 +134,15 @@ Scope {
           module.connectedDeviceName = ""
           module.connectedDevices = []
         }
-        
-        module.ready = true
-        
-        // Emit external change signal if:
-        // 1. We're not changing it programmatically
-        // 2. User is not interacting
-        // 3. State actually changed
-        if (!module.changingState && !module.userInteracting) {
-          var stateChanged = (wasPowered !== module.powered) || 
-                            (hadDevice !== module.hasConnectedDevice) ||
-                            (oldDeviceName !== module.connectedDeviceName)
-          
-          if (stateChanged) {
-            module.bluetoothChangedExternally(
-              module.powered,
-              module.hasConnectedDevice,
-              module.connectedDeviceName
-            )
-          }
-        }
-      }
-    }
-    
-    stderr: SplitParser {
-      onRead: data => {
-        // Ignore stderr from bluetoothctl
       }
     }
   }
   
-  // Timer to poll Bluetooth state
+  // Poll every 2 seconds
   Timer {
-    id: pollTimer
-    interval: 2000  // Poll every 2 seconds
+    interval: 2000
     running: true
     repeat: true
-    
     onTriggered: {
       if (!bluetoothStateProcess.running) {
         bluetoothStateProcess.running = true
@@ -170,7 +150,7 @@ Scope {
     }
   }
   
-  // Timer to reset the changing flag
+  // Reset changing flag
   Timer {
     id: stateChangeResetTimer
     interval: 500
@@ -180,35 +160,28 @@ Scope {
   }
   
   // ============================================================================
-  // PUBLIC FUNCTIONS - Bluetooth Control
+  // CONTROL FUNCTIONS
   // ============================================================================
   
-  // Toggle Bluetooth power
   function togglePower() {
     setPower(!powered)
   }
   
-  // Set Bluetooth power state
-  // @param enabled - true to power on, false to power off
   function setPower(enabled) {
-    // Mark that we're changing state (prevents OSD)
     changingState = true
     stateChangeResetTimer.restart()
-    
-    // Update our property immediately for responsive UI
     powered = enabled
     
-    // Execute bluetoothctl command
-    var command = enabled ? "bluetoothctl power on" : "bluetoothctl power off"
+    var cmd = enabled ? "bluetoothctl power on" : "bluetoothctl power off"
     
     var proc = Qt.createQmlObject(
-      'import Quickshell.Io; Process { command: ["sh", "-c", "' + command + '"] }',
+      'import Quickshell.Io; Process { command: ["sh", "-c", "' + cmd + '"] }',
       module
     )
     
     proc.exited.connect(function(code) {
+      console.log("[Bluetooth] Power command finished, code:", code)
       proc.destroy()
-      // Force a state refresh after change
       Qt.callLater(function() {
         if (!bluetoothStateProcess.running) {
           bluetoothStateProcess.running = true
@@ -219,13 +192,8 @@ Scope {
     proc.running = true
   }
   
-  // Connect to a device by address
-  // @param address - MAC address of the device
   function connectDevice(address) {
-    if (!address) {
-      console.error("[Bluetooth] No device address provided")
-      return
-    }
+    if (!address) return
     
     changingState = true
     stateChangeResetTimer.restart()
@@ -247,13 +215,8 @@ Scope {
     proc.running = true
   }
   
-  // Disconnect from a device by address
-  // @param address - MAC address of the device
   function disconnectDevice(address) {
-    if (!address) {
-      console.error("[Bluetooth] No device address provided")
-      return
-    }
+    if (!address) return
     
     changingState = true
     stateChangeResetTimer.restart()
@@ -275,13 +238,11 @@ Scope {
     proc.running = true
   }
   
-  // Open Bluetooth manager UI
   function openManager() {
     var proc = Qt.createQmlObject(
       'import Quickshell.Io; Process { command: ["kitty", "--class", "floating_term_s", "-e", "bluetui"] }',
       module
     )
-    
     proc.startDetached()
     proc.destroy()
   }
@@ -290,14 +251,12 @@ Scope {
   // UTILITY FUNCTIONS
   // ============================================================================
   
-  // Get Bluetooth icon based on state
   function getBluetoothIcon(powered, hasDevice) {
-    if (!powered) return "󰂲"  // Bluetooth off
-    if (hasDevice) return "󰂯"  // Bluetooth connected
-    return "󰂯"                  // Bluetooth on but not connected
+    if (!powered) return "󰂲"
+    if (hasDevice) return "󰂯"
+    return "󰂯"
   }
   
-  // Get status text for display
   function getStatusText() {
     if (!powered) return "Off"
     if (!hasConnectedDevice) return "On"
@@ -305,7 +264,6 @@ Scope {
     return connectedDeviceCount + " devices"
   }
   
-  // Get detailed status text
   function getDetailedStatus() {
     if (!powered) return "Bluetooth is off"
     if (!hasConnectedDevice) return "No devices connected"
@@ -319,7 +277,6 @@ Scope {
   
   Component.onCompleted: {
     console.log("[Bluetooth] Module initialized")
-    // Initial state read
     bluetoothStateProcess.running = true
   }
 }

@@ -2,14 +2,14 @@ import QtQuick
 import "../../components"
 
 IconButton {
-  required property var networkManager
+  required property var systemState
   
-  icon: networkManager.bluetoothEnabled ? "󰂯" : "󰂲"
+  icon: systemState.bluetooth.powered ? "󰂯" : "󰂲"
   title: "Bluetooth"
-  subtitle: networkManager.bluetoothEnabled ? "On" : "Off"
+  subtitle: systemState.bluetooth.getStatusText()
   
   isStateful: true  // This is a toggle button
-  isActive: networkManager.bluetoothEnabled
+  isActive: systemState.bluetooth.powered
   
-  onClicked: networkManager.toggleBluetooth()
+  onClicked: systemState.bluetooth.togglePower()
 }

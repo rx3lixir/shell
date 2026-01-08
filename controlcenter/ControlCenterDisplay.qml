@@ -142,7 +142,7 @@ LazyLoader {
           Modules.BluetoothToggle {
             Layout.fillWidth: true
             Layout.preferredHeight: 64
-            networkManager: loader.manager.network
+            systemState: loader.systemState
           }
 
           Modules.RecordingButton {
