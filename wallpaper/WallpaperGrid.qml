@@ -30,24 +30,29 @@ LazyLoader {
     color: "transparent"
     mask: null
     
-    Component.onCompleted: {
-      exclusiveZone = 0
-    }
+    // ========================================================================
+    // SEARCH AND SELECTION STATE
+    // ========================================================================
     
-    // Search and selection state
     property string searchText: ""
     property int selectedIndex: 0
     property var filteredWallpapers: []
     
-    // Filter wallpapers based on search
+    // ========================================================================
+    // FILTERING LOGIC
+    // ========================================================================
+    
+    // Filter wallpapers based on search (fuzzy matching)
     function updateFilteredWallpapers() {
       var search = wallpaperWindow.searchText.toLowerCase()
       
       if (!search) {
+        // No search - show all
         wallpaperWindow.filteredWallpapers = loader.manager.wallpapers
       } else {
         // Fuzzy search
         var filtered = []
+        
         for (var i = 0; i < loader.manager.wallpapers.length; i++) {
           var name = loader.manager.wallpapers[i].toLowerCase()
           
@@ -59,15 +64,22 @@ LazyLoader {
             }
           }
           
+          // If we found all characters, include it
           if (searchIdx === search.length) {
             filtered.push(loader.manager.wallpapers[i])
           }
         }
+        
         wallpaperWindow.filteredWallpapers = filtered
       }
       
       // Reset selection to first item
       wallpaperWindow.selectedIndex = 0
+      
+      // Position view at top
+      if (gridView) {
+        gridView.positionViewAtBeginning()
+      }
     }
     
     // Update filtered list when wallpapers change
@@ -78,11 +90,27 @@ LazyLoader {
       }
     }
     
-    // Handle keyboard navigation
+    // Initialize window and filtered wallpapers
+    Component.onCompleted: {
+      exclusiveZone = 0
+      
+      // Initialize filtered wallpapers if already loaded
+      if (loader.manager.wallpapers.length > 0) {
+        wallpaperWindow.updateFilteredWallpapers()
+      }
+    }
+    
+    // ========================================================================
+    // KEYBOARD NAVIGATION
+    // ========================================================================
+    
     contentItem {
       focus: true
       
       Keys.onPressed: event => {
+        // Calculate columns dynamically based on current width
+        var columnsPerRow = gridView.columnsPerRow
+        
         if (event.key === Qt.Key_Escape) {
           loader.manager.visible = false
           event.accepted = true
@@ -97,41 +125,67 @@ LazyLoader {
           event.accepted = true
         }
         else if (event.key === Qt.Key_Up || (event.key === Qt.Key_P && (event.modifiers & Qt.ControlModifier))) {
-          // Move up (left in grid)
+          // Move up one row
+          if (wallpaperWindow.selectedIndex >= columnsPerRow) {
+            wallpaperWindow.selectedIndex -= columnsPerRow
+            gridView.positionViewAtIndex(wallpaperWindow.selectedIndex, GridView.Contain)
+          } else if (wallpaperWindow.selectedIndex > 0) {
+            // First row - just go to start
+            wallpaperWindow.selectedIndex = 0
+            gridView.positionViewAtIndex(0, GridView.Contain)
+          }
+          event.accepted = true
+        }
+        else if (event.key === Qt.Key_Down || (event.key === Qt.Key_N && (event.modifiers & Qt.ControlModifier))) {
+          // Move down one row
+          var newIndex = wallpaperWindow.selectedIndex + columnsPerRow
+          if (newIndex < wallpaperWindow.filteredWallpapers.length) {
+            wallpaperWindow.selectedIndex = newIndex
+            gridView.positionViewAtIndex(wallpaperWindow.selectedIndex, GridView.Contain)
+          } else if (wallpaperWindow.selectedIndex < wallpaperWindow.filteredWallpapers.length - 1) {
+            // Last row - go to last item
+            wallpaperWindow.selectedIndex = wallpaperWindow.filteredWallpapers.length - 1
+            gridView.positionViewAtIndex(wallpaperWindow.selectedIndex, GridView.Contain)
+          }
+          event.accepted = true
+        }
+        else if (event.key === Qt.Key_Left) {
+          // Move left
           if (wallpaperWindow.selectedIndex > 0) {
             wallpaperWindow.selectedIndex--
             gridView.positionViewAtIndex(wallpaperWindow.selectedIndex, GridView.Contain)
           }
           event.accepted = true
         }
-        else if (event.key === Qt.Key_Down || (event.key === Qt.Key_N && (event.modifiers & Qt.ControlModifier))) {
-          // Move down (right in grid)
+        else if (event.key === Qt.Key_Right) {
+          // Move right
           if (wallpaperWindow.selectedIndex < wallpaperWindow.filteredWallpapers.length - 1) {
             wallpaperWindow.selectedIndex++
             gridView.positionViewAtIndex(wallpaperWindow.selectedIndex, GridView.Contain)
           }
           event.accepted = true
         }
-        else if (event.key === Qt.Key_Left) {
-          // Move left by 3 (one row up)
-          if (wallpaperWindow.selectedIndex >= 3) {
-            wallpaperWindow.selectedIndex -= 3
-            gridView.positionViewAtIndex(wallpaperWindow.selectedIndex, GridView.Contain)
-          }
+        else if (event.key === Qt.Key_Home) {
+          // Jump to first
+          wallpaperWindow.selectedIndex = 0
+          gridView.positionViewAtIndex(0, GridView.Beginning)
           event.accepted = true
         }
-        else if (event.key === Qt.Key_Right) {
-          // Move right by 3 (one row down)
-          if (wallpaperWindow.selectedIndex + 3 < wallpaperWindow.filteredWallpapers.length) {
-            wallpaperWindow.selectedIndex += 3
-            gridView.positionViewAtIndex(wallpaperWindow.selectedIndex, GridView.Contain)
+        else if (event.key === Qt.Key_End) {
+          // Jump to last
+          if (wallpaperWindow.filteredWallpapers.length > 0) {
+            wallpaperWindow.selectedIndex = wallpaperWindow.filteredWallpapers.length - 1
+            gridView.positionViewAtIndex(wallpaperWindow.selectedIndex, GridView.End)
           }
           event.accepted = true
         }
       }
     }
     
-    // Background overlay (same as menu/launcher)
+    // ========================================================================
+    // BACKGROUND OVERLAY
+    // ========================================================================
+    
     Rectangle {
       anchors.fill: parent
       color: Theme.scrim
@@ -143,7 +197,10 @@ LazyLoader {
       }
     }
     
-    // Main container - Material 3 style
+    // ========================================================================
+    // MAIN CONTAINER
+    // ========================================================================
+    
     Rectangle {
       id: container
       x: (parent.width - 900) / 2
@@ -167,7 +224,10 @@ LazyLoader {
         }
         spacing: Theme.spacing.md
         
-        // ========== HEADER ==========
+        // ====================================================================
+        // HEADER
+        // ====================================================================
+        
         RowLayout {
           Layout.fillWidth: true
           Layout.preferredHeight: 40
@@ -183,20 +243,44 @@ LazyLoader {
             font.weight: Theme.typography.weightMedium
           }
           
-          // Refresh button
-          Text {
+          // Thumbnail generation indicator
+          Rectangle {
             Layout.preferredWidth: 32
             Layout.preferredHeight: 32
-            text: "󰑐"
-            color: Theme.on_surface
-            font.pixelSize: Theme.typography.lg
-            font.family: Theme.typography.fontFamily
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            opacity: refreshMouseArea.containsMouse ? 0.7 : 1
+            radius: Theme.radius.full
+            color: Theme.primary_container
+            visible: loader.manager.isGeneratingThumbs
             
-            Behavior on opacity {
-              NumberAnimation { duration: 200 }
+            Text {
+              anchors.centerIn: parent
+              text: "󰄉"
+              color: Theme.on_primary_container
+              font.pixelSize: Theme.typography.md
+              font.family: Theme.typography.fontFamily
+              
+              RotationAnimation on rotation {
+                running: loader.manager.isGeneratingThumbs
+                loops: Animation.Infinite
+                from: 0
+                to: 360
+                duration: 2000
+              }
+            }
+          }
+          
+          // Refresh button
+          Rectangle {
+            Layout.preferredWidth: 32
+            Layout.preferredHeight: 32
+            radius: Theme.radius.full
+            color: refreshMouseArea.containsMouse ? Theme.surface_container_high : "transparent"
+            
+            Text {
+              anchors.centerIn: parent
+              text: "󰑐"
+              color: Theme.on_surface
+              font.pixelSize: Theme.typography.lg
+              font.family: Theme.typography.fontFamily
             }
             
             MouseArea {
@@ -212,16 +296,19 @@ LazyLoader {
           }
           
           // Close button
-          Text {
-            Layout.rightMargin: Theme.padding.sm
-            text: "✕"
-            color: Theme.on_surface
-            font.pixelSize: Theme.typography.lg
-            font.family: Theme.typography.fontFamily
-            opacity: closeMouseArea.containsMouse ? 0.7 : 1
+          Rectangle {
+            Layout.preferredWidth: 32
+            Layout.preferredHeight: 32
+            Layout.rightMargin: Theme.padding.xs
+            radius: Theme.radius.full
+            color: closeMouseArea.containsMouse ? Theme.surface_container_high : "transparent"
             
-            Behavior on opacity {
-              NumberAnimation { duration: 200 }
+            Text {
+              anchors.centerIn: parent
+              text: "✕"
+              color: Theme.on_surface
+              font.pixelSize: Theme.typography.lg
+              font.family: Theme.typography.fontFamily
             }
             
             MouseArea {
@@ -237,7 +324,10 @@ LazyLoader {
           }
         }
         
-        // ========== SEARCH BAR ==========
+        // ====================================================================
+        // SEARCH BAR
+        // ====================================================================
+        
         Components.WallpaperSearchBar {
           Layout.fillWidth: true
           Layout.preferredHeight: 48
@@ -248,7 +338,10 @@ LazyLoader {
           }
         }
         
-        // ========== LOADING INDICATOR ==========
+        // ====================================================================
+        // LOADING STATE
+        // ====================================================================
+        
         Item {
           Layout.fillWidth: true
           Layout.fillHeight: true
@@ -258,7 +351,6 @@ LazyLoader {
             anchors.centerIn: parent
             spacing: Theme.spacing.md
             
-            // Loading spinner icon
             Rectangle {
               Layout.alignment: Qt.AlignHCenter
               Layout.preferredWidth: 64
@@ -273,6 +365,14 @@ LazyLoader {
                 font.pixelSize: Theme.typography.xxxl
                 font.family: Theme.typography.fontFamily
                 opacity: 0.6
+                
+                RotationAnimation on rotation {
+                  running: loader.manager.isLoading
+                  loops: Animation.Infinite
+                  from: 0
+                  to: 360
+                  duration: 2000
+                }
               }
             }
             
@@ -288,7 +388,10 @@ LazyLoader {
           }
         }
         
-        // ========== ERROR MESSAGE ==========
+        // ====================================================================
+        // ERROR STATE
+        // ====================================================================
+        
         Item {
           Layout.fillWidth: true
           Layout.fillHeight: true
@@ -327,7 +430,10 @@ LazyLoader {
           }
         }
         
-        // ========== WALLPAPER GRID ==========
+        // ====================================================================
+        // WALLPAPER GRID
+        // ====================================================================
+        
         Components.WallpaperGridView {
           id: gridView
           Layout.fillWidth: true
@@ -339,6 +445,7 @@ LazyLoader {
           selectedIndex: wallpaperWindow.selectedIndex
           currentWallpaper: loader.manager.currentWallpaper
           wallpaperDir: loader.manager.wallpaperDir
+          thumbnailDir: loader.manager.thumbnailDir
           
           onWallpaperSelected: filename => {
             loader.manager.setWallpaper(filename)
@@ -349,7 +456,10 @@ LazyLoader {
           }
         }
         
-        // ========== EMPTY STATE ==========
+        // ====================================================================
+        // EMPTY STATE
+        // ====================================================================
+        
         Item {
           Layout.fillWidth: true
           Layout.fillHeight: true
@@ -403,16 +513,34 @@ LazyLoader {
           }
         }
         
-        // ========== FOOTER WITH HINT ==========
-        Text {
+        // ====================================================================
+        // FOOTER
+        // ====================================================================
+        
+        RowLayout {
           Layout.fillWidth: true
-          text: "↑↓ Navigate • ←→ Row • Enter Select • Esc Close"
-          color: Theme.on_surface_variant
-          font.pixelSize: Theme.typography.sm
-          font.family: Theme.typography.fontFamily
-          horizontalAlignment: Text.AlignHCenter
-          opacity: 0.7
+          spacing: Theme.spacing.md
           visible: !loader.manager.isLoading && wallpaperWindow.filteredWallpapers.length > 0
+          
+          Text {
+            Layout.fillWidth: true
+            text: "↑↓←→ Navigate • Enter Select • Home/End Jump • Esc Close"
+            color: Theme.on_surface_variant
+            font.pixelSize: Theme.typography.sm
+            font.family: Theme.typography.fontFamily
+            horizontalAlignment: Text.AlignHCenter
+            opacity: 0.7
+          }
+          
+          // Wallpaper count
+          Text {
+            text: wallpaperWindow.filteredWallpapers.length + " wallpaper" + 
+                  (wallpaperWindow.filteredWallpapers.length === 1 ? "" : "s")
+            color: Theme.on_surface_variant
+            font.pixelSize: Theme.typography.sm
+            font.family: Theme.typography.fontFamily
+            opacity: 0.7
+          }
         }
       }
     }

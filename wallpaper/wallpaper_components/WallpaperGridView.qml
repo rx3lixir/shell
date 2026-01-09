@@ -4,15 +4,29 @@ import "../../theme"
 GridView {
   id: gridView
   
-  // Properties exposed to parent
+  // ============================================================================
+  // PUBLIC API
+  // ============================================================================
+  
   property var wallpapers: []
   property int selectedIndex: 0
   property string currentWallpaper: ""
   property string wallpaperDir: ""
+  property string thumbnailDir: ""
   
-  // Signals
   signal wallpaperSelected(string filename)
   signal indexSelected(int index)
+  
+  // ============================================================================
+  // DYNAMIC COLUMN CALCULATION
+  // ============================================================================
+  
+  // Calculate columns based on available width
+  readonly property int columnsPerRow: Math.max(1, Math.floor(width / cellWidth))
+  
+  // ============================================================================
+  // GRID CONFIGURATION
+  // ============================================================================
   
   clip: true
   
@@ -27,10 +41,23 @@ GridView {
   maximumFlickVelocity: 2000
   flickDeceleration: 1500
   
+  // Optimize performance
+  cacheBuffer: cellHeight * 3  // Cache 3 rows above/below
+  displayMarginBeginning: cellHeight * 2
+  displayMarginEnd: cellHeight * 2
+  
+  // ============================================================================
+  // SELECTION HANDLING
+  // ============================================================================
+  
   // Watch for selectedIndex changes and position view accordingly
   onSelectedIndexChanged: {
     positionViewAtIndex(selectedIndex, GridView.Contain)
   }
+  
+  // ============================================================================
+  // DELEGATE
+  // ============================================================================
   
   delegate: WallpaperGridItem {
     required property string modelData
@@ -44,6 +71,7 @@ GridView {
     isSelected: index === gridView.selectedIndex
     isCurrent: gridView.currentWallpaper === modelData
     wallpaperPath: gridView.wallpaperDir + "/" + modelData
+    thumbnailPath: gridView.thumbnailDir + "/" + modelData.replace(/\.[^/.]+$/, "") + ".jpg"
     
     onClicked: {
       gridView.indexSelected(index)
@@ -51,7 +79,10 @@ GridView {
     }
   }
   
-  // ========== MATERIAL 3 SCROLLBAR ==========
+  // ============================================================================
+  // MATERIAL 3 SCROLLBAR
+  // ============================================================================
+  
   Rectangle {
     anchors {
       right: parent.right
@@ -121,5 +152,16 @@ GridView {
         cursorShape: Qt.PointingHandCursor
       }
     }
+  }
+  
+  // ============================================================================
+  // DEBUG INFO (can be removed in production)
+  // ============================================================================
+  
+  Component.onCompleted: {
+    console.log("[WallpaperGridView] Initialized")
+    console.log("[WallpaperGridView] Cell size:", cellWidth, "x", cellHeight)
+    console.log("[WallpaperGridView] Columns:", columnsPerRow)
+    console.log("[WallpaperGridView] Cache buffer:", cacheBuffer)
   }
 }

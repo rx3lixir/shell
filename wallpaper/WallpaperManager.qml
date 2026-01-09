@@ -5,47 +5,73 @@ import Quickshell.Io
 Scope {
   id: manager
   
-  // Visibility state
+  // ============================================================================
+  // STATE
+  // ============================================================================
+  
   property bool visible: false
-  
-  // Wallpaper directory
   property string wallpaperDir: ""
+  property string thumbnailDir: ""
   
-  // Script path
+  // Script paths
   readonly property string switcherScript: "wallpaper-switcher"
+  readonly property string thumbGenScript: "wallpaper-thumbgen"
   
-  // List of wallpaper files
+  // Data
   property var wallpapers: []
-  
-  // Currently selected wallpaper (for highlighting)
   property string currentWallpaper: ""
   
-  // Loading state
+  // Loading states
   property bool isLoading: false
+  property bool isGeneratingThumbs: false
   property string errorMessage: ""
   
-  // Initialize wallpaper directory on component creation
+  // ============================================================================
+  // INTERNAL STATE (prevent race conditions)
+  // ============================================================================
+  
+  property bool listProcessRunning: false
+  property bool currentWpProcessRunning: false
+  property bool thumbGenProcessRunning: false
+  
+  // ============================================================================
+  // INITIALIZATION
+  // ============================================================================
+  
   Component.onCompleted: {
     var homeDir = Quickshell.env("HOME")
     if (!homeDir) {
       manager.errorMessage = "Failed to get HOME directory"
+      console.error("[WallpaperManager] No HOME environment variable")
       return
     }
     
     manager.wallpaperDir = homeDir + "/.config/hypr/wpapers"
+    manager.thumbnailDir = homeDir + "/.cache/quickshell/wallpaper-thumbs"
+    
+    // Initial load
     refreshWallpapers()
   }
   
-  // Temporary buffer to accumulate wallpapers
-  property var wallpaperBuffer: []
+  // ============================================================================
+  // LIST WALLPAPERS PROCESS
+  // ============================================================================
   
-  // Process to list wallpapers
   Process {
     id: listProcess
-    command: ["sh", "-c", ""]
+    // Use array form to prevent injection - $1 will be wallpaperDir
+    command: [
+      "sh", "-c",
+      "ls -1 \"$1\" 2>/dev/null | grep -iE '\\.(png|jpg|jpeg|webp)$' | sort || echo ''",
+      "sh",  // $0
+      ""     // $1 - will be set before running
+    ]
+    
+    property var wallpaperBuffer: []
     
     onStarted: {
-      manager.wallpaperBuffer = []
+      wallpaperBuffer = []
+      manager.listProcessRunning = true
     }
     
     stdout: SplitParser {
@@ -54,7 +80,7 @@ Scope {
         
         var line = data.trim()
         if (line && line !== "") {
-          manager.wallpaperBuffer.push(line)
+          listProcess.wallpaperBuffer.push(line)
         }
       }
     }
@@ -62,110 +88,287 @@ Scope {
     stderr: SplitParser {
       onRead: data => {
         if (!data) return
-        manager.errorMessage = "Failed to list wallpapers: " + data
-        manager.isLoading = false
+        console.error("[WallpaperManager] ls error:", data.trim())
       }
     }
     
     onExited: code => {
-      manager.wallpapers = manager.wallpaperBuffer.slice()
-      manager.isLoading = false
+      manager.listProcessRunning = false
       
-      if (code !== 0 && manager.wallpapers.length === 0) {
-        manager.errorMessage = "Failed to list wallpapers (exit code: " + code + ")"
+      if (code === 0 || listProcess.wallpaperBuffer.length > 0) {
+        // Success or partial success
+        manager.wallpapers = listProcess.wallpaperBuffer.slice()
+        manager.errorMessage = ""
+        
+        console.log("[WallpaperManager] Found", manager.wallpapers.length, "wallpapers")
+        
+        // After listing, generate thumbnails if needed
+        Qt.callLater(() => generateThumbnailsIfNeeded())
+      } else {
+        // Complete failure
+        manager.errorMessage = "Failed to list wallpapers in " + manager.wallpaperDir
+        manager.wallpapers = []
       }
+      
+      manager.isLoading = false
     }
   }
   
-  // Process to get current wallpaper from new config format
+  // ============================================================================
+  // CURRENT WALLPAPER DETECTION
+  // ============================================================================
+  
   Process {
     id: currentWallpaperProcess
-    command: ["sh", "-c", ""]
+    // Secure command - extract basename directly
+    command: [
+      "sh", "-c",
+      "grep -m1 '^[[:space:]]*path[[:space:]]*=' \"$1\" 2>/dev/null | " +
+      "sed -E 's/^[[:space:]]*path[[:space:]]*=[[:space:]]*//; s/[[:space:]]*$//' | " +
+      "xargs -r basename 2>/dev/null || echo ''",
+      "sh",  // $0
+      ""     // $1 - config path
+    ]
+    
+    onStarted: {
+      manager.currentWpProcessRunning = true
+    }
     
     stdout: SplitParser {
       onRead: data => {
         if (!data) return
         
-        var line = data.trim()
-        
-        // Parse the new wallpaper { } block format
-        // Look for lines like: path = /path/to/wallpaper.jpg
-        var pathMatch = line.match(/^\s*path\s*=\s*(.+)$/)
-        if (pathMatch && pathMatch[1]) {
-          var fullPath = pathMatch[1].trim()
-          // Extract just the filename from the full path
-          var filename = fullPath.split('/').pop()
-          if (filename) {
-            manager.currentWallpaper = filename
-          }
+        var filename = data.trim()
+        if (filename && filename !== "") {
+          manager.currentWallpaper = filename
+          console.log("[WallpaperManager] Current wallpaper:", filename)
         }
       }
     }
     
     stderr: SplitParser {
       onRead: data => {
-        // Silently ignore errors for current wallpaper detection
+        // Silently ignore - config might not exist yet
+        if (data && data.trim()) {
+          console.warn("[WallpaperManager] Config read warning:", data.trim())
+        }
+      }
+    }
+    
+    onExited: code => {
+      manager.currentWpProcessRunning = false
+    }
+  }
+  
+  // ============================================================================
+  // THUMBNAIL GENERATION
+  // ============================================================================
+  
+  Process {
+    id: thumbGenProcess
+    command: ["wallpaper-thumbgen"]
+    
+    onStarted: {
+      manager.thumbGenProcessRunning = true
+      manager.isGeneratingThumbs = true
+      console.log("[WallpaperManager] Generating thumbnails...")
+    }
+    
+    stdout: SplitParser {
+      onRead: data => {
+        if (!data) return
+        console.log("[WallpaperManager]", data.trim())
+      }
+    }
+    
+    stderr: SplitParser {
+      onRead: data => {
+        if (!data) return
+        console.warn("[WallpaperManager] Thumbnail generation:", data.trim())
+      }
+    }
+    
+    onExited: code => {
+      manager.thumbGenProcessRunning = false
+      manager.isGeneratingThumbs = false
+      
+      if (code === 0) {
+        console.log("[WallpaperManager] Thumbnails generated successfully")
+      } else {
+        console.warn("[WallpaperManager] Thumbnail generation failed (code:", code + ")")
       }
     }
   }
   
-  // Function to refresh wallpaper list
+  // ============================================================================
+  // PUBLIC FUNCTIONS
+  // ============================================================================
+  
   function refreshWallpapers() {
     if (!manager.wallpaperDir || manager.wallpaperDir === "") {
+      console.error("[WallpaperManager] No wallpaper directory set")
       return
     }
+    
+    // Prevent multiple simultaneous refreshes
+    if (manager.isLoading || manager.listProcessRunning) {
+      console.log("[WallpaperManager] Refresh already in progress, ignoring")
+      return
+    }
+    
+    console.log("[WallpaperManager] Refreshing wallpapers from", manager.wallpaperDir)
     
     manager.isLoading = true
     manager.errorMessage = ""
     
     // List wallpapers
-    var listCmd = "ls -1 \"" + manager.wallpaperDir + "\" 2>/dev/null | grep -E '\\.(png|jpg|jpeg|webp)$' || echo ''"
-    listProcess.command = ["sh", "-c", listCmd]
+    listProcess.command[4] = manager.wallpaperDir
     listProcess.running = true
     
-    // Get current wallpaper from new config format
-    var homeDir = Quickshell.env("HOME")
-    var currentCmd = "cat \"" + homeDir + "/.config/hypr/hyprpaper.conf\" 2>/dev/null || echo ''"
-    currentWallpaperProcess.command = ["sh", "-c", currentCmd]
-    currentWallpaperProcess.running = true
+    // Get current wallpaper (can run in parallel)
+    if (!manager.currentWpProcessRunning) {
+      var homeDir = Quickshell.env("HOME")
+      var configPath = homeDir + "/.config/hypr/hyprpaper.conf"
+      currentWallpaperProcess.command[4] = configPath
+      currentWallpaperProcess.running = true
+    }
   }
   
-  // Function to set wallpaper
+  function generateThumbnailsIfNeeded() {
+    // Don't generate if already running
+    if (manager.thumbGenProcessRunning) {
+      console.log("[WallpaperManager] Thumbnail generation already running")
+      return
+    }
+    
+    // Check if thumbnails exist
+    checkThumbnailsProcess.running = true
+  }
+  
+  // Check if thumbnails directory exists and has files
+  Process {
+    id: checkThumbnailsProcess
+    command: [
+      "sh", "-c",
+      "[ -d \"$1\" ] && [ \"$(ls -A \"$1\" 2>/dev/null | wc -l)\" -gt 0 ] && echo 'exists' || echo 'missing'",
+      "sh",
+      ""  // Will be set to thumbnailDir
+    ]
+    
+    stdout: SplitParser {
+      onRead: data => {
+        if (!data) return
+        
+        var status = data.trim()
+        if (status === "missing") {
+          console.log("[WallpaperManager] Thumbnails missing, generating...")
+          thumbGenProcess.running = true
+        } else {
+          console.log("[WallpaperManager] Thumbnails already exist")
+        }
+      }
+    }
+    
+    onStarted: {
+      command[4] = manager.thumbnailDir
+    }
+  }
+  
   function setWallpaper(filename) {
+    if (!filename || filename === "") {
+      console.error("[WallpaperManager] No filename provided")
+      return
+    }
+    
+    console.log("[WallpaperManager] Setting wallpaper to:", filename)
+    
+    // Create process - parent parsers to proc for auto-cleanup
     var proc = Qt.createQmlObject(
-      'import Quickshell.Io; Process { command: ["' + manager.switcherScript + '", "' + filename + '"] }',
+      'import Quickshell.Io; Process {}',
       manager
     )
     
+    // Set command using array form (secure)
+    proc.command = [manager.switcherScript, filename]
+    
+    // Create parsers parented to proc (will auto-destroy)
     var stdoutParser = Qt.createQmlObject(
       'import Quickshell.Io; SplitParser {}',
       proc
     )
+    stdoutParser.onRead.connect(data => {
+      if (data && data.trim()) {
+        console.log("[WallpaperManager]", data.trim())
+      }
+    })
     proc.stdout = stdoutParser
     
     var stderrParser = Qt.createQmlObject(
       'import Quickshell.Io; SplitParser {}',
       proc
     )
+    stderrParser.onRead.connect(data => {
+      if (data && data.trim()) {
+        console.error("[WallpaperManager]", data.trim())
+      }
+    })
     proc.stderr = stderrParser
     
     proc.exited.connect(code => {
-      proc.destroy()
-      
       if (code === 0) {
+        console.log("[WallpaperManager] Wallpaper set successfully")
         manager.currentWallpaper = filename
-        // Close the wallpaper picker after successful change
+        
+        // Close picker on success
         manager.visible = false
+      } else {
+        console.error("[WallpaperManager] Failed to set wallpaper (exit code:", code + ")")
       }
+      
+      // Cleanup (parsers auto-destroy as children)
+      proc.destroy()
     })
     
     proc.running = true
   }
   
-  // Load wallpapers when manager becomes visible
+  // ============================================================================
+  // VISIBILITY HANDLING
+  // ============================================================================
+  
   onVisibleChanged: {
     if (visible && manager.wallpaperDir !== "") {
-      refreshWallpapers()
+      // Refresh current wallpaper when opening
+      if (!manager.currentWpProcessRunning) {
+        var homeDir = Quickshell.env("HOME")
+        var configPath = homeDir + "/.config/hypr/hyprpaper.conf"
+        currentWallpaperProcess.command[4] = configPath
+        currentWallpaperProcess.running = true
+      }
+    }
+  }
+  
+  // ============================================================================
+  // IPC HANDLERS
+  // ============================================================================
+  
+  IpcHandler {
+    target: "wallpaper"
+    
+    function toggle(): void {
+      manager.visible = !manager.visible
+    }
+    
+    function open(): void {
+      manager.visible = true
+    }
+    
+    function close(): void {
+      manager.visible = false
+    }
+    
+    function refresh(): void {
+      manager.refreshWallpapers()
     }
   }
 }

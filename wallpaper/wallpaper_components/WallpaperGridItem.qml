@@ -5,15 +5,22 @@ import "../../theme"
 Item {
   id: root
   
-  // Properties
+  // ============================================================================
+  // PUBLIC API
+  // ============================================================================
+  
   property string filename: ""
   property int itemIndex: 0
   property bool isSelected: false
   property bool isCurrent: false
   property string wallpaperPath: ""
+  property string thumbnailPath: ""
   
-  // Signal
   signal clicked()
+  
+  // ============================================================================
+  // MAIN CONTAINER
+  // ============================================================================
   
   Rectangle {
     anchors {
@@ -29,8 +36,12 @@ Item {
       return Theme.surface_container
     }
     
-    border.width: root.isCurrent ? 3 : 1
-    border.color: root.isCurrent ? Theme.primary : Theme.surface_container_high
+    border.width: root.isCurrent ? 3 : (root.isSelected ? 2 : 1)
+    border.color: {
+      if (root.isCurrent) return Theme.primary
+      if (root.isSelected) return Theme.primary
+      return Theme.surface_container_high
+    }
     
     scale: itemMouseArea.pressed ? 0.95 : 1.0
     
@@ -43,6 +54,13 @@ Item {
     
     Behavior on border.color {
       ColorAnimation {
+        duration: 200
+        easing.type: Easing.OutCubic
+      }
+    }
+    
+    Behavior on border.width {
+      NumberAnimation {
         duration: 200
         easing.type: Easing.OutCubic
       }
@@ -62,41 +80,71 @@ Item {
       }
       spacing: Theme.spacing.sm
       
-      // ========== IMAGE PREVIEW ==========
+      // ======================================================================
+      // IMAGE PREVIEW
+      // ======================================================================
+      
       Rectangle {
         id: imageContainer
         Layout.fillWidth: true
         Layout.fillHeight: true
-        Layout.margins: Theme.spacing.sm // Add margins to pull image away from edges
+        Layout.margins: Theme.spacing.sm
         radius: Theme.radius.lg
         color: Theme.surface_container_low
         clip: true
         
-        // Enable layer rendering on the container to properly clip the image
+        // Enable layer rendering for proper clipping
         layer.enabled: true
         layer.smooth: true
         
+        // ====================================================================
+        // THUMBNAIL IMAGE (try first)
+        // ====================================================================
+        
         Image {
-          id: previewImage
+          id: thumbnailImage
           anchors.fill: parent
-          anchors.margins: 0
-          source: "file://" + root.wallpaperPath
+          source: "file://" + root.thumbnailPath
           fillMode: Image.PreserveAspectCrop
           smooth: true
           cache: true
           asynchronous: true
+          visible: status === Image.Ready
           
-          // Thumbnail quality for faster loading
+          // Already sized for thumbnails
           sourceSize.width: 280
           sourceSize.height: 200
         }
         
-        // Loading indicator
+        // ====================================================================
+        // FALLBACK TO ORIGINAL (if thumbnail fails)
+        // ====================================================================
+        
+        Image {
+          id: originalImage
+          anchors.fill: parent
+          source: thumbnailImage.status === Image.Error ? "file://" + root.wallpaperPath : ""
+          fillMode: Image.PreserveAspectCrop
+          smooth: true
+          cache: true
+          asynchronous: true
+          visible: thumbnailImage.status === Image.Error && status === Image.Ready
+          
+          // Limit size for performance
+          sourceSize.width: 280
+          sourceSize.height: 200
+        }
+        
+        // ====================================================================
+        // LOADING INDICATOR
+        // ====================================================================
+        
         Item {
           anchors.centerIn: parent
           width: 48
           height: 48
-          visible: previewImage.status === Image.Loading
+          visible: thumbnailImage.status === Image.Loading || 
+                   (thumbnailImage.status === Image.Error && originalImage.status === Image.Loading)
           
           Rectangle {
             anchors.centerIn: parent
@@ -111,16 +159,27 @@ Item {
               color: Theme.on_primary_container
               font.pixelSize: Theme.typography.xl
               font.family: Theme.typography.fontFamily
+              
+              RotationAnimation on rotation {
+                running: parent.parent.visible
+                loops: Animation.Infinite
+                from: 0
+                to: 360
+                duration: 2000
+              }
             }
           }
         }
         
-        // Error indicator
+        // ====================================================================
+        // ERROR INDICATOR
+        // ====================================================================
+        
         Item {
           anchors.centerIn: parent
           width: parent.width
           height: 80
-          visible: previewImage.status === Image.Error
+          visible: thumbnailImage.status === Image.Error && originalImage.status === Image.Error
           
           ColumnLayout {
             anchors.centerIn: parent
@@ -152,7 +211,10 @@ Item {
           }
         }
         
-        // ========== CURRENT WALLPAPER BADGE ==========
+        // ====================================================================
+        // CURRENT WALLPAPER BADGE
+        // ====================================================================
+        
         Rectangle {
           anchors {
             top: parent.top
@@ -165,6 +227,23 @@ Item {
           color: Theme.primary
           visible: root.isCurrent
           
+          scale: root.isCurrent ? 1.0 : 0.8
+          opacity: root.isCurrent ? 1.0 : 0.0
+          
+          Behavior on scale {
+            NumberAnimation {
+              duration: 250
+              easing.type: Easing.OutBack
+              easing.overshoot: 2
+            }
+          }
+          
+          Behavior on opacity {
+            NumberAnimation {
+              duration: 200
+            }
+          }
+          
           Text {
             anchors.centerIn: parent
             text: "✓"
@@ -175,7 +254,10 @@ Item {
           }
         }
         
-        // ========== SELECTED INDICATOR (keyboard nav) ==========
+        // ====================================================================
+        // SELECTED INDICATOR (keyboard nav)
+        // ====================================================================
+        
         Rectangle {
           anchors {
             top: parent.top
@@ -188,6 +270,23 @@ Item {
           color: Theme.primary
           visible: root.isSelected && !root.isCurrent
           
+          scale: root.isSelected && !root.isCurrent ? 1.0 : 0.8
+          opacity: root.isSelected && !root.isCurrent ? 1.0 : 0.0
+          
+          Behavior on scale {
+            NumberAnimation {
+              duration: 250
+              easing.type: Easing.OutBack
+              easing.overshoot: 2
+            }
+          }
+          
+          Behavior on opacity {
+            NumberAnimation {
+              duration: 200
+            }
+          }
+          
           Text {
             anchors.centerIn: parent
             text: "→"
@@ -199,7 +298,10 @@ Item {
         }
       }
       
-      // ========== FILENAME ==========
+      // ======================================================================
+      // FILENAME
+      // ======================================================================
+      
       Text {
         Layout.fillWidth: true
         text: root.filename
@@ -210,7 +312,10 @@ Item {
         }
         font.pixelSize: Theme.typography.sm
         font.family: Theme.typography.fontFamily
-        font.weight: root.isCurrent || root.isSelected ? Theme.typography.weightMedium : Theme.typography.weightNormal
+        font.weight: {
+          if (root.isCurrent || root.isSelected) return Theme.typography.weightMedium
+          return Theme.typography.weightNormal
+        }
         elide: Text.ElideMiddle
         horizontalAlignment: Text.AlignHCenter
         
@@ -223,7 +328,10 @@ Item {
       }
     }
     
-    // ========== INTERACTION ==========
+    // ========================================================================
+    // INTERACTION
+    // ========================================================================
+    
     MouseArea {
       id: itemMouseArea
       anchors.fill: parent
