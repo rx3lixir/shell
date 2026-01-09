@@ -27,9 +27,9 @@ GridView {
   maximumFlickVelocity: 2000
   flickDeceleration: 1500
   
-  // Function to position view at index (exposed for keyboard nav)
-  function positionViewAtIndex(index, mode) {
-    GridView.positionViewAtIndex(index, mode)
+  // Watch for selectedIndex changes and position view accordingly
+  onSelectedIndexChanged: {
+    positionViewAtIndex(selectedIndex, GridView.Contain)
   }
   
   delegate: WallpaperGridItem {

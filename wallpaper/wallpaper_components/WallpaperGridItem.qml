@@ -64,11 +64,17 @@ Item {
       
       // ========== IMAGE PREVIEW ==========
       Rectangle {
+        id: imageContainer
         Layout.fillWidth: true
         Layout.fillHeight: true
+        Layout.margins: Theme.spacing.sm // Add margins to pull image away from edges
         radius: Theme.radius.lg
         color: Theme.surface_container_low
         clip: true
+        
+        // Enable layer rendering on the container to properly clip the image
+        layer.enabled: true
+        layer.smooth: true
         
         Image {
           id: previewImage
@@ -83,10 +89,6 @@ Item {
           // Thumbnail quality for faster loading
           sourceSize.width: 280
           sourceSize.height: 200
-          
-          // Layer rendering to respect parent clipping
-          layer.enabled: true
-          layer.smooth: true
         }
         
         // Loading indicator
