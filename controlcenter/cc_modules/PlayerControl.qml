@@ -1,4 +1,3 @@
-// controlcenter/cc_modules/PlayerControl.qml
 import QtQuick
 import QtQuick.Layouts
 import "../../components"
@@ -21,7 +20,6 @@ Card {
       // Status icon
       IconCircle {
         icon: mediaManager.playerActive ? "󰝚" : "󰝛"
-        //iconSize: mediaManager.playerActive ? 32 : 28
 
         bgColor: mediaManager.playerActive 
                  ? Theme.primary_container 

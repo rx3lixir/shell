@@ -162,7 +162,7 @@ QtObject {
     // ============================================================================
     
     readonly property QtObject component: QtObject {
-        readonly property int barHeight: 26
+        readonly property int barHeight: 24
         readonly property int workspaceIndicatorSize: 10
         readonly property int buttonHeight: 36
         readonly property int inputHeight: 40

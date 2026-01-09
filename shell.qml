@@ -61,7 +61,7 @@ ShellRoot {
   OsdDisplay {
     manager: osdManager
   }
-  
+
   // ============================================================================
   // NOTIFICATION SYSTEM
   // ============================================================================
@@ -129,7 +129,6 @@ ShellRoot {
     wallpaperManager: wallpaperManager
     powerMenuManager: powerMenuManager
     emojiManager: emojiManager
-    themeManager: themeManager
   }
   
   MenuDisplay {

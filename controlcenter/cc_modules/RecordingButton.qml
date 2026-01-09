@@ -12,9 +12,5 @@ IconButton {
   isStateful: true
   isActive: recordingManager.isRecording
   
-  // Custom error color for recording state
-  activeIconBg: Theme.error
-  activeIconColor: Theme.on_error
-  
   onClicked: recordingManager.toggleRecording()
 }
