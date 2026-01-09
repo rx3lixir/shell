@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Widgets
 import Quickshell.Wayland
 import "../theme"
+import "../components"
 import "emoji_components" as Components
 
 LazyLoader {
@@ -137,23 +138,29 @@ LazyLoader {
       }
     }
     
-    // Click outside to close
-    MouseArea {
+    // Background overlay
+    Rectangle {
       anchors.fill: parent
-      onClicked: {
-        loader.manager.visible = false
+      color: Theme.scrim
+      opacity: 0.2
+      
+      MouseArea {
+        anchors.fill: parent
+        onClicked: loader.manager.visible = false
       }
     }
     
-    // Main container - centered
+    // Main container - centered with Material 3 styling
     Rectangle {
       id: container
       x: (parent.width - 700) / 2
       y: (parent.height - 600) / 2
       width: 700
       height: 600
-      radius: Theme.radiusXLarge
-      color: Theme.bg1transparentLauncher
+      radius: 28
+      color: Theme.surface_container
+      border.width: 1
+      border.color: Qt.lighter(Theme.surface_container, 1.3)
       
       // Prevent clicks on container from closing
       MouseArea {
@@ -163,56 +170,48 @@ LazyLoader {
       ColumnLayout {
         anchors {
           fill: parent
-          margins: Theme.spacingL
+          margins: Theme.padding.xl
         }
-        spacing: Theme.spacingM
+        spacing: Theme.spacing.md
         
-        // Header
+        // ========== HEADER ==========
         RowLayout {
           Layout.fillWidth: true
-          spacing: Theme.spacingS
+          Layout.preferredHeight: 40
+          spacing: Theme.spacing.sm
           
           Text {
             Layout.fillWidth: true
+            Layout.leftMargin: Theme.padding.xs
             text: "Emoji Picker"
-            color: Theme.fg
-            font.pixelSize: Theme.fontSizeL
-            font.family: Theme.fontFamily
-            font.bold: true
+            color: Theme.on_surface
+            font.pixelSize: Theme.typography.xl
+            font.family: Theme.typography.fontFamily
+            font.weight: Theme.typography.weightMedium
           }
           
           // Close button
-          Rectangle {
-            Layout.preferredWidth: 32
-            Layout.preferredHeight: 32
-            radius: Theme.radiusLarge
-            color: closeMouseArea.containsMouse ? Theme.bg2 : "transparent"
-            
-            Text {
-              anchors.centerIn: parent
-              text: "✕"
-              color: Theme.fg
-              font.pixelSize: Theme.fontSizeM
-              font.family: Theme.fontFamily
-            }
-            
+          Text {
+            Layout.rightMargin: Theme.padding.sm
+            text: "✕"
+            color: Theme.on_surface
+            font.pixelSize: Theme.typography.lg
+            font.family: Theme.typography.fontFamily
+
             MouseArea {
               id: closeMouseArea
               anchors.fill: parent
               hoverEnabled: true
               cursorShape: Qt.PointingHandCursor
-              
-              onClicked: {
-                loader.manager.visible = false
-              }
+              onClicked: loader.manager.visible = false
             }
           }
         }
         
-        // Search bar
+        // ========== SEARCH BAR ==========
         Components.EmojiSearchBar {
           Layout.fillWidth: true
-          Layout.preferredHeight: 40
+          Layout.preferredHeight: 48
           
           onSearchChanged: text => {
             emojiWindow.searchText = text
@@ -220,7 +219,7 @@ LazyLoader {
           }
         }
         
-        // Group filter buttons (horizontal scroll)
+        // ========== GROUP FILTER ==========
         Components.EmojiGroupFilter {
           Layout.fillWidth: true
           Layout.preferredHeight: 40
@@ -233,32 +232,85 @@ LazyLoader {
           }
         }
         
-        // Loading indicator
-        Text {
+        // ========== LOADING STATE ==========
+        Item {
           Layout.fillWidth: true
-          Layout.alignment: Qt.AlignCenter
-          text: "Loading emojis..."
-          color: Theme.fgMuted
-          font.pixelSize: Theme.fontSizeM
-          font.family: Theme.fontFamily
-          horizontalAlignment: Text.AlignHCenter
+          Layout.fillHeight: true
           visible: loader.manager.isLoading
+          
+          ColumnLayout {
+            anchors.centerIn: parent
+            spacing: Theme.spacing.md
+            
+            Rectangle {
+              Layout.alignment: Qt.AlignHCenter
+              Layout.preferredWidth: 64
+              Layout.preferredHeight: 64
+              radius: Theme.radius.full
+              color: Theme.surface_container_high
+              
+              Text {
+                anchors.centerIn: parent
+                text: "󰄉"
+                color: Theme.on_surface_variant
+                font.pixelSize: Theme.typography.xxxl
+                font.family: Theme.typography.fontFamily
+                opacity: 0.6
+              }
+            }
+            
+            Text {
+              Layout.alignment: Qt.AlignHCenter
+              text: "Loading emojis..."
+              color: Theme.on_surface
+              font.pixelSize: Theme.typography.md
+              font.family: Theme.typography.fontFamily
+              font.weight: Theme.typography.weightMedium
+              opacity: 0.8
+            }
+          }
         }
         
-        // Error message
-        Text {
+        // ========== ERROR STATE ==========
+        Item {
           Layout.fillWidth: true
-          Layout.alignment: Qt.AlignCenter
-          text: loader.manager.errorMessage
-          color: Theme.error
-          font.pixelSize: Theme.fontSizeS
-          font.family: Theme.fontFamily
-          horizontalAlignment: Text.AlignHCenter
-          wrapMode: Text.WordWrap
-          visible: loader.manager.errorMessage !== ""
+          Layout.fillHeight: true
+          visible: !loader.manager.isLoading && loader.manager.errorMessage !== ""
+          
+          ColumnLayout {
+            anchors.centerIn: parent
+            spacing: Theme.spacing.md
+            
+            Rectangle {
+              Layout.alignment: Qt.AlignHCenter
+              Layout.preferredWidth: 64
+              Layout.preferredHeight: 64
+              radius: Theme.radius.full
+              color: Theme.error_container
+              
+              Text {
+                anchors.centerIn: parent
+                text: "󰀪"
+                color: Theme.on_error_container
+                font.pixelSize: Theme.typography.xxxl
+                font.family: Theme.typography.fontFamily
+              }
+            }
+            
+            Text {
+              Layout.alignment: Qt.AlignHCenter
+              Layout.maximumWidth: 600
+              text: loader.manager.errorMessage
+              color: Theme.error
+              font.pixelSize: Theme.typography.md
+              font.family: Theme.typography.fontFamily
+              horizontalAlignment: Text.AlignHCenter
+              wrapMode: Text.WordWrap
+            }
+          }
         }
         
-        // Emoji grid
+        // ========== EMOJI GRID ==========
         Components.EmojiGridView {
           id: gridView
           Layout.fillWidth: true
@@ -279,32 +331,70 @@ LazyLoader {
           }
         }
         
-        // Empty state
-        Text {
+        // ========== EMPTY STATE ==========
+        Item {
           Layout.fillWidth: true
           Layout.fillHeight: true
-          text: emojiWindow.searchText ? 
-                "No emojis match '" + emojiWindow.searchText + "'" : 
-                "No emojis found"
-          color: Theme.fgMuted
-          font.pixelSize: Theme.fontSizeM
-          font.family: Theme.fontFamily
-          horizontalAlignment: Text.AlignHCenter
-          verticalAlignment: Text.AlignVCenter
           visible: !loader.manager.isLoading && 
                    emojiWindow.filteredEmojis.length === 0 && 
                    loader.manager.errorMessage === ""
+          
+          ColumnLayout {
+            anchors.centerIn: parent
+            spacing: Theme.spacing.md
+            
+            Rectangle {
+              Layout.alignment: Qt.AlignHCenter
+              Layout.preferredWidth: 64
+              Layout.preferredHeight: 64
+              radius: Theme.radius.full
+              color: Theme.surface_container_high
+              
+              Text {
+                anchors.centerIn: parent
+                text: "󱚣"
+                color: Theme.on_surface_variant
+                font.pixelSize: Theme.typography.xxxl
+                font.family: Theme.typography.fontFamily
+                opacity: 0.6
+              }
+            }
+            
+            Text {
+              Layout.alignment: Qt.AlignHCenter
+              text: emojiWindow.searchText ? 
+                    "No emojis found" : 
+                    "No emojis available"
+              color: Theme.on_surface
+              font.pixelSize: Theme.typography.md
+              font.family: Theme.typography.fontFamily
+              font.weight: Theme.typography.weightMedium
+              opacity: 0.8
+            }
+            
+            Text {
+              Layout.alignment: Qt.AlignHCenter
+              text: emojiWindow.searchText ? 
+                    "Try a different search term" : 
+                    "Check emoji data file"
+              color: Theme.on_surface_variant
+              font.pixelSize: Theme.typography.sm
+              font.family: Theme.typography.fontFamily
+              opacity: 0.6
+            }
+          }
         }
         
-        // Footer hint
+        // ========== FOOTER WITH HINT ==========
         Text {
           Layout.fillWidth: true
-          text: "Arrow keys Navigate • Enter Copy • Esc Close"
-          color: Theme.fgMuted
-          font.pixelSize: Theme.fontSizeS
-          font.family: Theme.fontFamily
+          text: "↑↓←→ Navigate • Enter Copy • Esc Close"
+          color: Theme.on_surface_variant
+          font.pixelSize: Theme.typography.sm
+          font.family: Theme.typography.fontFamily
           horizontalAlignment: Text.AlignHCenter
-          visible: !loader.manager.isLoading
+          opacity: 0.7
+          visible: !loader.manager.isLoading && emojiWindow.filteredEmojis.length > 0
         }
       }
     }

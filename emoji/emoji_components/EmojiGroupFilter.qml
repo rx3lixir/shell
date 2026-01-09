@@ -2,20 +2,18 @@ import QtQuick
 import QtQuick.Layouts
 import "../../theme"
 
-Rectangle {
+Item {
   id: root
   
   property var groups: []
   property string selectedGroup: ""
   signal groupSelected(string group)
   
-  color: "transparent"
-  
   // Horizontal scrolling list of group buttons
   ListView {
     anchors.fill: parent
     orientation: ListView.Horizontal
-    spacing: Theme.spacingS
+    spacing: Theme.spacing.sm
     clip: true
     
     model: {
@@ -29,20 +27,48 @@ Rectangle {
       required property int index
       
       height: parent.height
-      width: groupText.width + Theme.spacingM * 2
-      radius: Theme.radiusLarge
+      width: groupText.width + Theme.padding.lg * 2
+      radius: Theme.radius.full
       
       color: {
         var isSelected = (modelData === "All" && root.selectedGroup === "") || 
                          (modelData === root.selectedGroup)
-        if (isSelected) return Theme.accent
-        if (groupMouseArea.containsMouse) return Theme.bg2transparent
-        return Theme.bg2transparent
+        if (isSelected) return Theme.primary_container
+        if (groupMouseArea.containsMouse) return Theme.surface_container_high
+        return Theme.surface_container
       }
+      
+      border.width: {
+        var isSelected = (modelData === "All" && root.selectedGroup === "") || 
+                         (modelData === root.selectedGroup)
+        return isSelected ? 2 : 1
+      }
+      
+      border.color: {
+        var isSelected = (modelData === "All" && root.selectedGroup === "") || 
+                         (modelData === root.selectedGroup)
+        return isSelected ? Theme.primary : Theme.surface_container_high
+      }
+      
+      scale: groupMouseArea.pressed ? 0.95 : 1.0
       
       Behavior on color {
         ColorAnimation {
-          duration: 150
+          duration: 200
+          easing.type: Easing.OutCubic
+        }
+      }
+      
+      Behavior on border.color {
+        ColorAnimation {
+          duration: 200
+          easing.type: Easing.OutCubic
+        }
+      }
+      
+      Behavior on scale {
+        NumberAnimation {
+          duration: 100
           easing.type: Easing.OutCubic
         }
       }
@@ -54,19 +80,19 @@ Rectangle {
         color: {
           var isSelected = (modelData === "All" && root.selectedGroup === "") || 
                            (modelData === root.selectedGroup)
-          return isSelected ? Theme.bg1 : Theme.fg
+          return isSelected ? Theme.on_primary_container : Theme.on_surface
         }
-        font.pixelSize: Theme.fontSizeS
-        font.family: Theme.fontFamily
-        font.bold: {
+        font.pixelSize: Theme.typography.sm
+        font.family: Theme.typography.fontFamily
+        font.weight: {
           var isSelected = (modelData === "All" && root.selectedGroup === "") || 
                            (modelData === root.selectedGroup)
-          return isSelected
+          return isSelected ? Theme.typography.weightMedium : Theme.typography.weightNormal
         }
         
         Behavior on color {
           ColorAnimation {
-            duration: 150
+            duration: 200
             easing.type: Easing.OutCubic
           }
         }

@@ -17,56 +17,56 @@ Item {
   Rectangle {
     anchors {
       fill: parent
-      margins: Theme.spacingXS
+      margins: Theme.spacing.xs
     }
-    radius: Theme.radiusLarge
+    radius: Theme.radius.xl
+    
     color: {
-      if (root.isSelected) return Theme.accent
-      if (itemMouseArea.containsMouse) return Theme.bg2
-      return "transparent"
+      if (root.isSelected) return Theme.primary_container
+      if (itemMouseArea.containsMouse) return Theme.surface_container_high
+      return Theme.surface_container
     }
+    
+    border.width: root.isSelected ? 2 : 1
+    border.color: root.isSelected ? Theme.primary : Theme.surface_container_high
+    
+    scale: itemMouseArea.pressed ? 0.95 : 1.0
     
     Behavior on color {
       ColorAnimation {
-        duration: 150
+        duration: 200
+        easing.type: Easing.OutCubic
+      }
+    }
+    
+    Behavior on border.color {
+      ColorAnimation {
+        duration: 200
+        easing.type: Easing.OutCubic
+      }
+    }
+    
+    Behavior on scale {
+      NumberAnimation {
+        duration: 100
         easing.type: Easing.OutCubic
       }
     }
     
     ColumnLayout {
       anchors.fill: parent
-      spacing: 2
+      spacing: Theme.spacing.xs
       
       // Emoji
       Text {
         Layout.fillWidth: true
         Layout.fillHeight: true
         text: root.emoji
-        color: Theme.fg
+        color: Theme.on_surface
         font.pixelSize: 32
-        font.family: Theme.fontFamily
+        font.family: Theme.typography.fontFamily
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-      }
-      
-      // Name tooltip on hover
-      Text {
-        Layout.fillWidth: true
-        Layout.preferredHeight: 16
-        text: root.name
-        color: root.isSelected ? Theme.bg1 : Theme.fgMuted
-        font.pixelSize: Theme.fontSizeXS
-        font.family: Theme.fontFamily
-        horizontalAlignment: Text.AlignHCenter
-        elide: Text.ElideRight
-        visible: itemMouseArea.containsMouse || root.isSelected
-        
-        Behavior on color {
-          ColorAnimation {
-            duration: 150
-            easing.type: Easing.OutCubic
-          }
-        }
       }
     }
     
