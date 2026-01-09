@@ -82,8 +82,6 @@ Scope {
     id: currentWallpaperProcess
     command: ["sh", "-c", ""]
     
-    property bool insideWallpaperBlock: false
-    
     stdout: SplitParser {
       onRead: data => {
         if (!data) return
@@ -106,8 +104,7 @@ Scope {
     
     stderr: SplitParser {
       onRead: data => {
-        if (!data) return
-        console.error("[WallpaperManager] Current wallpaper detection error:", data)
+        // Silently ignore errors for current wallpaper detection
       }
     }
   }
@@ -159,8 +156,6 @@ Scope {
         manager.currentWallpaper = filename
         // Close the wallpaper picker after successful change
         manager.visible = false
-      } else {
-        console.error("[WallpaperManager] Failed to set wallpaper, exit code:", code)
       }
     })
     

@@ -31,7 +31,6 @@ LazyLoader {
     mask: null
     
     Component.onCompleted: {
-      console.log("[WallpaperGrid] Window loaded")
       exclusiveZone = 0
     }
     
@@ -69,8 +68,6 @@ LazyLoader {
       
       // Reset selection to first item
       wallpaperWindow.selectedIndex = 0
-      
-      console.log("[WallpaperGrid] Filtered:", wallpaperWindow.filteredWallpapers.length, "wallpapers")
     }
     
     // Update filtered list when wallpapers change
@@ -95,7 +92,6 @@ LazyLoader {
           if (wallpaperWindow.selectedIndex >= 0 && 
               wallpaperWindow.selectedIndex < wallpaperWindow.filteredWallpapers.length) {
             var selected = wallpaperWindow.filteredWallpapers[wallpaperWindow.selectedIndex]
-            console.log("[WallpaperGrid] Selected via Enter:", selected)
             loader.manager.setWallpaper(selected)
           }
           event.accepted = true
@@ -135,23 +131,29 @@ LazyLoader {
       }
     }
     
-    // Click outside to close
-    MouseArea {
+    // Background overlay (same as menu/launcher)
+    Rectangle {
       anchors.fill: parent
-      onClicked: {
-        loader.manager.visible = false
+      color: Theme.scrim
+      opacity: 0.2
+      
+      MouseArea {
+        anchors.fill: parent
+        onClicked: loader.manager.visible = false
       }
     }
     
-    // Main container - centered and bigger
+    // Main container - Material 3 style
     Rectangle {
       id: container
       x: (parent.width - 900) / 2
       y: (parent.height - 700) / 2
       width: 900
       height: 700
-      radius: Theme.radiusXLarge
-      color: Theme.bg1transparentLauncher
+      radius: 28
+      color: Theme.surface_container
+      border.width: 1
+      border.color: Qt.lighter(Theme.surface_container, 1.3)
       
       // Prevent clicks on container from closing
       MouseArea {
@@ -161,37 +163,40 @@ LazyLoader {
       ColumnLayout {
         anchors {
           fill: parent
-          margins: Theme.spacingL
+          margins: Theme.padding.xl
         }
-        spacing: Theme.spacingM
+        spacing: Theme.spacing.md
         
-        // Header
+        // ========== HEADER ==========
         RowLayout {
           Layout.fillWidth: true
-          spacing: Theme.spacingS
+          Layout.preferredHeight: 40
+          spacing: Theme.spacing.sm
           
           Text {
             Layout.fillWidth: true
-            text: "Select Wallpaper"
-            color: Theme.fg
-            font.pixelSize: Theme.fontSizeL
-            font.family: Theme.fontFamily
-            font.bold: true
+            Layout.leftMargin: Theme.padding.xs
+            text: "Wallpapers"
+            color: Theme.on_surface
+            font.pixelSize: Theme.typography.xl
+            font.family: Theme.typography.fontFamily
+            font.weight: Theme.typography.weightMedium
           }
           
           // Refresh button
-          Rectangle {
+          Text {
             Layout.preferredWidth: 32
             Layout.preferredHeight: 32
-            radius: Theme.radiusLarge
-            color: refreshMouseArea.containsMouse ? Theme.bg2 : "transparent"
+            text: "󰑐"
+            color: Theme.on_surface
+            font.pixelSize: Theme.typography.lg
+            font.family: Theme.typography.fontFamily
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            opacity: refreshMouseArea.containsMouse ? 0.7 : 1
             
-            Text {
-              anchors.centerIn: parent
-              text: "󰑐"
-              color: Theme.fg
-              font.pixelSize: Theme.fontSizeL
-              font.family: Theme.fontFamily
+            Behavior on opacity {
+              NumberAnimation { duration: 200 }
             }
             
             MouseArea {
@@ -207,18 +212,16 @@ LazyLoader {
           }
           
           // Close button
-          Rectangle {
-            Layout.preferredWidth: 32
-            Layout.preferredHeight: 32
-            radius: Theme.radiusLarge
-            color: closeMouseArea.containsMouse ? Theme.bg2 : "transparent"
+          Text {
+            Layout.rightMargin: Theme.padding.sm
+            text: "✕"
+            color: Theme.on_surface
+            font.pixelSize: Theme.typography.lg
+            font.family: Theme.typography.fontFamily
+            opacity: closeMouseArea.containsMouse ? 0.7 : 1
             
-            Text {
-              anchors.centerIn: parent
-              text: "✕"
-              color: Theme.fg
-              font.pixelSize: Theme.fontSizeM
-              font.family: Theme.fontFamily
+            Behavior on opacity {
+              NumberAnimation { duration: 200 }
             }
             
             MouseArea {
@@ -234,10 +237,10 @@ LazyLoader {
           }
         }
         
-        // Search bar
+        // ========== SEARCH BAR ==========
         Components.WallpaperSearchBar {
           Layout.fillWidth: true
-          Layout.preferredHeight: 40
+          Layout.preferredHeight: 48
           
           onSearchChanged: text => {
             wallpaperWindow.searchText = text
@@ -245,32 +248,86 @@ LazyLoader {
           }
         }
         
-        // Loading indicator
-        Text {
+        // ========== LOADING INDICATOR ==========
+        Item {
           Layout.fillWidth: true
-          Layout.alignment: Qt.AlignCenter
-          text: "Loading wallpapers..."
-          color: Theme.fgMuted
-          font.pixelSize: Theme.fontSizeM
-          font.family: Theme.fontFamily
-          horizontalAlignment: Text.AlignHCenter
+          Layout.fillHeight: true
           visible: loader.manager.isLoading
+          
+          ColumnLayout {
+            anchors.centerIn: parent
+            spacing: Theme.spacing.md
+            
+            // Loading spinner icon
+            Rectangle {
+              Layout.alignment: Qt.AlignHCenter
+              Layout.preferredWidth: 64
+              Layout.preferredHeight: 64
+              radius: Theme.radius.full
+              color: Theme.surface_container_high
+              
+              Text {
+                anchors.centerIn: parent
+                text: "󰄉"
+                color: Theme.on_surface_variant
+                font.pixelSize: Theme.typography.xxxl
+                font.family: Theme.typography.fontFamily
+                opacity: 0.6
+              }
+            }
+            
+            Text {
+              Layout.alignment: Qt.AlignHCenter
+              text: "Loading wallpapers..."
+              color: Theme.on_surface
+              font.pixelSize: Theme.typography.md
+              font.family: Theme.typography.fontFamily
+              font.weight: Theme.typography.weightMedium
+              opacity: 0.8
+            }
+          }
         }
         
-        // Error message
-        Text {
+        // ========== ERROR MESSAGE ==========
+        Item {
           Layout.fillWidth: true
-          Layout.alignment: Qt.AlignCenter
-          text: loader.manager.errorMessage
-          color: Theme.error
-          font.pixelSize: Theme.fontSizeS
-          font.family: Theme.fontFamily
-          horizontalAlignment: Text.AlignHCenter
-          wrapMode: Text.WordWrap
-          visible: loader.manager.errorMessage !== ""
+          Layout.fillHeight: true
+          visible: !loader.manager.isLoading && loader.manager.errorMessage !== ""
+          
+          ColumnLayout {
+            anchors.centerIn: parent
+            spacing: Theme.spacing.md
+            
+            Rectangle {
+              Layout.alignment: Qt.AlignHCenter
+              Layout.preferredWidth: 64
+              Layout.preferredHeight: 64
+              radius: Theme.radius.full
+              color: Theme.error_container
+              
+              Text {
+                anchors.centerIn: parent
+                text: "󰀪"
+                color: Theme.on_error_container
+                font.pixelSize: Theme.typography.xxxl
+                font.family: Theme.typography.fontFamily
+              }
+            }
+            
+            Text {
+              Layout.alignment: Qt.AlignHCenter
+              Layout.maximumWidth: 600
+              text: loader.manager.errorMessage
+              color: Theme.error
+              font.pixelSize: Theme.typography.md
+              font.family: Theme.typography.fontFamily
+              horizontalAlignment: Text.AlignHCenter
+              wrapMode: Text.WordWrap
+            }
+          }
         }
         
-        // Wallpaper grid
+        // ========== WALLPAPER GRID ==========
         Components.WallpaperGridView {
           id: gridView
           Layout.fillWidth: true
@@ -284,7 +341,6 @@ LazyLoader {
           wallpaperDir: loader.manager.wallpaperDir
           
           onWallpaperSelected: filename => {
-            console.log("[WallpaperGrid] Selected via click:", filename)
             loader.manager.setWallpaper(filename)
           }
           
@@ -293,32 +349,70 @@ LazyLoader {
           }
         }
         
-        // Empty state
-        Text {
+        // ========== EMPTY STATE ==========
+        Item {
           Layout.fillWidth: true
           Layout.fillHeight: true
-          text: wallpaperWindow.searchText ? 
-                "No wallpapers match '" + wallpaperWindow.searchText + "'" : 
-                "No wallpapers found in " + loader.manager.wallpaperDir
-          color: Theme.fgMuted
-          font.pixelSize: Theme.fontSizeM
-          font.family: Theme.fontFamily
-          horizontalAlignment: Text.AlignHCenter
-          verticalAlignment: Text.AlignVCenter
           visible: !loader.manager.isLoading && 
                    wallpaperWindow.filteredWallpapers.length === 0 && 
                    loader.manager.errorMessage === ""
+          
+          ColumnLayout {
+            anchors.centerIn: parent
+            spacing: Theme.spacing.md
+            
+            Rectangle {
+              Layout.alignment: Qt.AlignHCenter
+              Layout.preferredWidth: 64
+              Layout.preferredHeight: 64
+              radius: Theme.radius.full
+              color: Theme.surface_container_high
+              
+              Text {
+                anchors.centerIn: parent
+                text: "󰸉"
+                color: Theme.on_surface_variant
+                font.pixelSize: Theme.typography.xxxl
+                font.family: Theme.typography.fontFamily
+                opacity: 0.6
+              }
+            }
+            
+            Text {
+              Layout.alignment: Qt.AlignHCenter
+              text: wallpaperWindow.searchText ? 
+                    "No wallpapers found" : 
+                    "No wallpapers available"
+              color: Theme.on_surface
+              font.pixelSize: Theme.typography.md
+              font.family: Theme.typography.fontFamily
+              font.weight: Theme.typography.weightMedium
+              opacity: 0.8
+            }
+            
+            Text {
+              Layout.alignment: Qt.AlignHCenter
+              text: wallpaperWindow.searchText ? 
+                    "Try a different search term" : 
+                    "Add wallpapers to " + loader.manager.wallpaperDir
+              color: Theme.on_surface_variant
+              font.pixelSize: Theme.typography.sm
+              font.family: Theme.typography.fontFamily
+              opacity: 0.6
+            }
+          }
         }
         
-        // Footer hint
+        // ========== FOOTER WITH HINT ==========
         Text {
           Layout.fillWidth: true
-          text: "↑↓ Navigate • ←→ Row • Ctrl+N/P • Enter Select • Esc Close"
-          color: Theme.fgMuted
-          font.pixelSize: Theme.fontSizeS
-          font.family: Theme.fontFamily
+          text: "↑↓ Navigate • ←→ Row • Enter Select • Esc Close"
+          color: Theme.on_surface_variant
+          font.pixelSize: Theme.typography.sm
+          font.family: Theme.typography.fontFamily
           horizontalAlignment: Text.AlignHCenter
-          visible: !loader.manager.isLoading
+          opacity: 0.7
+          visible: !loader.manager.isLoading && wallpaperWindow.filteredWallpapers.length > 0
         }
       }
     }
