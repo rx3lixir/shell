@@ -63,19 +63,13 @@ LazyLoader {
       }
     }
 
-    MouseArea {
-      anchors.fill: parent
-      onClicked: {
-        loader.manager.visible = false
-      }
-    }
     
     // Main container with Material 3 style
     Rectangle {
       id: background
       anchors.fill: parent
       radius: 28
-      color: Theme.surface_container
+      color: Theme.surface_container_transparent_medium
       border.width: 1
       border.color: Qt.lighter(Theme.bg1, 1.3)
       
@@ -181,7 +175,7 @@ LazyLoader {
         // ========== MEDIA PLAYER ==========
         Modules.PlayerControl {
           width: parent.width
-          height: loader.manager.media.playerActive ? 228 : 64
+          height: loader.manager.media.playerActive ? 220 : 72
           mediaManager: loader.manager.media
           
           Behavior on height {

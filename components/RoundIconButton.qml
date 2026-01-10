@@ -20,7 +20,7 @@ Rectangle {
     if (isPrimary) {
       return mouseArea.pressed ? Qt.darker(Theme.primary, 1.2) : Theme.primary
     } else {
-      return mouseArea.containsMouse ? Theme.surface_container_high : Theme.surface_container
+      return mouseArea.containsMouse ? Qt.lighter(Theme.surface_container_low, 1.3): Theme.surface_container_transparent_light
     }
   }
   
@@ -28,11 +28,6 @@ Rectangle {
   border.color: Theme.surface_container_high
   
   scale: mouseArea.pressed ? 0.88 : 1.0
-
-  Elevation {
-    target: root
-    enabled: true
-  }
   
   Behavior on color {
     ColorAnimation { duration: 150 }

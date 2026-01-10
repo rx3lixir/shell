@@ -77,15 +77,9 @@ LazyLoader {
     }
     
     // Background overlay (same as menu)
-    Rectangle {
+    MouseArea {
       anchors.fill: parent
-      color: Theme.scrim
-      opacity: 0.2
-      
-      MouseArea {
-        anchors.fill: parent
-        onClicked: loader.manager.visible = false
-      }
+      onClicked: loader.manager.visible = false
     }
     
     // Main container - Material 3 style
@@ -96,7 +90,7 @@ LazyLoader {
       width: 540
       height: 600
       radius: 28
-      color: Theme.surface_container
+      color: Theme.surface_container_transparent_medium
       border.width: 1
       border.color: Qt.lighter(Theme.surface_container, 1.3)
       

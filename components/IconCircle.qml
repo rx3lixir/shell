@@ -6,7 +6,7 @@ Rectangle {
 
   // Public API
   required property string icon
-  property color bgColor: Theme.surface_container_high
+  property color bgColor: Theme.surface_container
   property color iconColor: Theme.on_surface
   property int iconSize: Theme.typography.lg
 

@@ -1,4 +1,3 @@
-// components/Card.qml
 import QtQuick
 import "../theme"
 
@@ -14,15 +13,10 @@ Rectangle {
   default property alias contentItem: content.data
 
   radius: Theme.radius.xl
-  color: Theme.surface_container
+  color: Theme.surface_container_low_transparent_light
 
-  border.width: 2
-  border.color: Theme.surface_container_high
-
-  Elevation {
-    target: root
-    visible: true 
-  }
+  border.width: 1
+  border.color: Theme.surface_container_high_transparent_light
 
   // Content area
   Item {

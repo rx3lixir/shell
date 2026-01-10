@@ -186,15 +186,9 @@ LazyLoader {
     // BACKGROUND OVERLAY
     // ========================================================================
     
-    Rectangle {
+    MouseArea {
       anchors.fill: parent
-      color: Theme.scrim
-      opacity: 0.2
-      
-      MouseArea {
-        anchors.fill: parent
-        onClicked: loader.manager.visible = false
-      }
+      onClicked: loader.manager.visible = false
     }
     
     // ========================================================================
@@ -208,7 +202,7 @@ LazyLoader {
       width: 900
       height: 700
       radius: 28
-      color: Theme.surface_container
+      color: Theme.surface_container_transparent_medium
       border.width: 1
       border.color: Qt.lighter(Theme.surface_container, 1.3)
       

@@ -59,7 +59,7 @@ Item {
         width: 6
         height: parent.height
         radius: Theme.radius.sm
-        color: Theme.surface_container_high
+        color: Qt.lighter(Theme.surface_container_high, 1.3)
         
         // Filled portion
         Rectangle {
@@ -70,7 +70,7 @@ Item {
           }
           height: parent.height * root.value
           radius: parent.radius
-          color: root.isMuted ? Theme.outline_variant : Theme.primary
+          color: root.isMuted ? Theme.outline : Theme.primary
           
           Behavior on color {
             ColorAnimation { duration: 200 }

@@ -43,10 +43,10 @@ LazyLoader {
     
     Rectangle {
       anchors.fill: parent
-      color: Theme.surface_container
+      color: Theme.surface_container_transparent_medium
       radius: Theme.radius.xl
-      border.width: 2
-      border.color: Theme.surface_container_high
+      border.width: 1
+      border.color: Theme.surface_container_high_transparent_light
       
       // Hover detection for the whole OSD
       MouseArea {

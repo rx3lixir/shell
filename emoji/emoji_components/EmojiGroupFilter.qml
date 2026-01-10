@@ -38,18 +38,6 @@ Item {
         return Theme.surface_container
       }
       
-      border.width: {
-        var isSelected = (modelData === "All" && root.selectedGroup === "") || 
-                         (modelData === root.selectedGroup)
-        return isSelected ? 2 : 1
-      }
-      
-      border.color: {
-        var isSelected = (modelData === "All" && root.selectedGroup === "") || 
-                         (modelData === root.selectedGroup)
-        return isSelected ? Theme.primary : Theme.surface_container_high
-      }
-      
       scale: groupMouseArea.pressed ? 0.95 : 1.0
       
       Behavior on color {

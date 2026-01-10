@@ -23,9 +23,6 @@ Scope {
   // Reference to emoji manager (for the Emoji item)
   required property var emojiManager
   
-  // Reference to theme manager (for the Themes item) - NEW
-  required property var themeManager
-  
   onVisibleChanged: {
     if (visible) {
       searchText = "" // Reset search when opening

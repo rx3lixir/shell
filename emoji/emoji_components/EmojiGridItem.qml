@@ -27,9 +27,6 @@ Item {
       return Theme.surface_container
     }
     
-    border.width: root.isSelected ? 2 : 1
-    border.color: root.isSelected ? Theme.primary : Theme.surface_container_high
-    
     scale: itemMouseArea.pressed ? 0.95 : 1.0
     
     Behavior on color {

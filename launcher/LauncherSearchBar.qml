@@ -11,7 +11,7 @@ Rectangle {
   radius: Theme.radius.full
   color: Theme.surface_container
 
-  border.width: 2
+  border.width: 1
   border.color: Theme.surface_container_high
 
   Elevation {

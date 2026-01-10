@@ -23,16 +23,10 @@ Rectangle {
   
   // ========== APPEARANCE ==========
   radius: Theme.radius.xxl
-  color: Theme.surface_container
+  color: Theme.surface_container_low_transparent_light
 
   border.width: 1
-  border.color: Theme.surface_container_high
-  
-  // Elevation shadow
-  Elevation {
-    target: root
-    enabled: true 
-  }
+  border.color: Theme.surface_container_high_transparent_light
   
   // ========== ANIMATIONS ==========
   Behavior on color {

@@ -22,7 +22,7 @@ PanelWindow {
 
   Rectangle {
     anchors.fill: parent
-    color: Theme.surface_container
+    color: "transparent"
     radius: 0
     
     RowLayout {

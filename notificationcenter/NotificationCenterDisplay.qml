@@ -58,7 +58,7 @@ LazyLoader {
       id: background
       anchors.fill: parent
       radius: Theme.radius.xl
-      color: Theme.surface_container
+      color: Theme.surface_container_transparent_medium
       border.width: 1
       border.color: Qt.lighter(Theme.bg1, 1.3)
 
@@ -347,12 +347,12 @@ LazyLoader {
                 Layout.preferredWidth: 64
                 Layout.preferredHeight: 64
                 radius: Theme.radius.full
-                color: Theme.surface_container_high
+                color: Theme.surface_container_transparent_medium
 
                 Text {
                   anchors.centerIn: parent
                   text: "󰂚"
-                  color: Theme.on_surface_variant
+                  color: Theme.on_surface
                   font.pixelSize: Theme.typography.xxxl
                   font.family: Theme.typography.fontFamily
                   opacity: 0.6
